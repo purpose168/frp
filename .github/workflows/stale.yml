@@ -1,35 +1,35 @@
-name: "Close stale issues and PRs"
+name: "关闭陈旧的Issues和PRs"
 on:
   schedule:
-  - cron: "20 0 * * *"
+  - cron: "20 0 * * *"  # 每天UTC时间0点20分自动运行
   workflow_dispatch:
     inputs:
       debug-only:
-        description: 'In debug mod'
+        description: '调试模式'  # 仅运行调试模式，不实际修改Issues/PRs
         required: false
         default: 'false'
 permissions:
-  contents: read
+  contents: read  # 读取仓库内容权限
 
 jobs:
   stale:
     permissions:
-      issues: write  # for actions/stale to close stale issues
-      pull-requests: write  # for actions/stale to close stale PRs
+      issues: write  # 允许actions/stale关闭陈旧Issues
+      pull-requests: write  # 允许actions/stale关闭陈旧PRs
       actions: write
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # 在最新版Ubuntu系统上运行
     steps:
-    - uses: actions/stale@v9
+    - uses: actions/stale@v9  # 使用stale官方Action
       with:
-        stale-issue-message: 'Issues go stale after 14d of inactivity. Stale issues rot after an additional 3d of inactivity and eventually close.'
-        stale-pr-message: "PRs go stale after 14d of inactivity. Stale PRs rot after an additional 3d of inactivity and eventually close."
-        stale-issue-label: 'lifecycle/stale'
-        exempt-issue-labels: 'bug,doc,enhancement,future,proposal,question,testing,todo,easy,help wanted,assigned'
-        stale-pr-label: 'lifecycle/stale'
-        exempt-pr-labels: 'bug,doc,enhancement,future,proposal,question,testing,todo,easy,help wanted,assigned'
-        days-before-stale: 14
-        days-before-close: 3
-        debug-only: ${{ github.event.inputs.debug-only }}
-        exempt-all-pr-milestones: true
-        exempt-all-pr-assignees: true
-        operations-per-run: 200
+        stale-issue-message: 'Issue在14天无活动后变为陈旧状态。陈旧Issue在额外3天无活动后将自动关闭。'
+        stale-pr-message: "PR在14天无活动后变为陈旧状态。陈旧PR在额外3天无活动后将自动关闭。"
+        stale-issue-label: 'lifecycle/stale'  # 标记陈旧Issue的标签
+        exempt-issue-labels: 'bug,doc,enhancement,future,proposal,question,testing,todo,easy,help wanted,assigned'  # 豁免的Issue标签
+        stale-pr-label: 'lifecycle/stale'  # 标记陈旧PR的标签
+        exempt-pr-labels: 'bug,doc,enhancement,future,proposal,question,testing,todo,easy,help wanted,assigned'  # 豁免的PR标签
+        days-before-stale: 14  # 14天无活动标记为陈旧
+        days-before-close: 3  # 陈旧后3天自动关闭
+        debug-only: ${{ github.event.inputs.debug-only }}  # 调试模式参数
+        exempt-all-pr-milestones: true  # 豁免所有有里程碑的PR
+        exempt-all-pr-assignees: true  # 豁免所有有负责人的PR
+        operations-per-run: 200  # 每次运行最多处理200个操作

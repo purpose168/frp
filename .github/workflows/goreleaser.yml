@@ -1,38 +1,39 @@
-name: goreleaser
+name: goreleaser  # 工作流名称：goreleaser发布
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:  # 手动触发工作流
 
 jobs:
   goreleaser:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # 在最新版Ubuntu系统上运行
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: 检出代码
+        uses: actions/checkout@v4  # 检出仓库代码
         with:
-          fetch-depth: 0
+          fetch-depth: 0  # 拉取完整的提交历史
 
-      - name: Set up Go
-        uses: actions/setup-go@v5
+      - name: 设置Go环境
+        uses: actions/setup-go@v5  # 配置Go开发环境
         with:
-          go-version: '1.24'
-      - uses: actions/setup-node@v4
+          go-version: '1.24'  # Go版本1.24
+      - name: 设置Node.js环境
+        uses: actions/setup-node@v4  # 配置Node.js开发环境
         with:
-          node-version: '22'
-      - name: Build web assets (frps)
-        run: make install build
-        working-directory: web/frps
-      - name: Build web assets (frpc)
-        run: make install build
-        working-directory: web/frpc
-      - name: Make All
+          node-version: '22'  # Node.js版本22
+      - name: 构建Web资源(frps)
+        run: make install build  # 安装依赖并构建frps前端
+        working-directory: web/frps  # 工作目录：web/frps
+      - name: 构建Web资源(frpc)
+        run: make install build  # 安装依赖并构建frpc前端
+        working-directory: web/frpc  # 工作目录：web/frpc
+      - name: 执行全量构建
         run: |
-          ./package.sh
+          ./package.sh  # 运行打包脚本
 
-      - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v6
+      - name: 运行GoReleaser
+        uses: goreleaser/goreleaser-action@v6  # 使用GoReleaser官方Action
         with:
-          version: latest
-          args: release --clean --release-notes=./Release.md
+          version: latest  # 使用最新版GoReleaser
+          args: release --clean --release-notes=./Release.md  # 发布参数：清理旧版本并使用Release.md作为发布说明
         env:
-          GITHUB_TOKEN: ${{ secrets.GPR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GPR_TOKEN }}  # 环境变量：GitHub令牌
