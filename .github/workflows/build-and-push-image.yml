@@ -33,9 +33,9 @@ jobs:
       - name: 获取镜像标签名称
         run: |
           if [ x${{ github.event.inputs.tag }} == x"" ]; then
-            echo "TAG_NAME=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV  # 如果没有手动输入标签，则使用 GitHub 发布的标签
+            echo "TAG_NAME=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
           else
-            echo "TAG_NAME=${{ github.event.inputs.tag }}" >> $GITHUB_ENV  # 使用手动输入的标签
+            echo "TAG_NAME=${{ github.event.inputs.tag }}" >> $GITHUB_ENV
           fi
       - name: 登录 DockerHub
         uses: docker/login-action@v3
@@ -68,8 +68,8 @@ jobs:
           platforms: linux/amd64,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x  # 支持的架构
           push: true  # 推送镜像到仓库
           tags: |
-            ${{ env.TAG_FRPC }}  # DockerHub 标签
-            ${{ env.TAG_FRPC_GPR }}  # GPR 标签
+            ${{ env.TAG_FRPC }}
+            ${{ env.TAG_FRPC_GPR }}
 
       - name: 构建并推送 frps 镜像
         uses: docker/build-push-action@v5
@@ -79,5 +79,5 @@ jobs:
           platforms: linux/amd64,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x  # 支持的架构
           push: true  # 推送镜像到仓库
           tags: |
-            ${{ env.TAG_FRPS }}  # DockerHub 标签
-            ${{ env.TAG_FRPS_GPR }}  # GPR 标签
+            ${{ env.TAG_FRPS }}
+            ${{ env.TAG_FRPS_GPR }}
