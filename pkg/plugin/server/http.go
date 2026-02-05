@@ -29,16 +29,20 @@ import (
 	v1 "github.com/fatedier/frp/pkg/config/v1"
 )
 
+// httpPlugin HTTP插件
 type httpPlugin struct {
+	// options 插件选项
 	options v1.HTTPPluginOptions
 
-	url    string
+	// url URL地址
+	url string
+	// client HTTP客户端
 	client *http.Client
 }
 
+// NewHTTPPluginOptions 创建HTTP插件选项
 func NewHTTPPluginOptions(options v1.HTTPPluginOptions) Plugin {
 	url := fmt.Sprintf("%s%s", options.Addr, options.Path)
-
 	var client *http.Client
 	if strings.HasPrefix(url, "https://") {
 		tr := &http.Transport{
@@ -59,10 +63,12 @@ func NewHTTPPluginOptions(options v1.HTTPPluginOptions) Plugin {
 	}
 }
 
+// Name 返回插件名称
 func (p *httpPlugin) Name() string {
 	return p.options.Name
 }
 
+// IsSupport 检查是否支持指定操作
 func (p *httpPlugin) IsSupport(op string) bool {
 	for _, v := range p.options.Ops {
 		if v == op {
@@ -72,6 +78,7 @@ func (p *httpPlugin) IsSupport(op string) bool {
 	return false
 }
 
+// Handle 处理操作
 func (p *httpPlugin) Handle(ctx context.Context, op string, content any) (*Response, any, error) {
 	r := &Request{
 		Version: APIVersion,
@@ -86,6 +93,7 @@ func (p *httpPlugin) Handle(ctx context.Context, op string, content any) (*Respo
 	return &res, res.Content, nil
 }
 
+// do 执行HTTP请求
 func (p *httpPlugin) do(ctx context.Context, r *Request, res *Response) error {
 	buf, err := json.Marshal(r)
 	if err != nil {
@@ -106,9 +114,8 @@ func (p *httpPlugin) do(ctx context.Context, r *Request, res *Response) error {
 		return err
 	}
 	defer resp.Body.Close()
-
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("do http request error code: %d", resp.StatusCode)
+		return fmt.Errorf("HTTP请求错误，状态码: %d", resp.StatusCode)
 	}
 	buf, err = io.ReadAll(resp.Body)
 	if err != nil {

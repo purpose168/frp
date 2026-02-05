@@ -11,36 +11,63 @@ import (
 )
 
 const (
-	MinPort                    = 1
-	MaxPort                    = 65535
-	MaxPortReservedDuration    = time.Duration(24) * time.Hour
+	// MinPort 最小可用端口
+	MinPort = 1
+	// MaxPort 最大可用端口
+	MaxPort = 65535
+	// MaxPortReservedDuration 端口最大保留时间
+	// 超过这个时间未使用的保留端口将被清理
+	MaxPortReservedDuration = time.Duration(24) * time.Hour
+	// CleanReservedPortsInterval 清理保留端口的时间间隔
 	CleanReservedPortsInterval = time.Hour
 )
 
 var (
-	ErrPortAlreadyUsed = errors.New("port already used")
-	ErrPortNotAllowed  = errors.New("port not allowed")
-	ErrPortUnAvailable = errors.New("port unavailable")
-	ErrNoAvailablePort = errors.New("no available port")
+	// ErrPortAlreadyUsed 端口已被使用
+	ErrPortAlreadyUsed = errors.New("端口已被使用")
+	// ErrPortNotAllowed 端口不被允许使用
+	ErrPortNotAllowed = errors.New("端口不被允许使用")
+	// ErrPortUnAvailable 端口不可用
+	ErrPortUnAvailable = errors.New("端口不可用")
+	// ErrNoAvailablePort 没有可用端口
+	ErrNoAvailablePort = errors.New("没有可用端口")
 )
 
+// PortCtx 端口上下文信息
+// 记录端口的使用情况和相关信息
 type PortCtx struct {
-	ProxyName  string
-	Port       int
-	Closed     bool
+	// ProxyName 代理名称
+	ProxyName string
+	// Port 端口号
+	Port int
+	// Closed 端口是否已关闭
+	Closed bool
+	// UpdateTime 端口信息最后更新时间
 	UpdateTime time.Time
 }
 
+// Manager 端口管理器
+// 负责管理端口的分配、释放和清理
 type Manager struct {
+	// reservedPorts 保留的端口，键为代理名称
 	reservedPorts map[string]*PortCtx
-	usedPorts     map[int]*PortCtx
-	freePorts     map[int]struct{}
+	// usedPorts 正在使用的端口，键为端口号
+	usedPorts map[int]*PortCtx
+	// freePorts 可用的端口，键为端口号
+	freePorts map[int]struct{}
 
+	// bindAddr 绑定地址
 	bindAddr string
-	netType  string
-	mu       sync.Mutex
+	// netType 网络类型，如"tcp"或"udp"
+	netType string
+	// mu 保护并发访问
+	mu sync.Mutex
 }
 
+// NewManager 创建一个新的端口管理器
+// 参数netType是网络类型，如"tcp"或"udp"
+// 参数bindAddr是绑定地址
+// 参数allowPorts是允许使用的端口范围
 func NewManager(netType string, bindAddr string, allowPorts []types.PortsRange) *Manager {
 	pm := &Manager{
 		reservedPorts: make(map[string]*PortCtx),
@@ -68,6 +95,10 @@ func NewManager(netType string, bindAddr string, allowPorts []types.PortsRange) 
 	return pm
 }
 
+// Acquire 分配一个端口
+// 参数name是代理名称
+// 参数port是请求的端口号，0表示随机分配
+// 返回值是实际分配的端口号和可能的错误
 func (pm *Manager) Acquire(name string, port int) (realPort int, err error) {
 	portCtx := &PortCtx{
 		ProxyName:  name,
@@ -85,7 +116,7 @@ func (pm *Manager) Acquire(name string, port int) (realPort int, err error) {
 		pm.mu.Unlock()
 	}()
 
-	// check reserved ports first
+	// 首先检查保留的端口
 	if port == 0 {
 		if ctx, ok := pm.reservedPorts[name]; ok {
 			if pm.isPortAvailable(ctx.Port) {
@@ -99,7 +130,7 @@ func (pm *Manager) Acquire(name string, port int) (realPort int, err error) {
 	}
 
 	if port == 0 {
-		// get random port
+		// 随机获取一个端口
 		count := 0
 		maxTryTimes := 5
 		for k := range pm.freePorts {
@@ -119,7 +150,7 @@ func (pm *Manager) Acquire(name string, port int) (realPort int, err error) {
 			err = ErrNoAvailablePort
 		}
 	} else {
-		// specified port
+		// 指定端口
 		if _, ok = pm.freePorts[port]; ok {
 			if pm.isPortAvailable(port) {
 				realPort = port
@@ -140,6 +171,9 @@ func (pm *Manager) Acquire(name string, port int) (realPort int, err error) {
 	return
 }
 
+// isPortAvailable 检查端口是否可用
+// 参数port是要检查的端口号
+// 返回值是端口是否可用
 func (pm *Manager) isPortAvailable(port int) bool {
 	if pm.netType == "udp" {
 		addr, err := net.ResolveUDPAddr("udp", net.JoinHostPort(pm.bindAddr, strconv.Itoa(port)))
@@ -162,6 +196,8 @@ func (pm *Manager) isPortAvailable(port int) bool {
 	return true
 }
 
+// Release 释放一个端口
+// 参数port是要释放的端口号
 func (pm *Manager) Release(port int) {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -173,7 +209,8 @@ func (pm *Manager) Release(port int) {
 	}
 }
 
-// Release reserved port if it isn't used in last 24 hours.
+// cleanReservedPortsWorker 清理保留端口的工作协程
+// 如果保留端口在过去24小时内未使用，则释放该端口
 func (pm *Manager) cleanReservedPortsWorker() {
 	for {
 		time.Sleep(CleanReservedPortsInterval)

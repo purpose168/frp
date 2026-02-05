@@ -28,13 +28,19 @@ func init() {
 	Register(v1.PluginVirtualNet, NewVirtualNetPlugin)
 }
 
+// VirtualNetPlugin 虚拟网络插件
 type VirtualNetPlugin struct {
+	// pluginCtx 插件上下文
 	pluginCtx PluginContext
-	opts      *v1.VirtualNetPluginOptions
-	mu        sync.Mutex
-	conns     map[io.ReadWriteCloser]struct{}
+	// opts 插件选项
+	opts *v1.VirtualNetPluginOptions
+	// mu 互斥锁
+	mu sync.Mutex
+	// conns 连接映射
+	conns map[io.ReadWriteCloser]struct{}
 }
 
+// NewVirtualNetPlugin 创建虚拟网络插件
 func NewVirtualNetPlugin(pluginCtx PluginContext, options v1.ClientPluginOptions) (Plugin, error) {
 	opts := options.(*v1.VirtualNetPluginOptions)
 
@@ -45,14 +51,15 @@ func NewVirtualNetPlugin(pluginCtx PluginContext, options v1.ClientPluginOptions
 	return p, nil
 }
 
+// Handle 处理连接
 func (p *VirtualNetPlugin) Handle(ctx context.Context, connInfo *ConnectionInfo) {
-	// Verify if virtual network controller is available
+	// 验证虚拟网络控制器是否可用
 	if p.pluginCtx.VnetController == nil {
 		return
 	}
 
-	// Add the connection before starting the read loop to avoid race condition
-	// where RemoveConn might be called before the connection is added.
+	// 在启动读取循环之前添加连接，以避免竞态条件
+	// 即RemoveConn可能在连接添加之前被调用
 	p.mu.Lock()
 	if p.conns == nil {
 		p.conns = make(map[io.ReadWriteCloser]struct{})
@@ -60,30 +67,33 @@ func (p *VirtualNetPlugin) Handle(ctx context.Context, connInfo *ConnectionInfo)
 	p.conns[connInfo.Conn] = struct{}{}
 	p.mu.Unlock()
 
-	// Register the connection with the controller and pass the cleanup function
+	// 向控制器注册连接并传递清理函数
 	p.pluginCtx.VnetController.StartServerConnReadLoop(ctx, connInfo.Conn, func() {
 		p.RemoveConn(connInfo.Conn)
 	})
 }
 
+// RemoveConn 移除连接
 func (p *VirtualNetPlugin) RemoveConn(conn io.ReadWriteCloser) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
-	// Check if the map exists, as Close might have set it to nil concurrently
+	// 检查映射是否存在，因为Close可能并发地将其设置为nil
 	if p.conns != nil {
 		delete(p.conns, conn)
 	}
 }
 
+// Name 返回插件名称
 func (p *VirtualNetPlugin) Name() string {
 	return v1.PluginVirtualNet
 }
 
+// Close 关闭插件
 func (p *VirtualNetPlugin) Close() error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
-	// Close any remaining connections
+	// 关闭所有剩余的连接
 	for conn := range p.conns {
 		_ = conn.Close()
 	}

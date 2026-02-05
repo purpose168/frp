@@ -12,6 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// 版权所有 2023 The frp Authors
+//
+// 根据 Apache 许可证 2.0 版本（"许可证"）授权；
+// 除非遵守许可证，否则您不得使用此文件。
+// 您可以在以下位置获取许可证副本：
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// 除非适用法律要求或书面同意，否则根据许可证分发的软件
+// 是按"原样"基础分发的，不附带任何明示或暗示的担保或条件。
+// 有关许可证下特定语言的管理权限和限制，请参阅许可证。
+
 package legacy
 
 import (
@@ -36,7 +48,7 @@ const (
 	ProxyTypeSUDP   ProxyType = "sudp"
 )
 
-// Proxy
+// 代理
 var (
 	proxyConfTypeMap = map[ProxyType]reflect.Type{
 		ProxyTypeTCP:    reflect.TypeOf(TCPProxyConf{}),
@@ -51,10 +63,9 @@ var (
 )
 
 type ProxyConf interface {
-	// GetBaseConfig returns the BaseProxyConf for this config.
+	// GetBaseConfig 返回此配置的 BaseProxyConf。
 	GetBaseConfig() *BaseProxyConf
-	// UnmarshalFromIni unmarshals a ini.Section into this config. This function
-	// will be called on the frpc side.
+	// UnmarshalFromIni 将 ini.Section 解组到此配置。此函数将在 frpc 端调用。
 	UnmarshalFromIni(string, string, *ini.Section) error
 }
 
@@ -67,16 +78,16 @@ func NewConfByType(proxyType ProxyType) ProxyConf {
 	return cfg
 }
 
-// Proxy Conf Loader
-// DefaultProxyConf creates a empty ProxyConf object by proxyType.
-// If proxyType doesn't exist, return nil.
+// 代理配置加载器
+// DefaultProxyConf 通过 proxyType 创建一个空的 ProxyConf 对象。
+// 如果 proxyType 不存在，则返回 nil。
 func DefaultProxyConf(proxyType ProxyType) ProxyConf {
 	return NewConfByType(proxyType)
 }
 
-// Proxy loaded from ini
+// 从 ini 加载的代理
 func NewProxyConfFromIni(prefix, name string, section *ini.Section) (ProxyConf, error) {
-	// section.Key: if key not exists, section will set it with default value.
+	// section.Key: 如果键不存在，section 将使用默认值设置它。
 	proxyType := ProxyType(section.Key("type").String())
 	if proxyType == "" {
 		proxyType = ProxyTypeTCP
@@ -84,7 +95,7 @@ func NewProxyConfFromIni(prefix, name string, section *ini.Section) (ProxyConf, 
 
 	conf := DefaultProxyConf(proxyType)
 	if conf == nil {
-		return nil, fmt.Errorf("invalid type [%s]", proxyType)
+		return nil, fmt.Errorf("无效的类型 [%s]", proxyType)
 	}
 
 	if err := conf.UnmarshalFromIni(prefix, name, section); err != nil {
@@ -93,93 +104,82 @@ func NewProxyConfFromIni(prefix, name string, section *ini.Section) (ProxyConf, 
 	return conf, nil
 }
 
-// LocalSvrConf configures what location the client will to, or what
-// plugin will be used.
+// LocalSvrConf 配置客户端将连接到的位置，或将使用的插件。
 type LocalSvrConf struct {
-	// LocalIP specifies the IP address or host name to to.
+	// LocalIP 指定要连接的 IP 地址或主机名。
 	LocalIP string `ini:"local_ip" json:"local_ip"`
-	// LocalPort specifies the port to to.
+	// LocalPort 指定要连接的端口。
 	LocalPort int `ini:"local_port" json:"local_port"`
 
-	// Plugin specifies what plugin should be used for ng. If this value
-	// is set, the LocalIp and LocalPort values will be ignored. By default,
-	// this value is "".
+	// Plugin 指定应使用什么插件。如果设置了此值，则将忽略 LocalIp 和 LocalPort 值。
+	// 默认情况下，此值为 ""。
 	Plugin string `ini:"plugin" json:"plugin"`
-	// PluginParams specify parameters to be passed to the plugin, if one is
-	// being used. By default, this value is an empty map.
+	// PluginParams 指定要传递给插件的参数（如果正在使用插件）。
+	// 默认情况下，此值为空映射。
 	PluginParams map[string]string `ini:"-"`
 }
 
-// HealthCheckConf configures health checking. This can be useful for load
-// balancing purposes to detect and remove proxies to failing services.
+// HealthCheckConf 配置健康检查。这对于负载平衡目的很有用，可以检测并删除到失败服务的代理。
 type HealthCheckConf struct {
-	// HealthCheckType specifies what protocol to use for health checking.
-	// Valid values include "tcp", "http", and "". If this value is "", health
-	// checking will not be performed. By default, this value is "".
+	// HealthCheckType 指定用于健康检查的协议。
+	// 有效值包括 "tcp"、"http" 和 ""。如果此值为 ""，则不会执行健康检查。
+	// 默认情况下，此值为 ""。
 	//
-	// If the type is "tcp", a connection will be attempted to the target
-	// server. If a connection cannot be established, the health check fails.
+	// 如果类型为 "tcp"，将尝试连接到目标服务器。如果无法建立连接，则健康检查失败。
 	//
-	// If the type is "http", a GET request will be made to the endpoint
-	// specified by HealthCheckURL. If the response is not a 200, the health
-	// check fails.
+	// 如果类型为 "http"，将向 HealthCheckURL 指定的端点发出 GET 请求。
+	// 如果响应不是 200，则健康检查失败。
 	HealthCheckType string `ini:"health_check_type" json:"health_check_type"` // tcp | http
-	// HealthCheckTimeoutS specifies the number of seconds to wait for a health
-	// check attempt to connect. If the timeout is reached, this counts as a
-	// health check failure. By default, this value is 3.
+	// HealthCheckTimeoutS 指定等待健康检查尝试连接的秒数。
+	// 如果达到超时，则计为健康检查失败。默认情况下，此值为 3。
 	HealthCheckTimeoutS int `ini:"health_check_timeout_s" json:"health_check_timeout_s"`
-	// HealthCheckMaxFailed specifies the number of allowed failures before the
-	// is stopped. By default, this value is 1.
+	// HealthCheckMaxFailed 指定停止之前允许的失败次数。
+	// 默认情况下，此值为 1。
 	HealthCheckMaxFailed int `ini:"health_check_max_failed" json:"health_check_max_failed"`
-	// HealthCheckIntervalS specifies the time in seconds between health
-	// checks. By default, this value is 10.
+	// HealthCheckIntervalS 指定健康检查之间的时间（以秒为单位）。
+	// 默认情况下，此值为 10。
 	HealthCheckIntervalS int `ini:"health_check_interval_s" json:"health_check_interval_s"`
-	// HealthCheckURL specifies the address to send health checks to if the
-	// health check type is "http".
+	// HealthCheckURL 指定如果健康检查类型为 "http" 时发送健康检查的地址。
 	HealthCheckURL string `ini:"health_check_url" json:"health_check_url"`
-	// HealthCheckAddr specifies the address to connect to if the health check
-	// type is "tcp".
+	// HealthCheckAddr 指定如果健康检查类型为 "tcp" 时连接的地址。
 	HealthCheckAddr string `ini:"-"`
 }
 
-// BaseProxyConf provides configuration info that is common to all types.
+// BaseProxyConf 提供所有类型通用的配置信息。
 type BaseProxyConf struct {
-	// ProxyName is the name of this
+	// ProxyName 是此代理的名称
 	ProxyName string `ini:"name" json:"name"`
-	// ProxyType specifies the type of this  Valid values include "tcp",
-	// "udp", "http", "https", "stcp", and "xtcp". By default, this value is
-	// "tcp".
+	// ProxyType 指定此代理的类型。有效值包括 "tcp"、"udp"、"http"、"https"、"stcp" 和 "xtcp"。
+	// 默认情况下，此值为 "tcp"。
 	ProxyType string `ini:"type" json:"type"`
 
-	// UseEncryption controls whether or not communication with the server will
-	// be encrypted. Encryption is done using the tokens supplied in the server
-	// and client configuration. By default, this value is false.
+	// UseEncryption 控制是否加密与服务器的通信。
+	// 加密使用服务器和客户端配置中提供的令牌完成。
+	// 默认情况下，此值为 false。
 	UseEncryption bool `ini:"use_encryption" json:"use_encryption"`
-	// UseCompression controls whether or not communication with the server
-	// will be compressed. By default, this value is false.
+	// UseCompression 控制是否压缩与服务器的通信。
+	// 默认情况下，此值为 false。
 	UseCompression bool `ini:"use_compression" json:"use_compression"`
-	// Group specifies which group the is a part of. The server will use
-	// this information to load balance proxies in the same group. If the value
-	// is "", this will not be in a group. By default, this value is "".
+	// Group 指定此代理所属的组。服务器将使用此信息对同一组中的代理进行负载平衡。
+	// 如果值为 ""，则不会在组中。默认情况下，此值为 ""。
 	Group string `ini:"group" json:"group"`
-	// GroupKey specifies a group key, which should be the same among proxies
-	// of the same group. By default, this value is "".
+	// GroupKey 指定组密钥，该密钥在同一组的代理之间应该相同。
+	// 默认情况下，此值为 ""。
 	GroupKey string `ini:"group_key" json:"group_key"`
 
-	// ProxyProtocolVersion specifies which protocol version to use. Valid
-	// values include "v1", "v2", and "". If the value is "", a protocol
-	// version will be automatically selected. By default, this value is "".
+	// ProxyProtocolVersion 指定要使用的协议版本。
+	// 有效值包括 "v1"、"v2" 和 ""。如果值为 ""，则将自动选择协议版本。
+	// 默认情况下，此值为 ""。
 	ProxyProtocolVersion string `ini:"proxy_protocol_version" json:"proxy_protocol_version"`
 
-	// BandwidthLimit limit the bandwidth
-	// 0 means no limit
+	// BandwidthLimit 限制带宽
+	// 0 表示无限制
 	BandwidthLimit types.BandwidthQuantity `ini:"bandwidth_limit" json:"bandwidth_limit"`
-	// BandwidthLimitMode specifies whether to limit the bandwidth on the
-	// client or server side. Valid values include "client" and "server".
-	// By default, this value is "client".
+	// BandwidthLimitMode 指定是在客户端还是服务器端限制带宽。
+	// 有效值包括 "client" 和 "server"。默认情况下，此值为 "client"。
 	BandwidthLimitMode string `ini:"bandwidth_limit_mode" json:"bandwidth_limit_mode"`
 
-	// meta info for each proxy
+	// 每个代理的元信息
 	Metas map[string]string `ini:"-" json:"metas"`
 
 	LocalSvrConf    `ini:",extends"`
@@ -191,7 +191,7 @@ func (cfg *BaseProxyConf) GetBaseConfig() *BaseProxyConf {
 	return cfg
 }
 
-// BaseProxyConf apply custom logic changes.
+// BaseProxyConf 应用自定义逻辑更改。
 func (cfg *BaseProxyConf) decorate(_ string, name string, section *ini.Section) error {
 	cfg.ProxyName = name
 	// metas_xxx
@@ -240,7 +240,7 @@ func (cfg *HTTPProxyConf) UnmarshalFromIni(prefix string, name string, section *
 		return err
 	}
 
-	// Add custom logic unmarshal if exists
+	// 添加自定义逻辑解组（如果存在）
 	cfg.Headers = GetMapWithoutPrefix(section.KeysHash(), "header_")
 	return nil
 }
@@ -257,7 +257,7 @@ func (cfg *HTTPSProxyConf) UnmarshalFromIni(prefix string, name string, section 
 		return err
 	}
 
-	// Add custom logic unmarshal if exists
+	// 添加自定义逻辑解组（如果存在）
 	return nil
 }
 
@@ -273,7 +273,7 @@ func (cfg *TCPProxyConf) UnmarshalFromIni(prefix string, name string, section *i
 		return err
 	}
 
-	// Add custom logic unmarshal if exists
+	// 添加自定义逻辑解组（如果存在）
 
 	return nil
 }
@@ -291,7 +291,7 @@ func (cfg *UDPProxyConf) UnmarshalFromIni(prefix string, name string, section *i
 		return err
 	}
 
-	// Add custom logic unmarshal if exists
+	// 添加自定义逻辑解组（如果存在）
 
 	return nil
 }
@@ -313,7 +313,7 @@ func (cfg *TCPMuxProxyConf) UnmarshalFromIni(prefix string, name string, section
 		return err
 	}
 
-	// Add custom logic unmarshal if exists
+	// 添加自定义逻辑解组（如果存在）
 
 	return nil
 }
@@ -330,7 +330,7 @@ func (cfg *STCPProxyConf) UnmarshalFromIni(prefix string, name string, section *
 		return err
 	}
 
-	// Add custom logic unmarshal if exists
+	// 添加自定义逻辑解组（如果存在）
 	if cfg.Role == "" {
 		cfg.Role = "server"
 	}
@@ -349,7 +349,7 @@ func (cfg *XTCPProxyConf) UnmarshalFromIni(prefix string, name string, section *
 		return err
 	}
 
-	// Add custom logic unmarshal if exists
+	// 添加自定义逻辑解组（如果存在）
 	if cfg.Role == "" {
 		cfg.Role = "server"
 	}
@@ -368,7 +368,7 @@ func (cfg *SUDPProxyConf) UnmarshalFromIni(prefix string, name string, section *
 		return err
 	}
 
-	// Add custom logic unmarshal if exists
+	// 添加自定义逻辑解组（如果存在）
 	return nil
 }
 

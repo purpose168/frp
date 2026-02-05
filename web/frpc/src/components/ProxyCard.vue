@@ -9,15 +9,15 @@
 
         <div class="card-meta">
           <span v-if="proxy.local_addr" class="meta-item">
-            <span class="meta-label">Local:</span>
+            <span class="meta-label">本地:</span>
             <span class="meta-value code">{{ proxy.local_addr }}</span>
           </span>
           <span v-if="proxy.plugin" class="meta-item">
-            <span class="meta-label">Plugin:</span>
+            <span class="meta-label">插件:</span>
             <span class="meta-value code">{{ proxy.plugin }}</span>
           </span>
           <span v-if="proxy.remote_addr" class="meta-item">
-            <span class="meta-label">Remote:</span>
+            <span class="meta-label">远程:</span>
             <span class="meta-value code">{{ proxy.remote_addr }}</span>
           </span>
         </div>

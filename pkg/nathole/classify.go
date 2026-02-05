@@ -1,13 +1,13 @@
 // Copyright 2023 The frp Authors
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// Licensed under to Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with License.
+// You may obtain a copy of License at
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
+// distributed under License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
@@ -22,26 +22,39 @@ import (
 )
 
 const (
+	// EasyNAT 简单 NAT 类型
 	EasyNAT = "EasyNAT"
+	// HardNAT 困难 NAT 类型
 	HardNAT = "HardNAT"
 
-	BehaviorNoChange    = "BehaviorNoChange"
-	BehaviorIPChanged   = "BehaviorIPChanged"
+	// BehaviorNoChange 行为无变化
+	BehaviorNoChange = "BehaviorNoChange"
+	// BehaviorIPChanged 行为 IP 变化
+	BehaviorIPChanged = "BehaviorIPChanged"
+	// BehaviorPortChanged 行为端口变化
 	BehaviorPortChanged = "BehaviorPortChanged"
+	// BehaviorBothChanged 行为 IP 和端口都变化
 	BehaviorBothChanged = "BehaviorBothChanged"
 )
 
+// NatFeature NAT 特征
 type NatFeature struct {
-	NatType            string
-	Behavior           string
-	PortsDifference    int
+	// NatType NAT 类型
+	NatType string
+	// Behavior 行为
+	Behavior string
+	// PortsDifference 端口差异
+	PortsDifference int
+	// RegularPortsChange 端口是否规律变化
 	RegularPortsChange bool
-	PublicNetwork      bool
+	// PublicNetwork 是否为公网网络
+	PublicNetwork bool
 }
 
+// ClassifyNATFeature 分类 NAT 特征
 func ClassifyNATFeature(addresses []string, localIPs []string) (*NatFeature, error) {
 	if len(addresses) <= 1 {
-		return nil, fmt.Errorf("not enough addresses")
+		return nil, fmt.Errorf("地址数量不足")
 	}
 	natFeature := &NatFeature{}
 	ipChanged := false
@@ -107,10 +120,11 @@ func ClassifyNATFeature(addresses []string, localIPs []string) (*NatFeature, err
 	return natFeature, nil
 }
 
+// ClassifyFeatureCount 分类特征计数
 func ClassifyFeatureCount(features []*NatFeature) (int, int, int) {
 	easyCount := 0
 	hardCount := 0
-	// for HardNAT
+	// 对于 HardNAT
 	portsChangedRegularCount := 0
 	for _, feature := range features {
 		if feature.NatType == EasyNAT {

@@ -21,6 +21,7 @@ import (
 	"strings"
 )
 
+// OkResponse 创建一个成功的 HTTP 响应
 func OkResponse() *http.Response {
 	header := make(http.Header)
 
@@ -35,6 +36,7 @@ func OkResponse() *http.Response {
 	return res
 }
 
+// ProxyUnauthorizedResponse 创建一个需要代理认证的响应
 func ProxyUnauthorizedResponse() *http.Response {
 	header := make(http.Header)
 	header.Set("Proxy-Authenticate", `Basic realm="Restricted"`)
@@ -49,8 +51,7 @@ func ProxyUnauthorizedResponse() *http.Response {
 	return res
 }
 
-// canonicalHost strips port from host if present and returns the canonicalized
-// host name.
+// CanonicalHost 规范化主机名，如果存在端口号则去除，并返回规范化的主机名
 func CanonicalHost(host string) (string, error) {
 	var err error
 	host = strings.ToLower(host)
@@ -60,13 +61,12 @@ func CanonicalHost(host string) (string, error) {
 			return "", err
 		}
 	}
-	// Strip trailing dot from fully qualified domain names.
+	// 去除完全限定域名末尾的点
 	host = strings.TrimSuffix(host, ".")
 	return host, nil
 }
 
-// hasPort reports whether host contains a port number. host may be a host
-// name, an IPv4 or an IPv6 address.
+// hasPort 报告主机是否包含端口号。host 可以是主机名、IPv4 或 IPv6 地址
 func hasPort(host string) bool {
 	colons := strings.Count(host, ":")
 	if colons == 0 {
@@ -78,9 +78,12 @@ func hasPort(host string) bool {
 	return host[0] == '[' && strings.Contains(host, "]:")
 }
 
+// ParseBasicAuth 解析 Basic 认证
+// 参数 auth 是认证字符串
+// 返回用户名、密码和是否成功
 func ParseBasicAuth(auth string) (username, password string, ok bool) {
 	const prefix = "Basic "
-	// Case insensitive prefix match. See Issue 22736.
+	// 不区分大小写的前缀匹配。参见 Issue 22736
 	if len(auth) < len(prefix) || !strings.EqualFold(auth[:len(prefix)], prefix) {
 		return
 	}
@@ -96,6 +99,10 @@ func ParseBasicAuth(auth string) (username, password string, ok bool) {
 	return cs[:s], cs[s+1:], true
 }
 
+// BasicAuth 创建 Basic 认证字符串
+// 参数 username 是用户名
+// 参数 passwd 是密码
+// 返回 Basic 认证字符串
 func BasicAuth(username, passwd string) string {
 	auth := username + ":" + passwd
 	return "Basic " + base64.StdEncoding.EncodeToString([]byte(auth))

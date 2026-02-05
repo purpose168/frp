@@ -1,16 +1,16 @@
 // Copyright 2025 The frp Authors
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// 依据 Apache License, Version 2.0 许可证授权；
+// 除非符合许可证的要求，否则您不能使用此文件。
+// 您可以在以下网址获取许可证副本：
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// 除非适用法律要求或书面同意，否则软件
+// 根据许可证分发是基于“按原样”基础，
+// 不附带任何明示或暗示的担保或条件。
+// 请参阅许可证中有关管理权限和
+// 限制的特定语言。
 
 package registry
 
@@ -20,28 +20,42 @@ import (
 	"time"
 )
 
-// ClientInfo captures metadata about a connected frpc instance.
+// ClientInfo 捕获已连接的frpc实例的元数据
 type ClientInfo struct {
-	Key              string
-	User             string
-	RawClientID      string
-	RunID            string
-	Hostname         string
-	IP               string
+	// Key 客户端键
+	Key string
+	// User 用户名
+	User string
+	// RawClientID 原始客户端ID
+	RawClientID string
+	// RunID 运行ID
+	RunID string
+	// Hostname 主机名
+	Hostname string
+	// IP IP地址
+	IP string
+	// FirstConnectedAt 首次连接时间
 	FirstConnectedAt time.Time
-	LastConnectedAt  time.Time
-	DisconnectedAt   time.Time
-	Online           bool
+	// LastConnectedAt 最后连接时间
+	LastConnectedAt time.Time
+	// DisconnectedAt 断开连接时间
+	DisconnectedAt time.Time
+	// Online 是否在线
+	Online bool
 }
 
-// ClientRegistry keeps track of active clients keyed by "{user}.{clientID}" (runID fallback when raw clientID is empty).
-// Entries without an explicit raw clientID are removed on disconnect to avoid stale offline records.
+// ClientRegistry 跟踪活动客户端，键为"{user}.{clientID}"（原始客户端ID为空时使用runID作为回退）
+// 没有显式原始客户端ID的条目在断开连接时会被删除，以避免陈旧的离线记录
 type ClientRegistry struct {
-	mu       sync.RWMutex
-	clients  map[string]*ClientInfo
+	// mu 读写锁
+	mu sync.RWMutex
+	// clients 客户端信息映射
+	clients map[string]*ClientInfo
+	// runIndex 运行ID索引
 	runIndex map[string]string
 }
 
+// NewClientRegistry 创建一个新的客户端注册表
 func NewClientRegistry() *ClientRegistry {
 	return &ClientRegistry{
 		clients:  make(map[string]*ClientInfo),
@@ -49,7 +63,7 @@ func NewClientRegistry() *ClientRegistry {
 	}
 }
 
-// Register stores/updates metadata for a client and returns the registry key plus whether it conflicts with an online client.
+// Register 存储/更新客户端的元数据，并返回注册表键以及是否与在线客户端冲突
 func (cr *ClientRegistry) Register(user, rawClientID, runID, hostname, remoteAddr string) (key string, conflict bool) {
 	if runID == "" {
 		return "", false
@@ -97,7 +111,7 @@ func (cr *ClientRegistry) Register(user, rawClientID, runID, hostname, remoteAdd
 	return key, false
 }
 
-// MarkOfflineByRunID marks the client as offline when the corresponding control disconnects.
+// MarkOfflineByRunID 当相应的控制连接断开时，将客户端标记为离线
 func (cr *ClientRegistry) MarkOfflineByRunID(runID string) {
 	cr.mu.Lock()
 	defer cr.mu.Unlock()
@@ -119,7 +133,7 @@ func (cr *ClientRegistry) MarkOfflineByRunID(runID string) {
 	delete(cr.runIndex, runID)
 }
 
-// List returns a snapshot of all known clients.
+// List 返回所有已知客户端的快照
 func (cr *ClientRegistry) List() []ClientInfo {
 	cr.mu.RLock()
 	defer cr.mu.RUnlock()
@@ -131,7 +145,7 @@ func (cr *ClientRegistry) List() []ClientInfo {
 	return result
 }
 
-// GetByKey retrieves a client by its composite key ({user}.{clientID} with runID fallback).
+// GetByKey 通过复合键检索客户端（{user}.{clientID}，使用runID作为回退）
 func (cr *ClientRegistry) GetByKey(key string) (ClientInfo, bool) {
 	cr.mu.RLock()
 	defer cr.mu.RUnlock()
@@ -143,7 +157,7 @@ func (cr *ClientRegistry) GetByKey(key string) (ClientInfo, bool) {
 	return *info, true
 }
 
-// ClientID returns the resolved client identifier for external use.
+// ClientID 返回解析后的客户端标识符，供外部使用
 func (info ClientInfo) ClientID() string {
 	if info.RawClientID != "" {
 		return info.RawClientID
@@ -151,7 +165,7 @@ func (info ClientInfo) ClientID() string {
 	return info.RunID
 }
 
-// GetByRunID retrieves a client by its run ID.
+// GetByRunID 通过运行ID检索客户端
 func (cr *ClientRegistry) GetByRunID(runID string) (ClientInfo, bool) {
 	cr.mu.RLock()
 	defer cr.mu.RUnlock()
@@ -167,6 +181,7 @@ func (cr *ClientRegistry) GetByRunID(runID string) (ClientInfo, bool) {
 	return *info, true
 }
 
+// composeClientKey 组合客户端键
 func (cr *ClientRegistry) composeClientKey(user, id string) string {
 	switch {
 	case user == "":

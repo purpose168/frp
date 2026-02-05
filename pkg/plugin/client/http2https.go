@@ -34,13 +34,18 @@ func init() {
 	Register(v1.PluginHTTP2HTTPS, NewHTTP2HTTPSPlugin)
 }
 
+// HTTP2HTTPSPlugin HTTP到HTTPS反向代理插件
 type HTTP2HTTPSPlugin struct {
+	// opts 插件选项
 	opts *v1.HTTP2HTTPSPluginOptions
 
+	// l 监听器
 	l *Listener
+	// s HTTP服务器
 	s *http.Server
 }
 
+// NewHTTP2HTTPSPlugin 创建HTTP到HTTPS反向代理插件
 func NewHTTP2HTTPSPlugin(_ PluginContext, options v1.ClientPluginOptions) (Plugin, error) {
 	opts := options.(*v1.HTTP2HTTPSPluginOptions)
 
@@ -87,15 +92,18 @@ func NewHTTP2HTTPSPlugin(_ PluginContext, options v1.ClientPluginOptions) (Plugi
 	return p, nil
 }
 
+// Handle 处理连接
 func (p *HTTP2HTTPSPlugin) Handle(_ context.Context, connInfo *ConnectionInfo) {
 	wrapConn := netpkg.WrapReadWriteCloserToConn(connInfo.Conn, connInfo.UnderlyingConn)
 	_ = p.l.PutConn(wrapConn)
 }
 
+// Name 返回插件名称
 func (p *HTTP2HTTPSPlugin) Name() string {
 	return v1.PluginHTTP2HTTPS
 }
 
+// Close 关闭插件
 func (p *HTTP2HTTPSPlugin) Close() error {
 	return p.s.Close()
 }

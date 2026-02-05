@@ -19,11 +19,13 @@ import (
 	"net"
 )
 
+// SetDefaultDNSAddress 设置默认 DNS 服务器地址
+// 参数 dnsAddress 是 DNS 服务器地址
 func SetDefaultDNSAddress(dnsAddress string) {
 	if _, _, err := net.SplitHostPort(dnsAddress); err != nil {
 		dnsAddress = net.JoinHostPort(dnsAddress, "53")
 	}
-	// Change default dns server
+	// 更改默认 DNS 服务器
 	net.DefaultResolver = &net.Resolver{
 		PreferGo: true,
 		Dial: func(ctx context.Context, network, _ string) (net.Conn, error) {

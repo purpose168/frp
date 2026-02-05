@@ -38,13 +38,18 @@ func init() {
 	Register(v1.PluginHTTPProxy, NewHTTPProxyPlugin)
 }
 
+// HTTPProxy HTTP代理插件
 type HTTPProxy struct {
+	// opts 插件选项
 	opts *v1.HTTPProxyPluginOptions
 
+	// l 监听器
 	l *Listener
+	// s HTTP服务器
 	s *http.Server
 }
 
+// NewHTTPProxyPlugin 创建HTTP代理插件
 func NewHTTPProxyPlugin(_ PluginContext, options v1.ClientPluginOptions) (Plugin, error) {
 	opts := options.(*v1.HTTPProxyPluginOptions)
 	listener := NewProxyListener()
@@ -65,10 +70,12 @@ func NewHTTPProxyPlugin(_ PluginContext, options v1.ClientPluginOptions) (Plugin
 	return hp, nil
 }
 
+// Name 返回插件名称
 func (hp *HTTPProxy) Name() string {
 	return v1.PluginHTTPProxy
 }
 
+// Handle 处理连接
 func (hp *HTTPProxy) Handle(_ context.Context, connInfo *ConnectionInfo) {
 	wrapConn := netpkg.WrapReadWriteCloserToConn(connInfo.Conn, connInfo.UnderlyingConn)
 
@@ -94,12 +101,14 @@ func (hp *HTTPProxy) Handle(_ context.Context, connInfo *ConnectionInfo) {
 	_ = hp.l.PutConn(sc)
 }
 
+// Close 关闭插件
 func (hp *HTTPProxy) Close() error {
 	hp.s.Close()
 	hp.l.Close()
 	return nil
 }
 
+// ServeHTTP 处理HTTP请求
 func (hp *HTTPProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	if ok := hp.Auth(req); !ok {
 		rw.Header().Set("Proxy-Authenticate", "Basic")
@@ -108,14 +117,15 @@ func (hp *HTTPProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	if req.Method == http.MethodConnect {
-		// deprecated
-		// Connect request is handled in Handle function.
+		// 已弃用
+		// Connect请求在Handle函数中处理
 		hp.ConnectHandler(rw, req)
 	} else {
 		hp.HTTPHandler(rw, req)
 	}
 }
 
+// HTTPHandler 处理HTTP请求
 func (hp *HTTPProxy) HTTPHandler(rw http.ResponseWriter, req *http.Request) {
 	removeProxyHeaders(req)
 
@@ -135,9 +145,10 @@ func (hp *HTTPProxy) HTTPHandler(rw http.ResponseWriter, req *http.Request) {
 	}
 }
 
-// deprecated
-// Hijack needs to SetReadDeadline on the Conn of the request, but if we use stream compression here,
-// we may always get i/o timeout error.
+// ConnectHandler 处理CONNECT请求
+// 已弃用
+// Hijack需要在请求的Conn上设置ReadDeadline，但如果在这里使用流压缩，
+// 我们可能会总是遇到i/o超时错误
 func (hp *HTTPProxy) ConnectHandler(rw http.ResponseWriter, req *http.Request) {
 	hj, ok := rw.(http.Hijacker)
 	if !ok {
@@ -162,6 +173,7 @@ func (hp *HTTPProxy) ConnectHandler(rw http.ResponseWriter, req *http.Request) {
 	go libio.Join(remote, client)
 }
 
+// Auth 验证认证信息
 func (hp *HTTPProxy) Auth(req *http.Request) bool {
 	if hp.opts.HTTPUser == "" && hp.opts.HTTPPassword == "" {
 		return true
@@ -190,6 +202,7 @@ func (hp *HTTPProxy) Auth(req *http.Request) bool {
 	return true
 }
 
+// handleConnectReq 处理CONNECT请求
 func (hp *HTTPProxy) handleConnectReq(req *http.Request, rwc io.ReadWriteCloser) {
 	defer rwc.Close()
 	if ok := hp.Auth(req); !ok {
@@ -217,6 +230,7 @@ func (hp *HTTPProxy) handleConnectReq(req *http.Request, rwc io.ReadWriteCloser)
 	libio.Join(remote, rwc)
 }
 
+// copyHeaders 复制HTTP头
 func copyHeaders(dst, src http.Header) {
 	for key, values := range src {
 		for _, value := range values {
@@ -225,6 +239,7 @@ func copyHeaders(dst, src http.Header) {
 	}
 }
 
+// removeProxyHeaders 移除代理相关的HTTP头
 func removeProxyHeaders(req *http.Request) {
 	req.RequestURI = ""
 	req.Header.Del("Proxy-Connection")
@@ -237,6 +252,7 @@ func removeProxyHeaders(req *http.Request) {
 	req.Header.Del("Upgrade")
 }
 
+// getBadResponse 获取认证失败响应
 func getBadResponse() *http.Response {
 	header := make(map[string][]string)
 	header["Proxy-Authenticate"] = []string{"Basic"}

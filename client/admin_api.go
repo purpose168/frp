@@ -1,16 +1,15 @@
-// Copyright 2017 fatedier, fatedier@gmail.com
+// 版权所有 2017 fatedier, fatedier@gmail.com
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// 根据 Apache 许可证 2.0 版本（"许可证"）授权；
+// 除非遵守许可证，否则您不得使用此文件。
+// 您可以在以下位置获取许可证副本：
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// 除非适用法律要求或书面同意，否则根据许可证分发的软件
+// 是按"原样"基础分发的，不附带任何明示或暗示的担保或条件。
+// 有关许可证下特定语言的管理权限和
+// 限制，请参阅许可证。
 
 package client
 
@@ -23,13 +22,14 @@ import (
 	netpkg "github.com/fatedier/frp/pkg/util/net"
 )
 
+// registerRouteHandlers 注册路由处理器，用于处理管理API请求
 func (svr *Service) registerRouteHandlers(helper *httppkg.RouterRegisterHelper) {
 	apiController := newAPIController(svr)
 
-	// Healthz endpoint without auth
+	// 健康检查端点，无需身份验证
 	helper.Router.HandleFunc("/healthz", healthz)
 
-	// API routes and static files with auth
+	// 需要身份验证的API路由和静态文件
 	subRouter := helper.Router.NewRoute().Subrouter()
 	subRouter.Use(helper.AuthMiddleware)
 	subRouter.Use(httppkg.NewRequestLogger)
@@ -47,10 +47,12 @@ func (svr *Service) registerRouteHandlers(helper *httppkg.RouterRegisterHelper) 
 	})
 }
 
+// healthz 健康检查端点，返回HTTP 200状态码表示服务正常
 func healthz(w http.ResponseWriter, _ *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+// newAPIController 创建新的API控制器实例，用于处理管理API请求
 func newAPIController(svr *Service) *api.Controller {
 	return api.NewController(api.ControllerParams{
 		GetProxyStatus: svr.getAllProxyStatus,
@@ -62,7 +64,7 @@ func newAPIController(svr *Service) *api.Controller {
 	})
 }
 
-// getAllProxyStatus returns all proxy statuses.
+// getAllProxyStatus 获取所有代理的工作状态
 func (svr *Service) getAllProxyStatus() []*proxy.WorkingStatus {
 	svr.ctlMu.RLock()
 	ctl := svr.ctl

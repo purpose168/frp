@@ -1,16 +1,15 @@
-// Copyright 2023 The frp Authors
+// 版权所有 2023 frp 作者
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// 根据 Apache 许可证 2.0 版本（"许可证"）授权；
+// 除非遵守许可证，否则您不得使用此文件。
+// 您可以在以下位置获取许可证副本：
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// 除非适用法律要求或书面同意，否则根据许可证分发的软件
+// 是按"原样"分发的，不附带任何明示或暗示的担保或条件。
+// 有关许可证下特定语言的管理权限和
+// 限制，请参阅许可证。
 
 package sub
 
@@ -31,24 +30,26 @@ import (
 
 var adminAPITimeout = 30 * time.Second
 
+// init 初始化管理命令
 func init() {
 	commands := []struct {
 		name        string
 		description string
 		handler     func(*v1.ClientCommonConfig) error
 	}{
-		{"reload", "Hot-Reload frpc configuration", ReloadHandler},
-		{"status", "Overview of all proxies status", StatusHandler},
-		{"stop", "Stop the running frpc", StopHandler},
+		{"reload", "热重载 frpc 配置", ReloadHandler},
+		{"status", "所有代理状态概览", StatusHandler},
+		{"stop", "停止正在运行的 frpc", StopHandler},
 	}
 
 	for _, cmdConfig := range commands {
 		cmd := NewAdminCommand(cmdConfig.name, cmdConfig.description, cmdConfig.handler)
-		cmd.Flags().DurationVar(&adminAPITimeout, "api-timeout", adminAPITimeout, "Timeout for admin API calls")
+		cmd.Flags().DurationVar(&adminAPITimeout, "api-timeout", adminAPITimeout, "管理 API 调用的超时时间")
 		rootCmd.AddCommand(cmd)
 	}
 }
 
+// NewAdminCommand 创建新的管理命令
 func NewAdminCommand(name, short string, handler func(*v1.ClientCommonConfig) error) *cobra.Command {
 	return &cobra.Command{
 		Use:   name,
@@ -60,7 +61,7 @@ func NewAdminCommand(name, short string, handler func(*v1.ClientCommonConfig) er
 				os.Exit(1)
 			}
 			if cfg.WebServer.Port <= 0 {
-				fmt.Println("web server port should be set if you want to use this feature")
+				fmt.Println("如果要使用此功能，应设置 Web 服务器端口")
 				os.Exit(1)
 			}
 
@@ -72,6 +73,7 @@ func NewAdminCommand(name, short string, handler func(*v1.ClientCommonConfig) er
 	}
 }
 
+// ReloadHandler 处理重载命令
 func ReloadHandler(clientCfg *v1.ClientCommonConfig) error {
 	client := clientsdk.New(clientCfg.WebServer.Addr, clientCfg.WebServer.Port)
 	client.SetAuth(clientCfg.WebServer.User, clientCfg.WebServer.Password)
@@ -80,10 +82,11 @@ func ReloadHandler(clientCfg *v1.ClientCommonConfig) error {
 	if err := client.Reload(ctx, strictConfigMode); err != nil {
 		return err
 	}
-	fmt.Println("reload success")
+	fmt.Println("重载成功")
 	return nil
 }
 
+// StatusHandler 处理状态命令
 func StatusHandler(clientCfg *v1.ClientCommonConfig) error {
 	client := clientsdk.New(clientCfg.WebServer.Addr, clientCfg.WebServer.Port)
 	client.SetAuth(clientCfg.WebServer.User, clientCfg.WebServer.Password)
@@ -94,7 +97,7 @@ func StatusHandler(clientCfg *v1.ClientCommonConfig) error {
 		return err
 	}
 
-	fmt.Printf("Proxy Status...\n\n")
+	fmt.Printf("代理状态...\n\n")
 	for _, typ := range proxyTypes {
 		arrs := res[string(typ)]
 		if len(arrs) == 0 {
@@ -102,7 +105,7 @@ func StatusHandler(clientCfg *v1.ClientCommonConfig) error {
 		}
 
 		fmt.Println(strings.ToUpper(string(typ)))
-		tbl := table.New("Name", "Status", "LocalAddr", "Plugin", "RemoteAddr", "Error")
+		tbl := table.New("名称", "状态", "本地地址", "插件", "远程地址", "错误")
 		for _, ps := range arrs {
 			tbl.AddRow(ps.Name, ps.Status, ps.LocalAddr, ps.Plugin, ps.RemoteAddr, ps.Err)
 		}
@@ -112,6 +115,7 @@ func StatusHandler(clientCfg *v1.ClientCommonConfig) error {
 	return nil
 }
 
+// StopHandler 处理停止命令
 func StopHandler(clientCfg *v1.ClientCommonConfig) error {
 	client := clientsdk.New(clientCfg.WebServer.Addr, clientCfg.WebServer.Port)
 	client.SetAuth(clientCfg.WebServer.User, clientCfg.WebServer.Password)
@@ -120,6 +124,6 @@ func StopHandler(clientCfg *v1.ClientCommonConfig) error {
 	if err := client.Stop(ctx); err != nil {
 		return err
 	}
-	fmt.Println("stop success")
+	fmt.Println("停止成功")
 	return nil
 }

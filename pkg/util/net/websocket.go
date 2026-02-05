@@ -9,7 +9,7 @@ import (
 	"golang.org/x/net/websocket"
 )
 
-var ErrWebsocketListenerClosed = errors.New("websocket listener closed")
+var ErrWebsocketListenerClosed = errors.New("websocket 监听器已关闭")
 
 const (
 	FrpWebsocketPath = "/~!frp"

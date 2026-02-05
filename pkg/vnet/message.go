@@ -20,61 +20,66 @@ import (
 	"io"
 )
 
-// Maximum message size
+// 最大消息大小
 const (
 	maxMessageSize = 1024 * 1024 // 1MB
 )
 
-// Format: [length(4 bytes)][data(length bytes)]
+// 消息格式：[长度(4字节)][数据(长度字节)]
 
-// ReadMessage reads a framed message from the reader
+// ReadMessage 从读取器中读取带长度前缀的消息
+// r: 消息读取器
+// 返回读取的消息数据和可能的错误
 func ReadMessage(r io.Reader) ([]byte, error) {
-	// Read length (4 bytes)
+	// 读取长度（4字节）
 	var length uint32
 	err := binary.Read(r, binary.LittleEndian, &length)
 	if err != nil {
-		return nil, fmt.Errorf("read message length error: %w", err)
+		return nil, fmt.Errorf("读取消息长度错误: %w", err)
 	}
 
-	// Check length to prevent DoS
+	// 检查长度以防止 DoS 攻击
 	if length == 0 {
-		return nil, fmt.Errorf("message length is 0")
+		return nil, fmt.Errorf("消息长度为 0")
 	}
 	if length > maxMessageSize {
-		return nil, fmt.Errorf("message too large: %d > %d", length, maxMessageSize)
+		return nil, fmt.Errorf("消息太大: %d > %d", length, maxMessageSize)
 	}
 
-	// Read message data
+	// 读取消息数据
 	data := make([]byte, length)
 	_, err = io.ReadFull(r, data)
 	if err != nil {
-		return nil, fmt.Errorf("read message data error: %w", err)
+		return nil, fmt.Errorf("读取消息数据错误: %w", err)
 	}
 
 	return data, nil
 }
 
-// WriteMessage writes a framed message to the writer
+// WriteMessage 向写入器中写入带长度前缀的消息
+// w: 消息写入器
+// data: 要写入的数据
+// 返回可能的错误
 func WriteMessage(w io.Writer, data []byte) error {
-	// Get data length
+	// 获取数据长度
 	length := uint32(len(data))
 	if length == 0 {
-		return fmt.Errorf("message data length is 0")
+		return fmt.Errorf("消息数据长度为 0")
 	}
 	if length > maxMessageSize {
-		return fmt.Errorf("message too large: %d > %d", length, maxMessageSize)
+		return fmt.Errorf("消息太大: %d > %d", length, maxMessageSize)
 	}
 
-	// Write length
+	// 写入长度
 	err := binary.Write(w, binary.LittleEndian, length)
 	if err != nil {
-		return fmt.Errorf("write message length error: %w", err)
+		return fmt.Errorf("写入消息长度错误: %w", err)
 	}
 
-	// Write message data
+	// 写入消息数据
 	_, err = w.Write(data)
 	if err != nil {
-		return fmt.Errorf("write message data error: %w", err)
+		return fmt.Errorf("写入消息数据错误: %w", err)
 	}
 
 	return nil

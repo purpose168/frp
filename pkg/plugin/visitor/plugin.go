@@ -23,27 +23,29 @@ import (
 	"github.com/fatedier/frp/pkg/vnet"
 )
 
-// PluginContext provides the necessary context and callbacks for visitor plugins.
+// PluginContext 插件上下文，为访问者插件提供必要的上下文和回调
 type PluginContext struct {
-	// Name is the unique identifier for this visitor, used for logging and routing.
+	// Name 是此访问者的唯一标识符，用于日志记录和路由
 	Name string
 
-	// Ctx manages the plugin's lifecycle and carries the logger for structured logging.
+	// Ctx 管理插件的生命周期并携带用于结构化日志记录的日志记录器
 	Ctx context.Context
 
-	// VnetController manages TUN device routing. May be nil if virtual networking is disabled.
+	// VnetController 管理TUN设备路由。如果禁用了虚拟网络，可能为nil
 	VnetController *vnet.Controller
 
-	// SendConnToVisitor sends a connection to the visitor's internal processing queue.
-	// Does not return error; failures are handled by closing the connection.
+	// SendConnToVisitor 将连接发送到访问者的内部处理队列
+	// 不返回错误；失败通过关闭连接来处理
 	SendConnToVisitor func(net.Conn)
 }
 
-// Creators is used for create plugins to handle connections.
+// Creators 用于创建插件以处理连接
 var creators = make(map[string]CreatorFn)
 
+// CreatorFn 创建插件的函数类型
 type CreatorFn func(pluginCtx PluginContext, options v1.VisitorPluginOptions) (Plugin, error)
 
+// Register 注册插件创建函数
 func Register(name string, fn CreatorFn) {
 	if _, exist := creators[name]; exist {
 		panic(fmt.Sprintf("plugin [%s] is already registered", name))
@@ -51,6 +53,7 @@ func Register(name string, fn CreatorFn) {
 	creators[name] = fn
 }
 
+// Create 创建插件实例
 func Create(pluginName string, pluginCtx PluginContext, options v1.VisitorPluginOptions) (p Plugin, err error) {
 	if fn, ok := creators[pluginName]; ok {
 		p, err = fn(pluginCtx, options)
@@ -60,8 +63,12 @@ func Create(pluginName string, pluginCtx PluginContext, options v1.VisitorPlugin
 	return
 }
 
+// Plugin 插件接口
 type Plugin interface {
+	// Name 返回插件名称
 	Name() string
+	// Start 启动插件
 	Start()
+	// Close 关闭插件
 	Close() error
 }

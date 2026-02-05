@@ -1,13 +1,13 @@
 <template>
   <div class="configure-page">
     <div class="page-header">
-      <div class="title-section">
-        <h1 class="page-title">Configuration</h1>
-        <p class="page-subtitle">
-          Edit and manage your frpc configuration file
-        </p>
+        <div class="title-section">
+          <h1 class="page-title">配置</h1>
+          <p class="page-subtitle">
+            编辑和管理您的frpc配置文件
+          </p>
+        </div>
       </div>
-    </div>
 
     <el-row :gutter="20">
       <el-col :xs="24" :lg="16">
@@ -15,15 +15,15 @@
           <template #header>
             <div class="card-header">
               <div class="header-left">
-                <span class="card-title">Configuration Editor</span>
+                <span class="card-title">配置编辑器</span>
                 <el-tag size="small" type="success">TOML</el-tag>
               </div>
               <div class="header-actions">
-                <el-tooltip content="Refresh" placement="top">
+                <el-tooltip content="刷新" placement="top">
                   <el-button :icon="Refresh" circle @click="fetchData" />
                 </el-tooltip>
                 <el-button type="primary" :icon="Upload" @click="handleUpload">
-                  Update & Reload
+                  更新并重新加载
                 </el-button>
               </div>
             </div>
@@ -34,7 +34,7 @@
               type="textarea"
               :autosize="{ minRows: 20, maxRows: 40 }"
               v-model="configContent"
-              placeholder="# frpc configuration file content...
+              placeholder="# frpc 配置文件内容...
 
 [common]
 server_addr = 127.0.0.1
@@ -49,30 +49,30 @@ server_port = 7000"
         <el-card class="help-card" shadow="hover">
           <template #header>
             <div class="card-header">
-              <span class="card-title">Quick Reference</span>
+              <span class="card-title">快速参考</span>
             </div>
           </template>
           <div class="help-content">
             <div class="help-section">
-              <h4 class="help-section-title">Common Settings</h4>
+              <h4 class="help-section-title">通用设置</h4>
               <div class="help-items">
                 <div class="help-item">
                   <code>serverAddr</code>
-                  <span>Server address</span>
+                  <span>服务器地址</span>
                 </div>
                 <div class="help-item">
                   <code>serverPort</code>
-                  <span>Server port (default: 7000)</span>
+                  <span>服务器端口（默认：7000）</span>
                 </div>
                 <div class="help-item">
                   <code>auth.token</code>
-                  <span>Authentication token</span>
+                  <span>认证令牌</span>
                 </div>
               </div>
             </div>
 
             <div class="help-section">
-              <h4 class="help-section-title">Proxy Types</h4>
+              <h4 class="help-section-title">代理类型</h4>
               <div class="proxy-type-tags">
                 <el-tag type="primary" effect="plain">TCP</el-tag>
                 <el-tag type="success" effect="plain">UDP</el-tag>
@@ -84,7 +84,7 @@ server_port = 7000"
             </div>
 
             <div class="help-section">
-              <h4 class="help-section-title">Example Proxy</h4>
+              <h4 class="help-section-title">代理示例</h4>
               <pre class="code-example">
 [[proxies]]
 name = "web"
@@ -134,18 +134,18 @@ const fetchData = async () => {
 
 const handleUpload = () => {
   ElMessageBox.confirm(
-    'This operation will update your frpc configuration and reload it. Do you want to continue?',
-    'Confirm Update',
+    '此操作将更新您的frpc配置并重新加载它。您是否要继续？',
+    '确认更新',
     {
-      confirmButtonText: 'Update',
-      cancelButtonText: 'Cancel',
+      confirmButtonText: '更新',
+      cancelButtonText: '取消',
       type: 'warning',
     },
   )
     .then(async () => {
       if (!configContent.value.trim()) {
         ElMessage({
-          message: 'Configuration content cannot be empty!',
+          message: '配置内容不能为空！',
           type: 'warning',
         })
         return
@@ -156,12 +156,12 @@ const handleUpload = () => {
         await reloadConfig()
         ElMessage({
           type: 'success',
-          message: 'Configuration updated and reloaded successfully',
+          message: '配置已成功更新并重新加载',
         })
       } catch (err: any) {
         ElMessage({
           showClose: true,
-          message: 'Update failed: ' + err.message,
+          message: '更新失败：' + err.message,
           type: 'error',
         })
       }

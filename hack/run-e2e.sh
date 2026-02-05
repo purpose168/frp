@@ -3,9 +3,9 @@
 SCRIPT=$(readlink -f "$0")
 ROOT=$(unset CDPATH && cd "$(dirname "$SCRIPT")/.." && pwd)
 
-# Check if ginkgo is available
+# 检查 ginkgo 是否可用
 if ! command -v ginkgo >/dev/null 2>&1; then
-    echo "ginkgo not found, try to install..."
+    echo "未找到 ginkgo，尝试安装..."
     go install github.com/onsi/ginkgo/v2/ginkgo@v2.23.4
 fi
 

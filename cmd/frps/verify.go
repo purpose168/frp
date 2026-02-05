@@ -1,16 +1,14 @@
-// Copyright 2021 The frp Authors
+// 版权所有 2021 frp 作者
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// 根据 Apache 许可证 2.0 版本（"许可证"）授权；
+// 除非遵守许可证，否则您不得使用此文件。
+// 您可以在以下位置获取许可证副本：
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// 除非适用法律要求或书面同意，否则根据许可证分发的软件
+// 是按"原样"基础分发的，不附带任何明示或暗示的担保或条件。
+// 有关许可证下特定语言的权限和限制，请参阅许可证。
 
 package main
 
@@ -25,16 +23,18 @@ import (
 	"github.com/fatedier/frp/pkg/policy/security"
 )
 
+// init 初始化 verify 命令
 func init() {
 	rootCmd.AddCommand(verifyCmd)
 }
 
+// verifyCmd 是验证配置文件有效性的命令
 var verifyCmd = &cobra.Command{
 	Use:   "verify",
-	Short: "Verify that the configures is valid",
+	Short: "验证配置是否有效",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if cfgFile == "" {
-			fmt.Println("frps: the configuration file is not specified")
+			fmt.Println("frps: 未指定配置文件")
 			return nil
 		}
 		svrCfg, _, err := config.LoadServerConfig(cfgFile, strictConfigMode)
@@ -47,13 +47,13 @@ var verifyCmd = &cobra.Command{
 		validator := validation.NewConfigValidator(unsafeFeatures)
 		warning, err := validator.ValidateServerConfig(svrCfg)
 		if warning != nil {
-			fmt.Printf("WARNING: %v\n", warning)
+			fmt.Printf("警告: %v\n", warning)
 		}
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		fmt.Printf("frps: the configuration file %s syntax is ok\n", cfgFile)
+		fmt.Printf("frps: 配置文件 %s 语法正确\n", cfgFile)
 		return nil
 	},
 }

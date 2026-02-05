@@ -24,7 +24,7 @@ import (
 )
 
 var (
-	// mode 0, both EasyNAT, PublicNetwork is always receiver
+	// mode 0，双方都是 EasyNAT，公网网络始终是接收方
 	// sender | receiver, ttl 7
 	// receiver, ttl 7 | sender
 	// sender | receiver, ttl 4
@@ -48,7 +48,7 @@ var (
 		lo.T2(RecommandBehavior{Role: DetectRoleReceiver}, RecommandBehavior{Role: DetectRoleSender, SendDelayMs: 10000}),
 	}
 
-	// mode 1, HardNAT is sender, EasyNAT is receiver, port changes is regular
+	// mode 1，HardNAT 是发送方，EasyNAT 是接收方，端口变化是规律的
 	// sender | receiver, ttl 7, portsRangeNumber max 10
 	// sender, sendDelayMs 2000 | receiver, ttl 7, portsRangeNumber max 10
 	// sender | receiver, ttl 4, portsRangeNumber max 10
@@ -64,7 +64,7 @@ var (
 		lo.T2(RecommandBehavior{Role: DetectRoleSender, SendDelayMs: 2000}, RecommandBehavior{Role: DetectRoleReceiver, PortsRangeNumber: 10}),
 	}
 
-	// mode 2, HardNAT is receiver, EasyNAT is sender
+	// mode 2，HardNAT 是接收方，EasyNAT 是发送方
 	// sender, portsRandomNumber 1000, sendDelayMs 3000 | receiver, listen 256 ports, ttl 7
 	// sender, portsRandomNumber 1000, sendDelayMs 3000 | receiver, listen 256 ports, ttl 4
 	// sender, portsRandomNumber 1000, sendDelayMs 3000 | receiver, listen 256 ports
@@ -83,7 +83,7 @@ var (
 		),
 	}
 
-	// mode 3, For HardNAT & HardNAT, both changes in the ports are regular
+	// mode 3，对于 HardNAT & HardNAT，双方的端口变化都是规律的
 	// sender, portsRangeNumber 10 | receiver, ttl 7, portsRangeNumber 10
 	// sender, portsRangeNumber 10 | receiver, ttl 4, portsRangeNumber 10
 	// sender, portsRangeNumber 10 | receiver, portsRangeNumber 10
@@ -99,7 +99,7 @@ var (
 		lo.T2(RecommandBehavior{Role: DetectRoleReceiver, PortsRangeNumber: 10}, RecommandBehavior{Role: DetectRoleSender, PortsRangeNumber: 10}),
 	}
 
-	// mode 4, Regular ports changes are usually the sender.
+	// mode 4，规律端口变化通常是发送方
 	// sender, portsRandomNumber 1000, sendDelayMs: 2000 | receiver, listen 256 ports, ttl 7, portsRangeNumber 2
 	// sender, portsRandomNumber 1000, sendDelayMs: 2000 | receiver, listen 256 ports, ttl 4, portsRangeNumber 2
 	// sender, portsRandomNumber 1000, SendDelayMs: 2000 | receiver, listen 256 ports, portsRangeNumber 2
@@ -119,6 +119,7 @@ var (
 	}
 )
 
+// getBehaviorByMode 根据模式获取行为列表
 func getBehaviorByMode(mode int) []lo.Tuple2[RecommandBehavior, RecommandBehavior] {
 	switch mode {
 	case 0:
@@ -132,10 +133,11 @@ func getBehaviorByMode(mode int) []lo.Tuple2[RecommandBehavior, RecommandBehavio
 	case 4:
 		return mode4Behaviors
 	}
-	// default
+	// 默认
 	return mode0Behaviors
 }
 
+// getBehaviorByModeAndIndex 根据模式和索引获取行为
 func getBehaviorByModeAndIndex(mode int, index int) (RecommandBehavior, RecommandBehavior) {
 	behaviors := getBehaviorByMode(mode)
 	if index >= len(behaviors) {
@@ -144,10 +146,12 @@ func getBehaviorByModeAndIndex(mode int, index int) (RecommandBehavior, Recomman
 	return behaviors[index].A, behaviors[index].B
 }
 
+// getBehaviorScoresByMode 根据模式获取行为分数列表
 func getBehaviorScoresByMode(mode int, defaultScore int) []*BehaviorScore {
 	return getBehaviorScoresByMode2(mode, defaultScore, defaultScore)
 }
 
+// getBehaviorScoresByMode2 根据模式和分数获取行为分数列表
 func getBehaviorScoresByMode2(mode int, senderScore, receiverScore int) []*BehaviorScore {
 	behaviors := getBehaviorByMode(mode)
 	scores := make([]*BehaviorScore, 0, len(behaviors))
@@ -161,21 +165,30 @@ func getBehaviorScoresByMode2(mode int, senderScore, receiverScore int) []*Behav
 	return scores
 }
 
+// RecommandBehavior 推荐行为
 type RecommandBehavior struct {
-	Role              string
-	TTL               int
-	SendDelayMs       int
-	PortsRangeNumber  int
+	// Role 角色
+	Role string
+	// TTL 生存时间
+	TTL int
+	// SendDelayMs 发送延迟（毫秒）
+	SendDelayMs int
+	// PortsRangeNumber 端口范围数量
+	PortsRangeNumber int
+	// PortsRandomNumber 随机端口数量
 	PortsRandomNumber int
+	// ListenRandomPorts 监听随机端口数量
 	ListenRandomPorts int
 }
 
+// MakeHoleRecords 打洞记录
 type MakeHoleRecords struct {
 	mu             sync.Mutex
 	scores         []*BehaviorScore
 	LastUpdateTime time.Time
 }
 
+// NewMakeHoleRecords 创建新的打洞记录
 func NewMakeHoleRecords(c, v *NatFeature) *MakeHoleRecords {
 	scores := []*BehaviorScore{}
 	easyCount, hardCount, portsChangedRegularCount := ClassifyFeatureCount([]*NatFeature{c, v})
@@ -207,7 +220,7 @@ func NewMakeHoleRecords(c, v *NatFeature) *MakeHoleRecords {
 	case hardCount == 2 && portsChangedRegularCount == 1:
 		scores = append(scores, getBehaviorScoresByMode(DetectMode4, 0)...)
 	default:
-		// hard to make hole, just trying it out.
+		// 难以打洞，只是尝试一下
 		scores = append(scores, getBehaviorScoresByMode(DetectMode0, 1)...)
 		scores = append(scores, getBehaviorScoresByMode(DetectMode1, 1)...)
 		scores = append(scores, getBehaviorScoresByMode(DetectMode3, 1)...)
@@ -215,6 +228,7 @@ func NewMakeHoleRecords(c, v *NatFeature) *MakeHoleRecords {
 	return &MakeHoleRecords{scores: scores, LastUpdateTime: time.Now()}
 }
 
+// ReportSuccess 报告成功
 func (mhr *MakeHoleRecords) ReportSuccess(mode int, index int) {
 	mhr.mu.Lock()
 	defer mhr.mu.Unlock()
@@ -231,6 +245,7 @@ func (mhr *MakeHoleRecords) ReportSuccess(mode int, index int) {
 	}
 }
 
+// Recommand 推荐行为
 func (mhr *MakeHoleRecords) Recommand() (mode, index int) {
 	mhr.mu.Lock()
 	defer mhr.mu.Unlock()
@@ -246,21 +261,26 @@ func (mhr *MakeHoleRecords) Recommand() (mode, index int) {
 	return maxScore.Mode, maxScore.Index
 }
 
+// BehaviorScore 行为分数
 type BehaviorScore struct {
-	Mode  int
+	// Mode 模式
+	Mode int
+	// Index 索引
 	Index int
-	// between -10 and 10
+	// Score 分数，范围 -10 到 10
 	Score int
 }
 
+// Analyzer 分析器
 type Analyzer struct {
-	// key is client ip + visitor ip
+	// key 是客户端 IP + 访问者 IP
 	records             map[string]*MakeHoleRecords
 	dataReserveDuration time.Duration
 
 	mu sync.Mutex
 }
 
+// NewAnalyzer 创建新的分析器
 func NewAnalyzer(dataReserveDuration time.Duration) *Analyzer {
 	return &Analyzer{
 		records:             make(map[string]*MakeHoleRecords),
@@ -268,6 +288,7 @@ func NewAnalyzer(dataReserveDuration time.Duration) *Analyzer {
 	}
 }
 
+// GetRecommandBehaviors 获取推荐行为
 func (a *Analyzer) GetRecommandBehaviors(key string, c, v *NatFeature) (mode, index int, _ RecommandBehavior, _ RecommandBehavior) {
 	a.mu.Lock()
 	records, ok := a.records[key]
@@ -282,17 +303,17 @@ func (a *Analyzer) GetRecommandBehaviors(key string, c, v *NatFeature) (mode, in
 
 	switch mode {
 	case DetectMode1:
-		// HardNAT is always the sender
+		// HardNAT 始终是发送方
 		if c.NatType == EasyNAT {
 			cBehavior, vBehavior = vBehavior, cBehavior
 		}
 	case DetectMode2:
-		// HardNAT is always the receiver
+		// HardNAT 始终是接收方
 		if c.NatType == HardNAT {
 			cBehavior, vBehavior = vBehavior, cBehavior
 		}
 	case DetectMode4:
-		// Regular ports changes is always the sender
+		// 规律端口变化始终是发送方
 		if !c.RegularPortsChange {
 			cBehavior, vBehavior = vBehavior, cBehavior
 		}
@@ -300,6 +321,7 @@ func (a *Analyzer) GetRecommandBehaviors(key string, c, v *NatFeature) (mode, in
 	return mode, index, cBehavior, vBehavior
 }
 
+// ReportSuccess 报告成功
 func (a *Analyzer) ReportSuccess(key string, mode, index int) {
 	a.mu.Lock()
 	records, ok := a.records[key]
@@ -310,16 +332,17 @@ func (a *Analyzer) ReportSuccess(key string, mode, index int) {
 	records.ReportSuccess(mode, index)
 }
 
+// Clean 清理过期数据
 func (a *Analyzer) Clean() (int, int) {
 	now := time.Now()
 	total := 0
 	count := 0
 
-	// cleanup 10w records may take 5ms
+	// 清理 10 万条记录可能需要 5 毫秒
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	total = len(a.records)
-	// clean up records that have not been used for a period of time.
+	// 清理一段时间内未使用的记录
 	for key, records := range a.records {
 		if now.Sub(records.LastUpdateTime) > a.dataReserveDuration {
 			delete(a.records, key)

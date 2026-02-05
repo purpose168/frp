@@ -24,15 +24,23 @@ import (
 	"github.com/fatedier/frp/pkg/util/xlog"
 )
 
+// Manager 插件管理器
 type Manager struct {
-	loginPlugins       []Plugin
-	newProxyPlugins    []Plugin
-	closeProxyPlugins  []Plugin
-	pingPlugins        []Plugin
+	// loginPlugins 登录插件列表
+	loginPlugins []Plugin
+	// newProxyPlugins 新建代理插件列表
+	newProxyPlugins []Plugin
+	// closeProxyPlugins 关闭代理插件列表
+	closeProxyPlugins []Plugin
+	// pingPlugins 心跳插件列表
+	pingPlugins []Plugin
+	// newWorkConnPlugins 新建工作连接插件列表
 	newWorkConnPlugins []Plugin
+	// newUserConnPlugins 新建用户连接插件列表
 	newUserConnPlugins []Plugin
 }
 
+// NewManager 创建插件管理器
 func NewManager() *Manager {
 	return &Manager{
 		loginPlugins:       make([]Plugin, 0),
@@ -44,6 +52,7 @@ func NewManager() *Manager {
 	}
 }
 
+// Register 注册插件
 func (m *Manager) Register(p Plugin) {
 	if p.IsSupport(OpLogin) {
 		m.loginPlugins = append(m.loginPlugins, p)
@@ -65,6 +74,7 @@ func (m *Manager) Register(p Plugin) {
 	}
 }
 
+// Login 处理登录
 func (m *Manager) Login(content *LoginContent) (*LoginContent, error) {
 	if len(m.loginPlugins) == 0 {
 		return content, nil
@@ -86,8 +96,8 @@ func (m *Manager) Login(content *LoginContent) (*LoginContent, error) {
 	for _, p := range m.loginPlugins {
 		res, retContent, err = p.Handle(ctx, OpLogin, *content)
 		if err != nil {
-			xl.Warnf("send Login request to plugin [%s] error: %v", p.Name(), err)
-			return nil, errors.New("send Login request to plugin error")
+			xl.Warnf("处理登录请求到插件 [%s] 错误: %v", p.Name(), err)
+			return nil, errors.New("处理登录请求到插件错误")
 		}
 		if res.Reject {
 			return nil, fmt.Errorf("%s", res.RejectReason)
@@ -99,6 +109,7 @@ func (m *Manager) Login(content *LoginContent) (*LoginContent, error) {
 	return content, nil
 }
 
+// NewProxy 处理新建代理
 func (m *Manager) NewProxy(content *NewProxyContent) (*NewProxyContent, error) {
 	if len(m.newProxyPlugins) == 0 {
 		return content, nil
@@ -120,8 +131,8 @@ func (m *Manager) NewProxy(content *NewProxyContent) (*NewProxyContent, error) {
 	for _, p := range m.newProxyPlugins {
 		res, retContent, err = p.Handle(ctx, OpNewProxy, *content)
 		if err != nil {
-			xl.Warnf("send NewProxy request to plugin [%s] error: %v", p.Name(), err)
-			return nil, errors.New("send NewProxy request to plugin error")
+			xl.Warnf("处理新建代理请求到插件 [%s] 错误: %v", p.Name(), err)
+			return nil, errors.New("处理新建代理请求到插件错误")
 		}
 		if res.Reject {
 			return nil, fmt.Errorf("%s", res.RejectReason)
@@ -133,6 +144,7 @@ func (m *Manager) NewProxy(content *NewProxyContent) (*NewProxyContent, error) {
 	return content, nil
 }
 
+// CloseProxy 处理关闭代理
 func (m *Manager) CloseProxy(content *CloseProxyContent) error {
 	if len(m.closeProxyPlugins) == 0 {
 		return nil
@@ -147,17 +159,18 @@ func (m *Manager) CloseProxy(content *CloseProxyContent) error {
 	for _, p := range m.closeProxyPlugins {
 		_, _, err := p.Handle(ctx, OpCloseProxy, *content)
 		if err != nil {
-			xl.Warnf("send CloseProxy request to plugin [%s] error: %v", p.Name(), err)
+			xl.Warnf("处理关闭代理请求到插件 [%s] 错误: %v", p.Name(), err)
 			errs = append(errs, fmt.Sprintf("[%s]: %v", p.Name(), err))
 		}
 	}
 
 	if len(errs) > 0 {
-		return fmt.Errorf("send CloseProxy request to plugin errors: %s", strings.Join(errs, "; "))
+		return fmt.Errorf("处理关闭代理请求到插件错误: %s", strings.Join(errs, "; "))
 	}
 	return nil
 }
 
+// Ping 处理心跳
 func (m *Manager) Ping(content *PingContent) (*PingContent, error) {
 	if len(m.pingPlugins) == 0 {
 		return content, nil
@@ -179,8 +192,8 @@ func (m *Manager) Ping(content *PingContent) (*PingContent, error) {
 	for _, p := range m.pingPlugins {
 		res, retContent, err = p.Handle(ctx, OpPing, *content)
 		if err != nil {
-			xl.Warnf("send Ping request to plugin [%s] error: %v", p.Name(), err)
-			return nil, errors.New("send Ping request to plugin error")
+			xl.Warnf("处理心跳请求到插件 [%s] 错误: %v", p.Name(), err)
+			return nil, errors.New("处理心跳请求到插件错误")
 		}
 		if res.Reject {
 			return nil, fmt.Errorf("%s", res.RejectReason)
@@ -192,6 +205,7 @@ func (m *Manager) Ping(content *PingContent) (*PingContent, error) {
 	return content, nil
 }
 
+// NewWorkConn 处理新建工作连接
 func (m *Manager) NewWorkConn(content *NewWorkConnContent) (*NewWorkConnContent, error) {
 	if len(m.newWorkConnPlugins) == 0 {
 		return content, nil
@@ -213,8 +227,8 @@ func (m *Manager) NewWorkConn(content *NewWorkConnContent) (*NewWorkConnContent,
 	for _, p := range m.newWorkConnPlugins {
 		res, retContent, err = p.Handle(ctx, OpNewWorkConn, *content)
 		if err != nil {
-			xl.Warnf("send NewWorkConn request to plugin [%s] error: %v", p.Name(), err)
-			return nil, errors.New("send NewWorkConn request to plugin error")
+			xl.Warnf("处理新建工作连接请求到插件 [%s] 错误: %v", p.Name(), err)
+			return nil, errors.New("处理新建工作连接请求到插件错误")
 		}
 		if res.Reject {
 			return nil, fmt.Errorf("%s", res.RejectReason)
@@ -226,6 +240,7 @@ func (m *Manager) NewWorkConn(content *NewWorkConnContent) (*NewWorkConnContent,
 	return content, nil
 }
 
+// NewUserConn 处理新建用户连接
 func (m *Manager) NewUserConn(content *NewUserConnContent) (*NewUserConnContent, error) {
 	if len(m.newUserConnPlugins) == 0 {
 		return content, nil
@@ -247,8 +262,8 @@ func (m *Manager) NewUserConn(content *NewUserConnContent) (*NewUserConnContent,
 	for _, p := range m.newUserConnPlugins {
 		res, retContent, err = p.Handle(ctx, OpNewUserConn, *content)
 		if err != nil {
-			xl.Infof("send NewUserConn request to plugin [%s] error: %v", p.Name(), err)
-			return nil, errors.New("send NewUserConn request to plugin error")
+			xl.Warnf("处理新建用户连接请求到插件 [%s] 错误: %v", p.Name(), err)
+			return nil, errors.New("处理新建用户连接请求到插件错误")
 		}
 		if res.Reject {
 			return nil, fmt.Errorf("%s", res.RejectReason)

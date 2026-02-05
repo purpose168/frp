@@ -18,16 +18,20 @@ import (
 	"context"
 )
 
+// key 键类型
 type key int
 
 const (
+	// reqidKey 请求ID键
 	reqidKey key = 0
 )
 
+// NewReqidContext 创建请求ID上下文
 func NewReqidContext(ctx context.Context, reqid string) context.Context {
 	return context.WithValue(ctx, reqidKey, reqid)
 }
 
+// GetReqidFromContext 从上下文中获取请求ID
 func GetReqidFromContext(ctx context.Context) string {
 	ret, _ := ctx.Value(reqidKey).(string)
 	return ret

@@ -30,15 +30,18 @@ var visitorPluginOptionsTypeMap = map[string]reflect.Type{
 	VisitorPluginVirtualNet: reflect.TypeOf(VirtualNetVisitorPluginOptions{}),
 }
 
+// VisitorPluginOptions 访客插件选项接口
 type VisitorPluginOptions interface {
 	Complete()
 }
 
+// TypedVisitorPluginOptions 类型化的访问客插件选项结构体
 type TypedVisitorPluginOptions struct {
 	Type string `json:"type"`
 	VisitorPluginOptions
 }
 
+// UnmarshalJSON 实现自定义的 JSON 反序列化
 func (c *TypedVisitorPluginOptions) UnmarshalJSON(b []byte) error {
 	if len(b) == 4 && string(b) == "null" {
 		return nil
@@ -53,12 +56,12 @@ func (c *TypedVisitorPluginOptions) UnmarshalJSON(b []byte) error {
 
 	c.Type = typeStruct.Type
 	if c.Type == "" {
-		return errors.New("visitor plugin type is empty")
+		return errors.New("访问客插件类型为空")
 	}
 
 	v, ok := visitorPluginOptionsTypeMap[typeStruct.Type]
 	if !ok {
-		return fmt.Errorf("unknown visitor plugin type: %s", typeStruct.Type)
+		return fmt.Errorf("未知的访问客插件类型: %s", typeStruct.Type)
 	}
 	options := reflect.New(v).Interface().(VisitorPluginOptions)
 
@@ -68,19 +71,22 @@ func (c *TypedVisitorPluginOptions) UnmarshalJSON(b []byte) error {
 	}
 
 	if err := decoder.Decode(options); err != nil {
-		return fmt.Errorf("unmarshal VisitorPluginOptions error: %v", err)
+		return fmt.Errorf("反序列化 VisitorPluginOptions 错误: %v", err)
 	}
 	c.VisitorPluginOptions = options
 	return nil
 }
 
+// MarshalJSON 实现自定义的 JSON 序列化
 func (c *TypedVisitorPluginOptions) MarshalJSON() ([]byte, error) {
 	return json.Marshal(c.VisitorPluginOptions)
 }
 
+// VirtualNetVisitorPluginOptions 虚拟网络访问客插件选项结构体
 type VirtualNetVisitorPluginOptions struct {
 	Type          string `json:"type"`
 	DestinationIP string `json:"destinationIP"`
 }
 
+// Complete 完成虚拟网络访问客插件选项配置
 func (o *VirtualNetVisitorPluginOptions) Complete() {}

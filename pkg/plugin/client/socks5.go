@@ -31,10 +31,13 @@ func init() {
 	Register(v1.PluginSocks5, NewSocks5Plugin)
 }
 
+// Socks5Plugin SOCKS5代理插件
 type Socks5Plugin struct {
+	// Server SOCKS5服务器
 	Server *gosocks5.Server
 }
 
+// NewSocks5Plugin 创建SOCKS5代理插件
 func NewSocks5Plugin(_ PluginContext, options v1.ClientPluginOptions) (p Plugin, err error) {
 	opts := options.(*v1.Socks5PluginOptions)
 
@@ -50,16 +53,19 @@ func NewSocks5Plugin(_ PluginContext, options v1.ClientPluginOptions) (p Plugin,
 	return
 }
 
+// Handle 处理连接
 func (sp *Socks5Plugin) Handle(_ context.Context, connInfo *ConnectionInfo) {
 	defer connInfo.Conn.Close()
 	wrapConn := netpkg.WrapReadWriteCloserToConn(connInfo.Conn, connInfo.UnderlyingConn)
 	_ = sp.Server.ServeConn(wrapConn)
 }
 
+// Name 返回插件名称
 func (sp *Socks5Plugin) Name() string {
 	return v1.PluginSocks5
 }
 
+// Close 关闭插件
 func (sp *Socks5Plugin) Close() error {
 	return nil
 }

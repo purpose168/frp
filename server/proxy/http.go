@@ -1,16 +1,14 @@
 // Copyright 2019 fatedier, fatedier@gmail.com
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// 依据 Apache License, Version 2.0 许可协议授权；
+// 除非符合许可协议的规定，否则不得使用此文件。
+// 您可以在以下网址获取许可协议的副本：
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// 除非适用法律要求或者书面同意，否则本软件按"原样"分发，
+// 不附带任何明示或暗示的担保或条件。
+// 请参阅许可协议以了解管理权限和限制的特定语言。
 
 package proxy
 
@@ -34,13 +32,19 @@ func init() {
 	RegisterProxyFactory(reflect.TypeOf(&v1.HTTPProxyConfig{}), NewHTTPProxy)
 }
 
+// HTTPProxy HTTP代理
+// 实现了Proxy接口，用于处理HTTP代理请求
 type HTTPProxy struct {
 	*BaseProxy
+	// cfg HTTP代理配置
 	cfg *v1.HTTPProxyConfig
 
+	// closeFuncs 关闭函数列表，用于在代理关闭时执行清理操作
 	closeFuncs []func()
 }
 
+// NewHTTPProxy 创建一个新的HTTP代理
+// 参数baseProxy是基础代理
 func NewHTTPProxy(baseProxy *BaseProxy) Proxy {
 	unwrapped, ok := baseProxy.GetConfigurer().(*v1.HTTPProxyConfig)
 	if !ok {
@@ -52,6 +56,8 @@ func NewHTTPProxy(baseProxy *BaseProxy) Proxy {
 	}
 }
 
+// Run 启动HTTP代理
+// 返回值是远程地址和可能的错误
 func (pxy *HTTPProxy) Run() (remoteAddr string, err error) {
 	xl := pxy.xl
 	routeConfig := vhost.RouteConfig{
@@ -87,7 +93,7 @@ func (pxy *HTTPProxy) Run() (remoteAddr string, err error) {
 
 			tmpRouteConfig := routeConfig
 
-			// handle group
+			// 处理组
 			if pxy.cfg.LoadBalancer.Group != "" {
 				err = pxy.rc.HTTPGroupCtl.Register(pxy.name, pxy.cfg.LoadBalancer.Group, pxy.cfg.LoadBalancer.GroupKey, routeConfig)
 				if err != nil {
@@ -98,7 +104,7 @@ func (pxy *HTTPProxy) Run() (remoteAddr string, err error) {
 					pxy.rc.HTTPGroupCtl.UnRegister(pxy.name, pxy.cfg.LoadBalancer.Group, tmpRouteConfig)
 				})
 			} else {
-				// no group
+				// 无组
 				err = pxy.rc.HTTPReverseProxy.Register(routeConfig)
 				if err != nil {
 					return
@@ -108,7 +114,7 @@ func (pxy *HTTPProxy) Run() (remoteAddr string, err error) {
 				})
 			}
 			addrs = append(addrs, util.CanonicalAddr(routeConfig.Domain, pxy.serverCfg.VhostHTTPPort))
-			xl.Infof("http proxy listen for host [%s] location [%s] group [%s], routeByHTTPUser [%s]",
+			xl.Infof("HTTP代理监听主机 [%s] 路径 [%s] 组 [%s], 按HTTP用户路由 [%s]",
 				routeConfig.Domain, routeConfig.Location, pxy.cfg.LoadBalancer.Group, pxy.cfg.RouteByHTTPUser)
 		}
 	}
@@ -120,7 +126,7 @@ func (pxy *HTTPProxy) Run() (remoteAddr string, err error) {
 
 			tmpRouteConfig := routeConfig
 
-			// handle group
+			// 处理组
 			if pxy.cfg.LoadBalancer.Group != "" {
 				err = pxy.rc.HTTPGroupCtl.Register(pxy.name, pxy.cfg.LoadBalancer.Group, pxy.cfg.LoadBalancer.GroupKey, routeConfig)
 				if err != nil {
@@ -131,6 +137,7 @@ func (pxy *HTTPProxy) Run() (remoteAddr string, err error) {
 					pxy.rc.HTTPGroupCtl.UnRegister(pxy.name, pxy.cfg.LoadBalancer.Group, tmpRouteConfig)
 				})
 			} else {
+				// 无组
 				err = pxy.rc.HTTPReverseProxy.Register(routeConfig)
 				if err != nil {
 					return
@@ -141,7 +148,7 @@ func (pxy *HTTPProxy) Run() (remoteAddr string, err error) {
 			}
 			addrs = append(addrs, util.CanonicalAddr(tmpRouteConfig.Domain, pxy.serverCfg.VhostHTTPPort))
 
-			xl.Infof("http proxy listen for host [%s] location [%s] group [%s], routeByHTTPUser [%s]",
+			xl.Infof("HTTP代理监听主机 [%s] 路径 [%s] 组 [%s], 按HTTP用户路由 [%s]",
 				routeConfig.Domain, routeConfig.Location, pxy.cfg.LoadBalancer.Group, pxy.cfg.RouteByHTTPUser)
 		}
 	}
@@ -149,12 +156,15 @@ func (pxy *HTTPProxy) Run() (remoteAddr string, err error) {
 	return
 }
 
+// GetRealConn 获取实际连接
+// 参数remoteAddr是远程地址
+// 返回值是工作连接和可能的错误
 func (pxy *HTTPProxy) GetRealConn(remoteAddr string) (workConn net.Conn, err error) {
 	xl := pxy.xl
 	rAddr, errRet := net.ResolveTCPAddr("tcp", remoteAddr)
 	if errRet != nil {
-		xl.Warnf("resolve TCP addr [%s] error: %v", remoteAddr, errRet)
-		// we do not return error here since remoteAddr is not necessary for proxies without proxy protocol enabled
+		xl.Warnf("解析TCP地址 [%s] 错误: %v", remoteAddr, errRet)
+		// 这里不返回错误，因为对于未启用代理协议的代理，remoteAddr不是必需的
 	}
 
 	tmpConn, errRet := pxy.GetWorkConnFromPool(rAddr, nil)
@@ -167,7 +177,7 @@ func (pxy *HTTPProxy) GetRealConn(remoteAddr string) (workConn net.Conn, err err
 	if pxy.cfg.Transport.UseEncryption {
 		rwc, err = libio.WithEncryption(rwc, pxy.encryptionKey)
 		if err != nil {
-			xl.Errorf("create encryption stream error: %v", err)
+			xl.Errorf("创建加密流错误: %v", err)
 			return
 		}
 	}
@@ -187,6 +197,9 @@ func (pxy *HTTPProxy) GetRealConn(remoteAddr string) (workConn net.Conn, err err
 	return
 }
 
+// updateStatsAfterClosedConn 连接关闭后更新统计信息
+// 参数totalRead是读取的总字节数
+// 参数totalWrite是写入的总字节数
 func (pxy *HTTPProxy) updateStatsAfterClosedConn(totalRead, totalWrite int64) {
 	name := pxy.GetName()
 	proxyType := pxy.GetConfigurer().GetBaseConfig().Type
@@ -195,6 +208,7 @@ func (pxy *HTTPProxy) updateStatsAfterClosedConn(totalRead, totalWrite int64) {
 	metrics.Server.AddTrafficOut(name, proxyType, totalRead)
 }
 
+// Close 关闭HTTP代理
 func (pxy *HTTPProxy) Close() {
 	pxy.BaseProxy.Close()
 	for _, closeFn := range pxy.closeFuncs {

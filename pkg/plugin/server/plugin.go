@@ -19,18 +19,29 @@ import (
 )
 
 const (
+	// APIVersion API版本
 	APIVersion = "0.1.0"
 
-	OpLogin       = "Login"
-	OpNewProxy    = "NewProxy"
-	OpCloseProxy  = "CloseProxy"
-	OpPing        = "Ping"
+	// OpLogin 登录操作
+	OpLogin = "Login"
+	// OpNewProxy 新建代理操作
+	OpNewProxy = "NewProxy"
+	// OpCloseProxy 关闭代理操作
+	OpCloseProxy = "CloseProxy"
+	// OpPing 心跳操作
+	OpPing = "Ping"
+	// OpNewWorkConn 新建工作连接操作
 	OpNewWorkConn = "NewWorkConn"
+	// OpNewUserConn 新建用户连接操作
 	OpNewUserConn = "NewUserConn"
 )
 
+// Plugin 插件接口
 type Plugin interface {
+	// Name 返回插件名称
 	Name() string
+	// IsSupport 检查是否支持指定操作
 	IsSupport(op string) bool
+	// Handle 处理操作
 	Handle(ctx context.Context, op string, content any) (res *Response, retContent any, err error)
 }

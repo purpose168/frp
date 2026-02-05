@@ -39,7 +39,7 @@ func BuildProxyProtocolHeader(srcAddr, dstAddr net.Addr, version string) ([]byte
 	var buf bytes.Buffer
 	_, err := h.WriteTo(&buf)
 	if err != nil {
-		return nil, fmt.Errorf("failed to write proxy protocol header: %v", err)
+		return nil, fmt.Errorf("写入代理协议头失败: %v", err)
 	}
 	return buf.Bytes(), nil
 }

@@ -22,6 +22,7 @@ import (
 )
 
 var (
+	// SupportedTransportProtocols 支持的传输协议列表
 	SupportedTransportProtocols = []string{
 		"tcp",
 		"kcp",
@@ -30,16 +31,19 @@ var (
 		"wss",
 	}
 
+	// SupportedAuthMethods 支持的认证方法列表
 	SupportedAuthMethods = []v1.AuthMethod{
 		"token",
 		"oidc",
 	}
 
+	// SupportedAuthAdditionalScopes 支持的认证额外作用域列表
 	SupportedAuthAdditionalScopes = []v1.AuthScope{
 		"HeartBeats",
 		"NewWorkConns",
 	}
 
+	// SupportedLogLevels 支持的日志级别列表
 	SupportedLogLevels = []string{
 		"trace",
 		"debug",
@@ -48,6 +52,7 @@ var (
 		"error",
 	}
 
+	// SupportedHTTPPluginOps 支持的 HTTP 插件操作列表
 	SupportedHTTPPluginOps = []string{
 		splugin.OpLogin,
 		splugin.OpNewProxy,
@@ -58,11 +63,18 @@ var (
 	}
 )
 
+// Warning 警告类型，用于表示验证过程中的警告信息
 type Warning error
 
+// AppendError 将多个错误合并为一个错误
+// 参数 err 为基础错误
+// 参数 errs 为要合并的错误列表
+// 返回合并后的错误
 func AppendError(err error, errs ...error) error {
+	// 如果没有额外的错误，直接返回基础错误
 	if len(errs) == 0 {
 		return err
 	}
+	// 将所有错误合并为一个
 	return errors.Join(append([]error{err}, errs...)...)
 }

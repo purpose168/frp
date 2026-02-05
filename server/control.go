@@ -1,16 +1,16 @@
 // Copyright 2017 fatedier, fatedier@gmail.com
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// 依据 Apache License, Version 2.0 许可证授权；
+// 除非符合许可证的要求，否则您不能使用此文件。
+// 您可以在以下网址获取许可证副本：
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// 除非适用法律要求或书面同意，否则软件
+// 根据许可证分发是基于“按原样”基础，
+// 不附带任何明示或暗示的担保或条件。
+// 请参阅许可证中有关管理权限和
+// 限制的特定语言。
 
 package server
 
@@ -43,19 +43,27 @@ import (
 	"github.com/fatedier/frp/server/registry"
 )
 
+// ControlManager 控制管理器
+// 按运行ID索引控制连接
 type ControlManager struct {
-	// controls indexed by run id
+	// ctlsByRunID 按运行ID索引的控制连接
 	ctlsByRunID map[string]*Control
 
+	// mu 读写锁
 	mu sync.RWMutex
 }
 
+// NewControlManager 创建一个新的控制管理器
 func NewControlManager() *ControlManager {
 	return &ControlManager{
 		ctlsByRunID: make(map[string]*Control),
 	}
 }
 
+// Add 添加一个新的控制连接
+// 参数runID是运行ID
+// 参数ctl是控制连接
+// 返回值是旧的控制连接
 func (cm *ControlManager) Add(runID string, ctl *Control) (old *Control) {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -69,7 +77,8 @@ func (cm *ControlManager) Add(runID string, ctl *Control) (old *Control) {
 	return
 }
 
-// we should make sure if it's the same control to prevent delete a new one
+// Del 删除指定的控制连接
+// 我们应该确保它是同一个控制连接，以防止删除新的连接
 func (cm *ControlManager) Del(runID string, ctl *Control) {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -78,6 +87,9 @@ func (cm *ControlManager) Del(runID string, ctl *Control) {
 	}
 }
 
+// GetByID 通过运行ID获取控制连接
+// 参数runID是运行ID
+// 返回值是控制连接和是否存在
 func (cm *ControlManager) GetByID(runID string) (ctl *Control, ok bool) {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -85,6 +97,7 @@ func (cm *ControlManager) GetByID(runID string) (ctl *Control, ok bool) {
 	return
 }
 
+// Close 关闭所有控制连接
 func (cm *ControlManager) Close() error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -95,67 +108,75 @@ func (cm *ControlManager) Close() error {
 	return nil
 }
 
+// Control 控制连接
+// 管理客户端与服务器之间的控制连接
 type Control struct {
-	// all resource managers and controllers
+	// rc 所有资源管理器和控制器
 	rc *controller.ResourceController
 
-	// proxy manager
+	// pxyManager 代理管理器
 	pxyManager *proxy.Manager
 
-	// plugin manager
+	// pluginManager 插件管理器
 	pluginManager *plugin.Manager
 
-	// verifies authentication based on selected method
+	// authVerifier 根据选择的方法验证身份
 	authVerifier auth.Verifier
-	// key used for connection encryption
+	// encryptionKey 用于连接加密的密钥
 	encryptionKey []byte
 
-	// other components can use this to communicate with client
+	// msgTransporter 其他组件可以使用它与客户端通信
 	msgTransporter transport.MessageTransporter
 
-	// msgDispatcher is a wrapper for control connection.
-	// It provides a channel for sending messages, and you can register handlers to process messages based on their respective types.
+	// msgDispatcher 是控制连接的包装器
+	// 它提供了一个发送消息的通道，您可以注册处理程序来根据消息类型处理消息
 	msgDispatcher *msg.Dispatcher
 
-	// login message
+	// loginMsg 登录消息
 	loginMsg *msg.Login
 
-	// control connection
+	// conn 控制连接
 	conn net.Conn
 
-	// work connections
+	// workConnCh 工作连接通道
 	workConnCh chan net.Conn
 
-	// proxies in one client
+	// proxies 一个客户端中的代理
 	proxies map[string]proxy.Proxy
 
-	// pool count
+	// poolCount 连接池数量
 	poolCount int
 
-	// ports used, for limitations
+	// portsUsedNum 使用的端口数量，用于限制
 	portsUsedNum int
 
-	// last time got the Ping message
+	// lastPing 最后一次收到Ping消息的时间
 	lastPing atomic.Value
 
-	// A new run id will be generated when a new client login.
-	// If run id got from login message has same run id, it means it's the same client, so we can
-	// replace old controller instantly.
+	// runID 客户端运行ID
+	// 新客户端登录时会生成一个新的运行ID
+	// 如果从登录消息中获取的运行ID与现有运行ID相同，意味着是同一个客户端，因此我们可以立即替换旧的控制器
 	runID string
 
+	// mu 读写锁
 	mu sync.RWMutex
 
-	// Server configuration information
+	// serverCfg 服务器配置信息
 	serverCfg *v1.ServerConfig
 
+	// clientRegistry 客户端注册表
 	clientRegistry *registry.ClientRegistry
 
-	xl     *xlog.Logger
-	ctx    context.Context
+	// xl 日志记录器
+	xl *xlog.Logger
+	// ctx 上下文
+	ctx context.Context
+	// doneCh 完成通道
 	doneCh chan struct{}
 }
 
-// TODO(fatedier): Referencing the implementation of frpc, encapsulate the input parameters as SessionContext.
+// NewControl 创建一个新的控制连接
+// TODO(fatedier): 参考frpc的实现，将输入参数封装为SessionContext
 func NewControl(
 	ctx context.Context,
 	rc *controller.ResourceController,

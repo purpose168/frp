@@ -6,7 +6,7 @@
         <el-icon><ArrowLeft /></el-icon>
       </a>
       <template v-if="fromClient">
-        <router-link to="/clients" class="breadcrumb-item">Clients</router-link>
+        <router-link to="/clients" class="breadcrumb-item">客户端</router-link>
         <span class="breadcrumb-separator">/</span>
         <router-link :to="`/clients/${fromClient}`" class="breadcrumb-item">{{
           fromClient
@@ -14,7 +14,7 @@
         <span class="breadcrumb-separator">/</span>
       </template>
       <template v-else>
-        <router-link to="/proxies" class="breadcrumb-item">Proxies</router-link>
+        <router-link to="/proxies" class="breadcrumb-item">代理</router-link>
         <span class="breadcrumb-separator">/</span>
         <router-link
           v-if="proxy?.clientID"
@@ -55,7 +55,7 @@
                 >
                   <el-icon><Monitor /></el-icon>
                   <span
-                    >Client:
+                    >客户端:
                     {{
                       proxy.user
                         ? `${proxy.user}.${proxy.clientID}`
@@ -71,33 +71,33 @@
         <!-- Stats Cards -->
         <div class="stats-grid">
           <div v-if="proxy.port" class="stat-card">
-            <div class="stat-header">
-              <span class="stat-label">Port</span>
-              <div class="stat-icon port">
-                <el-icon><Connection /></el-icon>
-              </div>
+          <div class="stat-header">
+            <span class="stat-label">端口</span>
+            <div class="stat-icon port">
+              <el-icon><Connection /></el-icon>
             </div>
-            <div class="stat-value">{{ proxy.port }}</div>
           </div>
-          <div class="stat-card">
-            <div class="stat-header">
-              <span class="stat-label">Connections</span>
-              <div class="stat-icon connections">
-                <el-icon><DataLine /></el-icon>
-              </div>
+          <div class="stat-value">{{ proxy.port }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-label">连接数</span>
+            <div class="stat-icon connections">
+              <el-icon><DataLine /></el-icon>
             </div>
-            <div class="stat-value">{{ proxy.conns }}</div>
           </div>
-          <div class="stat-card">
-            <div class="stat-header">
-              <span class="stat-label">Traffic In</span>
-              <div class="stat-icon traffic-in">
-                <el-icon><Bottom /></el-icon>
-              </div>
+          <div class="stat-value">{{ proxy.conns }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-label">入站流量</span>
+            <div class="stat-icon traffic-in">
+              <el-icon><Bottom /></el-icon>
             </div>
-            <div class="stat-value">
-              <span class="value-number">{{
-                formatTrafficValue(proxy.trafficIn)
+          </div>
+          <div class="stat-value">
+            <span class="value-number">{{
+              formatTrafficValue(proxy.trafficIn)
               }}</span>
               <span class="value-unit">{{
                 formatTrafficUnit(proxy.trafficIn)
@@ -106,7 +106,7 @@
           </div>
           <div class="stat-card">
             <div class="stat-header">
-              <span class="stat-label">Traffic Out</span>
+              <span class="stat-label">出站流量</span>
               <div class="stat-icon traffic-out">
                 <el-icon><Top /></el-icon>
               </div>
@@ -126,18 +126,18 @@
         <div class="timeline-card">
           <div class="timeline-header">
             <el-icon><DataLine /></el-icon>
-            <h2>Status Timeline</h2>
+            <h2>状态时间线</h2>
           </div>
           <div class="timeline-body">
             <div class="timeline-grid">
               <div class="timeline-item">
-                <span class="timeline-label">Last Start Time</span>
+                <span class="timeline-label">上次启动时间</span>
                 <span class="timeline-value">{{
                   proxy.lastStartTime || '-'
                 }}</span>
               </div>
               <div class="timeline-item">
-                <span class="timeline-label">Last Close Time</span>
+                <span class="timeline-label">上次关闭时间</span>
                 <span class="timeline-value">{{
                   proxy.lastCloseTime || '-'
                 }}</span>
@@ -150,7 +150,7 @@
         <div class="config-section">
           <div class="config-section-header">
             <el-icon><Setting /></el-icon>
-            <h2>Configuration</h2>
+            <h2>配置</h2>
           </div>
 
           <!-- Config Cards Grid -->
@@ -160,9 +160,9 @@
                 <el-icon><Lock /></el-icon>
               </div>
               <div class="config-item-content">
-                <span class="config-item-label">Encryption</span>
+                <span class="config-item-label">加密</span>
                 <span class="config-item-value">{{
-                  proxy.encryption ? 'Enabled' : 'Disabled'
+                  proxy.encryption ? '已启用' : '已禁用'
                 }}</span>
               </div>
             </div>
@@ -172,9 +172,9 @@
                 <el-icon><Lightning /></el-icon>
               </div>
               <div class="config-item-content">
-                <span class="config-item-label">Compression</span>
+                <span class="config-item-label">压缩</span>
                 <span class="config-item-value">{{
-                  proxy.compression ? 'Enabled' : 'Disabled'
+                  proxy.compression ? '已启用' : '已禁用'
                 }}</span>
               </div>
             </div>
@@ -184,7 +184,7 @@
                 <el-icon><Link /></el-icon>
               </div>
               <div class="config-item-content">
-                <span class="config-item-label">Custom Domains</span>
+                <span class="config-item-label">自定义域名</span>
                 <span class="config-item-value">{{ proxy.customDomains }}</span>
               </div>
             </div>
@@ -194,7 +194,7 @@
                 <el-icon><Link /></el-icon>
               </div>
               <div class="config-item-content">
-                <span class="config-item-label">Subdomain</span>
+                <span class="config-item-label">子域名</span>
                 <span class="config-item-value">{{ proxy.subdomain }}</span>
               </div>
             </div>
@@ -204,7 +204,7 @@
                 <el-icon><Location /></el-icon>
               </div>
               <div class="config-item-content">
-                <span class="config-item-label">Locations</span>
+                <span class="config-item-label">路径</span>
                 <span class="config-item-value">{{ proxy.locations }}</span>
               </div>
             </div>
@@ -214,7 +214,7 @@
                 <el-icon><Tickets /></el-icon>
               </div>
               <div class="config-item-content">
-                <span class="config-item-label">Host Rewrite</span>
+                <span class="config-item-label">主机重写</span>
                 <span class="config-item-value">{{
                   proxy.hostHeaderRewrite
                 }}</span>
@@ -226,7 +226,7 @@
                 <el-icon><Cpu /></el-icon>
               </div>
               <div class="config-item-content">
-                <span class="config-item-label">Multiplexer</span>
+                <span class="config-item-label">多路复用器</span>
                 <span class="config-item-value">{{ proxy.multiplexer }}</span>
               </div>
             </div>
@@ -236,7 +236,7 @@
                 <el-icon><Connection /></el-icon>
               </div>
               <div class="config-item-content">
-                <span class="config-item-label">Route By HTTP User</span>
+                <span class="config-item-label">按HTTP用户路由</span>
                 <span class="config-item-value">{{
                   proxy.routeByHTTPUser
                 }}</span>
@@ -261,7 +261,7 @@
         <!-- Traffic Card -->
         <div class="traffic-card">
           <div class="traffic-header">
-            <h2>Traffic Statistics</h2>
+            <h2>流量统计</h2>
           </div>
           <div class="traffic-body">
             <Traffic :proxy-name="proxyName" />
@@ -270,10 +270,10 @@
       </template>
 
       <div v-else-if="!loading" class="not-found">
-        <h2>Proxy not found</h2>
-        <p>The proxy doesn't exist or has been removed.</p>
+        <h2>代理未找到</h2>
+        <p>代理不存在或已被移除。</p>
         <router-link to="/proxies">
-          <el-button type="primary">Back to Proxies</el-button>
+          <el-button type="primary">返回代理列表</el-button>
         </router-link>
       </div>
     </div>

@@ -21,12 +21,15 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// TestClientConfigComplete 测试客户端配置的完整性
+// 验证客户端配置在调用 Complete 方法后是否正确填充默认值
 func TestClientConfigComplete(t *testing.T) {
 	require := require.New(t)
 	c := &ClientConfig{}
 	err := c.Complete()
 	require.NoError(err)
 
+	// 验证默认值是否正确设置
 	require.EqualValues("token", c.Auth.Method)
 	require.Equal(true, lo.FromPtr(c.Transport.TCPMux))
 	require.Equal(true, lo.FromPtr(c.LoginFailExit))
@@ -35,6 +38,8 @@ func TestClientConfigComplete(t *testing.T) {
 	require.NotEmpty(c.NatHoleSTUNServer)
 }
 
+// TestAuthClientConfig_Complete 测试客户端认证配置的完整性
+// 验证认证配置在调用 Complete 方法后是否正确填充默认值
 func TestAuthClientConfig_Complete(t *testing.T) {
 	require := require.New(t)
 	cfg := &AuthClientConfig{}

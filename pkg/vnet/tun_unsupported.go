@@ -24,6 +24,11 @@ import (
 	"golang.zx2c4.com/wireguard/tun"
 )
 
+// openTun 在不支持的平台上打开 TUN 设备
+// 此函数仅在非 Darwin 和非 Linux 系统上编译
+// ctx: 上下文（未使用）
+// addr: 地址字符串（未使用）
+// 返回 nil 和错误信息
 func openTun(_ context.Context, _ string) (tun.Device, error) {
-	return nil, fmt.Errorf("virtual net is not supported on this platform (%s/%s)", runtime.GOOS, runtime.GOARCH)
+	return nil, fmt.Errorf("虚拟网络在此平台 (%s/%s) 上不支持", runtime.GOOS, runtime.GOARCH)
 }

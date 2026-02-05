@@ -1,16 +1,14 @@
-// Copyright 2019 fatedier, fatedier@gmail.com
+// 版权所有 2019 fatedier, fatedier@gmail.com
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// 根据 Apache 许可证 2.0 版（简称"许可证"）授权；
+// 除非遵守许可证，否则您不得使用本文件。
+// 您可以从以下地址获取许可证副本：
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// 除非适用法律要求或书面同意，否则本软件按"原样"分发，
+// 不提供任何明示或暗示的保证或条件，包括但不限于对适销性或特定用途适用性的默示保证。
+// 请参阅许可证了解具体的语言和权限限制。
 
 package controller
 
@@ -26,43 +24,45 @@ import (
 
 // All resource managers and controllers
 type ResourceController struct {
-	// Manage all visitor listeners
+	// 管理所有访问者监听器
 	VisitorManager *visitor.Manager
 
-	// TCP Group Controller
+	// TCP 组控制器
 	TCPGroupCtl *group.TCPGroupCtl
 
-	// HTTP Group Controller
+	// HTTP 组控制器
 	HTTPGroupCtl *group.HTTPGroupController
 
-	// HTTPS Group Controller
+	// HTTPS 组控制器
 	HTTPSGroupCtl *group.HTTPSGroupController
 
-	// TCP Mux Group Controller
+	// TCP Mux 组控制器
 	TCPMuxGroupCtl *group.TCPMuxGroupCtl
 
-	// Manage all TCP ports
+	// 管理所有 TCP 端口
 	TCPPortManager *ports.Manager
 
-	// Manage all UDP ports
+	// 管理所有 UDP 端口
 	UDPPortManager *ports.Manager
 
-	// For HTTP proxies, forwarding HTTP requests
+	// 用于 HTTP 代理，转发 HTTP 请求
 	HTTPReverseProxy *vhost.HTTPReverseProxy
 
-	// For HTTPS proxies, route requests to different clients by hostname and other information
+	// 用于 HTTPS 代理，根据主机名和其他信息将请求路由到不同的客户端
 	VhostHTTPSMuxer *vhost.HTTPSMuxer
 
-	// Controller for nat hole connections
+	// NAT 穿透连接控制器
 	NatHoleController *nathole.Controller
 
-	// TCPMux HTTP CONNECT multiplexer
+	// TCPMux HTTP CONNECT 多路复用器
 	TCPMuxHTTPConnectMuxer *tcpmux.HTTPConnectTCPMuxer
 
-	// All server manager plugin
+	// 所有服务器管理插件
 	PluginManager *plugin.Manager
 }
 
+// Close 关闭资源控制器
+// 关闭所有相关的资源管理器和连接
 func (rc *ResourceController) Close() error {
 	if rc.VhostHTTPSMuxer != nil {
 		rc.VhostHTTPSMuxer.Close()

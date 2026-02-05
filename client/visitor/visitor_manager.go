@@ -1,16 +1,15 @@
-// Copyright 2018 fatedier, fatedier@gmail.com
+// 版权所有 2018 fatedier, fatedier@gmail.com
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// 根据 Apache 许可证 2.0 版本（"许可证"）授权；
+// 除非遵守许可证，否则您不得使用此文件。
+// 您可以在以下位置获取许可证副本：
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// 除非适用法律要求或书面同意，否则根据许可证分发的软件
+// 是按"原样"分发的，不附带任何明示或暗示的担保或条件。
+// 有关许可证下特定语言的管理权限和
+// 限制，请参阅许可证。
 
 package visitor
 
@@ -30,6 +29,7 @@ import (
 	"github.com/fatedier/frp/pkg/vnet"
 )
 
+// Manager 访问者管理器结构
 type Manager struct {
 	clientCfg *v1.ClientCommonConfig
 	cfgs      map[string]v1.VisitorConfigurer
@@ -45,6 +45,7 @@ type Manager struct {
 	stopCh chan struct{}
 }
 
+// NewManager 创建新的访问者管理器实例
 func NewManager(
 	ctx context.Context,
 	runID string,
@@ -71,8 +72,8 @@ func NewManager(
 	return m
 }
 
-// keepVisitorsRunning checks all visitors' status periodically, if some visitor is not running, start it.
-// It will only start after Reload is called and a new visitor is added.
+// keepVisitorsRunning 定期检查所有访问者的状态，如果某个访问者未运行，则启动它
+// 它只在调用 Reload 并添加新访问者后才会启动
 func (vm *Manager) keepVisitorsRunning() {
 	xl := xlog.FromContextSafe(vm.ctx)
 
@@ -82,14 +83,14 @@ func (vm *Manager) keepVisitorsRunning() {
 	for {
 		select {
 		case <-vm.stopCh:
-			xl.Tracef("gracefully shutdown visitor manager")
+			xl.Tracef("优雅关闭访问者管理器")
 			return
 		case <-ticker.C:
 			vm.mu.Lock()
 			for _, cfg := range vm.cfgs {
 				name := cfg.GetBaseConfig().Name
 				if _, exist := vm.visitors[name]; !exist {
-					xl.Infof("try to start visitor [%s]", name)
+					xl.Infof("尝试启动访问者 [%s]", name)
 					_ = vm.startVisitor(cfg)
 				}
 			}
@@ -98,6 +99,7 @@ func (vm *Manager) keepVisitorsRunning() {
 	}
 }
 
+// Close 关闭访问者管理器
 func (vm *Manager) Close() {
 	vm.mu.Lock()
 	defer vm.mu.Unlock()
@@ -111,28 +113,29 @@ func (vm *Manager) Close() {
 	}
 }
 
-// Hold lock before calling this function.
+// startVisitor 启动访问者（调用前需持有锁）
 func (vm *Manager) startVisitor(cfg v1.VisitorConfigurer) (err error) {
 	xl := xlog.FromContextSafe(vm.ctx)
 	name := cfg.GetBaseConfig().Name
 	visitor, err := NewVisitor(vm.ctx, cfg, vm.clientCfg, vm.helper)
 	if err != nil {
-		xl.Warnf("new visitor error: %v", err)
+		xl.Warnf("创建访问者错误: %v", err)
 		return
 	}
 	err = visitor.Run()
 	if err != nil {
-		xl.Warnf("start error: %v", err)
+		xl.Warnf("启动错误: %v", err)
 	} else {
 		vm.visitors[name] = visitor
-		xl.Infof("start visitor success")
+		xl.Infof("启动访问者成功")
 	}
 	return
 }
 
+// UpdateAll 更新所有访问者配置
 func (vm *Manager) UpdateAll(cfgs []v1.VisitorConfigurer) {
 	if len(cfgs) > 0 {
-		// Only start keepVisitorsRunning goroutine once and only when there is at least one visitor.
+		// 只启动 keepVisitorsRunning 协程一次，并且仅当至少有一个访问者时
 		vm.keepVisitorsRunningOnce.Do(func() {
 			go vm.keepVisitorsRunning()
 		})
@@ -163,7 +166,7 @@ func (vm *Manager) UpdateAll(cfgs []v1.VisitorConfigurer) {
 		}
 	}
 	if len(delNames) > 0 {
-		xl.Infof("visitor removed: %v", delNames)
+		xl.Infof("访问者已移除: %v", delNames)
 	}
 
 	addNames := make([]string, 0)
@@ -176,21 +179,22 @@ func (vm *Manager) UpdateAll(cfgs []v1.VisitorConfigurer) {
 		}
 	}
 	if len(addNames) > 0 {
-		xl.Infof("visitor added: %v", addNames)
+		xl.Infof("访问者已添加: %v", addNames)
 	}
 }
 
-// TransferConn transfers a connection to a visitor.
+// TransferConn 将连接转移到访问者
 func (vm *Manager) TransferConn(name string, conn net.Conn) error {
 	vm.mu.RLock()
 	defer vm.mu.RUnlock()
 	v, ok := vm.visitors[name]
 	if !ok {
-		return fmt.Errorf("visitor [%s] not found", name)
+		return fmt.Errorf("访问者 [%s] 未找到", name)
 	}
 	return v.AcceptConn(conn)
 }
 
+// visitorHelperImpl 访问者辅助接口实现
 type visitorHelperImpl struct {
 	connectServerFn func() (net.Conn, error)
 	msgTransporter  transport.MessageTransporter
@@ -199,22 +203,27 @@ type visitorHelperImpl struct {
 	runID           string
 }
 
+// ConnectServer 连接到服务器
 func (v *visitorHelperImpl) ConnectServer() (net.Conn, error) {
 	return v.connectServerFn()
 }
 
+// TransferConn 转移连接
 func (v *visitorHelperImpl) TransferConn(name string, conn net.Conn) error {
 	return v.transferConnFn(name, conn)
 }
 
+// MsgTransporter 获取消息传输器
 func (v *visitorHelperImpl) MsgTransporter() transport.MessageTransporter {
 	return v.msgTransporter
 }
 
+// VNetController 获取虚拟网络控制器
 func (v *visitorHelperImpl) VNetController() *vnet.Controller {
 	return v.vnetController
 }
 
+// RunID 获取运行 ID
 func (v *visitorHelperImpl) RunID() string {
 	return v.runID
 }

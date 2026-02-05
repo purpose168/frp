@@ -124,7 +124,7 @@ func TestBuildProxyProtocolHeaderStruct(t *testing.T) {
 			dstAddr:            &net.TCPAddr{IP: net.ParseIP("2001:db8::1"), Port: 80},
 			version:            "",
 			expectedProtocol:   pp.TCPv6,
-			expectedVersion:    2, // default to v2
+			expectedVersion:    2, // 默认为 v2
 			expectedCommand:    pp.PROXY,
 			expectedSourceAddr: &net.TCPAddr{IP: net.ParseIP("::1"), Port: 12345},
 			expectedDestAddr:   &net.TCPAddr{IP: net.ParseIP("2001:db8::1"), Port: 80},
@@ -137,7 +137,7 @@ func TestBuildProxyProtocolHeaderStruct(t *testing.T) {
 			expectedProtocol:   pp.UNSPEC,
 			expectedVersion:    2,
 			expectedCommand:    pp.LOCAL,
-			expectedSourceAddr: nil, // go-proxyproto sets both to nil when srcAddr is nil
+			expectedSourceAddr: nil, // go-proxyproto 在 srcAddr 为 nil 时将两者都设置为 nil
 			expectedDestAddr:   nil,
 		},
 		{
@@ -148,7 +148,7 @@ func TestBuildProxyProtocolHeaderStruct(t *testing.T) {
 			expectedProtocol:   pp.UNSPEC,
 			expectedVersion:    2,
 			expectedCommand:    pp.LOCAL,
-			expectedSourceAddr: nil, // go-proxyproto sets both to nil when dstAddr is nil
+			expectedSourceAddr: nil, // go-proxyproto 在 dstAddr 为 nil 时将两者都设置为 nil
 			expectedDestAddr:   nil,
 		},
 		{
@@ -159,7 +159,7 @@ func TestBuildProxyProtocolHeaderStruct(t *testing.T) {
 			expectedProtocol:   pp.UNSPEC,
 			expectedVersion:    2,
 			expectedCommand:    pp.LOCAL,
-			expectedSourceAddr: nil, // go-proxyproto sets both to nil for unsupported types
+			expectedSourceAddr: nil, // go-proxyproto 对于不支持的类型将两者都设置为 nil
 			expectedDestAddr:   nil,
 		},
 	}

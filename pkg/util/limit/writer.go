@@ -21,11 +21,18 @@ import (
 	"golang.org/x/time/rate"
 )
 
+// Writer 是限流写入器
 type Writer struct {
-	w       io.Writer
+	// w 是底层写入器
+	w io.Writer
+	// limiter 是速率限制器
 	limiter *rate.Limiter
 }
 
+// NewWriter 创建新的限流写入器
+// 参数 w 是底层写入器
+// 参数 limiter 是速率限制器
+// 返回限流写入器实例
 func NewWriter(w io.Writer, limiter *rate.Limiter) *Writer {
 	return &Writer{
 		w:       w,
@@ -33,6 +40,9 @@ func NewWriter(w io.Writer, limiter *rate.Limiter) *Writer {
 	}
 }
 
+// Write 将数据写入底层写入器，并应用速率限制
+// 参数 p 是要写入的数据
+// 返回写入的字节数和可能的错误
 func (w *Writer) Write(p []byte) (n int, err error) {
 	var nn int
 	b := w.limiter.Burst()

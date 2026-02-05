@@ -12,6 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// 版权所有 2021 The frp Authors
+//
+// 根据 Apache 许可证 2.0 版本（"许可证"）授权；
+// 除非遵守许可证，否则您不得使用此文件。
+// 您可以在以下位置获取许可证副本：
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// 除非适用法律要求或书面同意，否则根据许可证分发的软件
+// 是按"原样"基础分发的，不附带任何明示或暗示的担保或条件。
+// 有关许可证下特定语言的管理权限和限制，请参阅许可证。
+
 package legacy
 
 import (
@@ -35,27 +47,27 @@ func ParseClientConfig(filePath string) (
 	configBuffer := bytes.NewBuffer(nil)
 	configBuffer.Write(content)
 
-	// Parse common section.
+	// 解析公共部分。
 	cfg, err = UnmarshalClientConfFromIni(content)
 	if err != nil {
 		return
 	}
 	if err = cfg.Validate(); err != nil {
-		err = fmt.Errorf("parse config error: %v", err)
+		err = fmt.Errorf("解析配置错误: %v", err)
 		return
 	}
 
-	// Aggregate proxy configs from include files.
+	// 从包含文件中聚合代理配置。
 	var buf []byte
 	buf, err = getIncludeContents(cfg.IncludeConfigFiles)
 	if err != nil {
-		err = fmt.Errorf("getIncludeContents error: %v", err)
+		err = fmt.Errorf("getIncludeContents 错误: %v", err)
 		return
 	}
 	configBuffer.WriteString("\n")
 	configBuffer.Write(buf)
 
-	// Parse all proxy and visitor configs.
+	// 解析所有代理和访问者配置。
 	proxyCfgs, visitorCfgs, err = LoadAllProxyConfsFromIni(cfg.User, configBuffer.Bytes(), cfg.Start)
 	if err != nil {
 		return
@@ -63,8 +75,8 @@ func ParseClientConfig(filePath string) (
 	return
 }
 
-// getIncludeContents renders all configs from paths.
-// files format can be a single file path or directory or regex path.
+// getIncludeContents 从路径渲染所有配置。
+// 文件格式可以是单个文件路径、目录或正则表达式路径。
 func getIncludeContents(paths []string) ([]byte, error) {
 	out := bytes.NewBuffer(nil)
 	for _, path := range paths {
@@ -87,7 +99,7 @@ func getIncludeContents(paths []string) ([]byte, error) {
 			if matched, _ := filepath.Match(filepath.Join(absDir, filepath.Base(path)), absFile); matched {
 				tmpContent, err := GetRenderedConfFromFile(absFile)
 				if err != nil {
-					return nil, fmt.Errorf("render extra config %s error: %v", absFile, err)
+					return nil, fmt.Errorf("渲染额外配置 %s 错误: %v", absFile, err)
 				}
 				out.Write(tmpContent)
 				out.WriteString("\n")

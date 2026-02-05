@@ -1,16 +1,15 @@
-// Copyright 2017 fatedier, fatedier@gmail.com
+// 版权所有 2017 fatedier, fatedier@gmail.com
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// 根据 Apache 许可证 2.0 版本（"许可证"）授权；
+// 除非遵守许可证，否则您不得使用此文件。
+// 您可以在以下位置获取许可证副本：
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// 除非适用法律要求或书面同意，否则根据许可证分发的软件
+// 是按"原样"分发的，不附带任何明示或暗示的担保或条件。
+// 有关许可证下特定语言的管理权限和
+// 限制，请参阅许可证。
 
 package visitor
 
@@ -29,12 +28,14 @@ import (
 	"github.com/fatedier/frp/pkg/util/xlog"
 )
 
+// STCPVisitor STCP 访问者结构
 type STCPVisitor struct {
 	*BaseVisitor
 
 	cfg *v1.STCPVisitorConfig
 }
 
+// Run 运行 STCP 访问者
 func (sv *STCPVisitor) Run() (err error) {
 	if sv.cfg.BindPort > 0 {
 		sv.l, err = net.Listen("tcp", net.JoinHostPort(sv.cfg.BindAddr, strconv.Itoa(sv.cfg.BindPort)))
@@ -52,39 +53,43 @@ func (sv *STCPVisitor) Run() (err error) {
 	return
 }
 
+// Close 关闭 STCP 访问者
 func (sv *STCPVisitor) Close() {
 	sv.BaseVisitor.Close()
 }
 
+// worker 处理本地连接
 func (sv *STCPVisitor) worker() {
 	xl := xlog.FromContextSafe(sv.ctx)
 	for {
 		conn, err := sv.l.Accept()
 		if err != nil {
-			xl.Warnf("stcp local listener closed")
+			xl.Warnf("stcp 本地监听器已关闭")
 			return
 		}
 		go sv.handleConn(conn)
 	}
 }
 
+// internalConnWorker 处理内部连接
 func (sv *STCPVisitor) internalConnWorker() {
 	xl := xlog.FromContextSafe(sv.ctx)
 	for {
 		conn, err := sv.internalLn.Accept()
 		if err != nil {
-			xl.Warnf("stcp internal listener closed")
+			xl.Warnf("stcp 内部监听器已关闭")
 			return
 		}
 		go sv.handleConn(conn)
 	}
 }
 
+// handleConn 处理用户连接
 func (sv *STCPVisitor) handleConn(userConn net.Conn) {
 	xl := xlog.FromContextSafe(sv.ctx)
 	var tunnelErr error
 	defer func() {
-		// If there was an error and connection supports CloseWithError, use it
+		// 如果有错误且连接支持 CloseWithError，则使用它
 		if tunnelErr != nil {
 			if eConn, ok := userConn.(interface{ CloseWithError(error) error }); ok {
 				_ = eConn.CloseWithError(tunnelErr)
@@ -94,7 +99,7 @@ func (sv *STCPVisitor) handleConn(userConn net.Conn) {
 		userConn.Close()
 	}()
 
-	xl.Debugf("get a new stcp user connection")
+	xl.Debugf("获取新的 stcp 用户连接")
 	visitorConn, err := sv.helper.ConnectServer()
 	if err != nil {
 		tunnelErr = err
@@ -113,7 +118,7 @@ func (sv *STCPVisitor) handleConn(userConn net.Conn) {
 	}
 	err = msg.WriteMsg(visitorConn, newVisitorConnMsg)
 	if err != nil {
-		xl.Warnf("send newVisitorConnMsg to server error: %v", err)
+		xl.Warnf("向服务器发送 newVisitorConnMsg 错误: %v", err)
 		tunnelErr = err
 		return
 	}
@@ -122,14 +127,14 @@ func (sv *STCPVisitor) handleConn(userConn net.Conn) {
 	_ = visitorConn.SetReadDeadline(time.Now().Add(10 * time.Second))
 	err = msg.ReadMsgInto(visitorConn, &newVisitorConnRespMsg)
 	if err != nil {
-		xl.Warnf("get newVisitorConnRespMsg error: %v", err)
+		xl.Warnf("获取 newVisitorConnRespMsg 错误: %v", err)
 		tunnelErr = err
 		return
 	}
 	_ = visitorConn.SetReadDeadline(time.Time{})
 
 	if newVisitorConnRespMsg.Error != "" {
-		xl.Warnf("start new visitor connection error: %s", newVisitorConnRespMsg.Error)
+		xl.Warnf("启动新的访问者连接错误: %s", newVisitorConnRespMsg.Error)
 		tunnelErr = fmt.Errorf("%s", newVisitorConnRespMsg.Error)
 		return
 	}
@@ -139,7 +144,7 @@ func (sv *STCPVisitor) handleConn(userConn net.Conn) {
 	if sv.cfg.Transport.UseEncryption {
 		remote, err = libio.WithEncryption(remote, []byte(sv.cfg.SecretKey))
 		if err != nil {
-			xl.Errorf("create encryption stream error: %v", err)
+			xl.Errorf("创建加密流错误: %v", err)
 			tunnelErr = err
 			return
 		}

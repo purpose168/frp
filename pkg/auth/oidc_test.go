@@ -13,6 +13,7 @@ import (
 	"github.com/fatedier/frp/pkg/msg"
 )
 
+// mockTokenVerifier 模拟令牌验证器
 type mockTokenVerifier struct{}
 
 func (m *mockTokenVerifier) Verify(ctx context.Context, subject string) (*oidc.IDToken, error) {
@@ -21,6 +22,7 @@ func (m *mockTokenVerifier) Verify(ctx context.Context, subject string) (*oidc.I
 	}, nil
 }
 
+// TestPingWithEmptySubjectFromLoginFails 测试在没有登录的情况下发送心跳应该失败
 func TestPingWithEmptySubjectFromLoginFails(t *testing.T) {
 	r := require.New(t)
 	consumer := auth.NewOidcAuthVerifier([]v1.AuthScope{v1.AuthScopeHeartBeats}, &mockTokenVerifier{})
@@ -29,9 +31,10 @@ func TestPingWithEmptySubjectFromLoginFails(t *testing.T) {
 		Timestamp:    time.Now().UnixMilli(),
 	})
 	r.Error(err)
-	r.Contains(err.Error(), "received different OIDC subject in login and ping")
+	r.Contains(err.Error(), "在登录和心跳中接收到不同的 OIDC 主题")
 }
 
+// TestPingAfterLoginWithNewSubjectSucceeds 测试登录后发送相同主题的心跳应该成功
 func TestPingAfterLoginWithNewSubjectSucceeds(t *testing.T) {
 	r := require.New(t)
 	consumer := auth.NewOidcAuthVerifier([]v1.AuthScope{v1.AuthScopeHeartBeats}, &mockTokenVerifier{})
@@ -47,6 +50,7 @@ func TestPingAfterLoginWithNewSubjectSucceeds(t *testing.T) {
 	r.NoError(err)
 }
 
+// TestPingAfterLoginWithDifferentSubjectFails 测试登录后发送不同主题的心跳应该失败
 func TestPingAfterLoginWithDifferentSubjectFails(t *testing.T) {
 	r := require.New(t)
 	consumer := auth.NewOidcAuthVerifier([]v1.AuthScope{v1.AuthScopeHeartBeats}, &mockTokenVerifier{})
@@ -60,5 +64,5 @@ func TestPingAfterLoginWithDifferentSubjectFails(t *testing.T) {
 		Timestamp:    time.Now().UnixMilli(),
 	})
 	r.Error(err)
-	r.Contains(err.Error(), "received different OIDC subject in login and ping")
+	r.Contains(err.Error(), "在登录和心跳中接收到不同的 OIDC 主题")
 }

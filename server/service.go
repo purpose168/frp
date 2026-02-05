@@ -1,16 +1,16 @@
 // Copyright 2017 fatedier, fatedier@gmail.com
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// 依据 Apache License, Version 2.0 许可证授权；
+// 除非符合许可证的要求，否则您不能使用此文件。
+// 您可以在以下网址获取许可证副本：
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// 除非适用法律要求或书面同意，否则软件
+// 根据许可证分发是基于“按原样”基础，
+// 不附带任何明示或暗示的担保或条件。
+// 请参阅许可证中有关管理权限和
+// 限制的特定语言。
 
 package server
 
@@ -59,79 +59,88 @@ import (
 )
 
 const (
-	connReadTimeout       time.Duration = 10 * time.Second
+	// connReadTimeout 连接读取超时时间
+	connReadTimeout time.Duration = 10 * time.Second
+	// vhostReadWriteTimeout 虚拟主机读写超时时间
 	vhostReadWriteTimeout time.Duration = 30 * time.Second
 )
 
 func init() {
 	crypto.DefaultSalt = "frp"
-	// Disable quic-go's receive buffer warning.
+	// 禁用quic-go的接收缓冲区警告
 	os.Setenv("QUIC_GO_DISABLE_RECEIVE_BUFFER_WARNING", "true")
-	// Disable quic-go's ECN support by default. It may cause issues on certain operating systems.
+	// 默认禁用quic-go的ECN支持，它可能在某些操作系统上导致问题
 	if os.Getenv("QUIC_GO_DISABLE_ECN") == "" {
 		os.Setenv("QUIC_GO_DISABLE_ECN", "true")
 	}
 }
 
-// Server service
+// Service 服务器服务
+// 管理服务器的所有组件和连接
 type Service struct {
-	// Dispatch connections to different handlers listen on same port
+	// muxer 将连接分发给监听同一端口的不同处理程序
 	muxer *mux.Mux
 
-	// Accept connections from client
+	// listener 接受来自客户端的连接
 	listener net.Listener
 
-	// Accept connections using kcp
+	// kcpListener 接受使用kcp的连接
 	kcpListener net.Listener
 
-	// Accept connections using quic
+	// quicListener 接受使用quic的连接
 	quicListener *quic.Listener
 
-	// Accept connections using websocket
+	// websocketListener 接受使用websocket的连接
 	websocketListener net.Listener
 
-	// Accept frp tls connections
+	// tlsListener 接受frp tls连接
 	tlsListener net.Listener
 
-	// Accept pipe connections from ssh tunnel gateway
+	// sshTunnelListener 接受来自ssh隧道网关的管道连接
 	sshTunnelListener *netpkg.InternalListener
 
-	// Manage all controllers
+	// ctlManager 管理所有控制器
 	ctlManager *ControlManager
 
-	// Track logical clients keyed by user.clientID (runID fallback when raw clientID is empty).
+	// clientRegistry 按user.clientID跟踪逻辑客户端（原始clientID为空时使用runID作为回退）
 	clientRegistry *registry.ClientRegistry
 
-	// Manage all proxies
+	// pxyManager 管理所有代理
 	pxyManager *proxy.Manager
 
-	// Manage all plugins
+	// pluginManager 管理所有插件
 	pluginManager *plugin.Manager
 
-	// HTTP vhost router
+	// httpVhostRouter HTTP虚拟主机路由器
 	httpVhostRouter *vhost.Routers
 
-	// All resource managers and controllers
+	// rc 所有资源管理器和控制器
 	rc *controller.ResourceController
 
-	// web server for dashboard UI and apis
+	// webServer 用于仪表盘UI和API的web服务器
 	webServer *httppkg.Server
 
+	// sshTunnelGateway SSH隧道网关
 	sshTunnelGateway *ssh.Gateway
 
-	// Auth runtime and encryption materials
+	// auth 认证运行时和加密材料
 	auth *auth.ServerAuth
 
+	// tlsConfig TLS配置
 	tlsConfig *tls.Config
 
+	// cfg 服务器配置
 	cfg *v1.ServerConfig
 
-	// service context
+	// ctx 服务上下文
 	ctx context.Context
-	// call cancel to stop service
+	// cancel 调用cancel以停止服务
 	cancel context.CancelFunc
 }
 
+// NewService 创建一个新的服务器服务
+// 参数cfg是服务器配置
+// 返回值是服务器服务和可能的错误
 func NewService(cfg *v1.ServerConfig) (*Service, error) {
 	tlsConfig, err := transport.NewServerTLSConfig(
 		cfg.Transport.TLS.CertFile,
@@ -182,20 +191,20 @@ func NewService(cfg *v1.ServerConfig) (*Service, error) {
 		webServer.RouteRegister(svr.registerRouteHandlers)
 	}
 
-	// Create tcpmux httpconnect multiplexer.
+	// 创建tcpmux httpconnect多路复用器
 	if cfg.TCPMuxHTTPConnectPort > 0 {
 		var l net.Listener
 		address := net.JoinHostPort(cfg.ProxyBindAddr, strconv.Itoa(cfg.TCPMuxHTTPConnectPort))
 		l, err = net.Listen("tcp", address)
 		if err != nil {
-			return nil, fmt.Errorf("create server listener error, %v", err)
+			return nil, fmt.Errorf("创建服务器监听器错误, %v", err)
 		}
 
 		svr.rc.TCPMuxHTTPConnectMuxer, err = tcpmux.NewHTTPConnectTCPMuxer(l, cfg.TCPMuxPassthrough, vhostReadWriteTimeout)
 		if err != nil {
-			return nil, fmt.Errorf("create vhost tcpMuxer error, %v", err)
+			return nil, fmt.Errorf("创建虚拟主机tcp多路复用器错误, %v", err)
 		}
-		log.Infof("tcpmux httpconnect multiplexer listen on %s, passthough: %v", address, cfg.TCPMuxPassthrough)
+		log.Infof("tcpmux httpconnect多路复用器监听 %s, 直通: %v", address, cfg.TCPMuxPassthrough)
 	}
 
 	// Init all plugins

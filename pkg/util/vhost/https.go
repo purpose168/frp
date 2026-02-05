@@ -23,12 +23,16 @@ import (
 	libnet "github.com/fatedier/golib/net"
 )
 
+// HTTPSMuxer HTTPS 多路复用器
 type HTTPSMuxer struct {
 	*Muxer
 }
 
+// NewHTTPSMuxer 创建一个新的 HTTPS 多路复用器
 func NewHTTPSMuxer(listener net.Listener, timeout time.Duration) (*HTTPSMuxer, error) {
+	// 创建多路复用器，使用 GetHTTPSHostname 函数提取主机名
 	mux, err := NewMuxer(listener, GetHTTPSHostname, timeout)
+	// 设置失败钩子函数
 	mux.SetFailHookFunc(vhostFailed)
 	if err != nil {
 		return nil, err
@@ -36,26 +40,32 @@ func NewHTTPSMuxer(listener net.Listener, timeout time.Duration) (*HTTPSMuxer, e
 	return &HTTPSMuxer{mux}, err
 }
 
+// GetHTTPSHostname 从 TLS 连接中获取 HTTPS 主机名
 func GetHTTPSHostname(c net.Conn) (_ net.Conn, _ map[string]string, err error) {
+	// 创建请求信息映射
 	reqInfoMap := make(map[string]string, 0)
+	// 创建共享连接和读取器
 	sc, rd := libnet.NewSharedConn(c)
 
+	// 读取客户端 Hello 消息
 	clientHello, err := readClientHello(rd)
 	if err != nil {
 		return nil, reqInfoMap, err
 	}
 
+	// 设置主机名和协议
 	reqInfoMap["Host"] = clientHello.ServerName
 	reqInfoMap["Scheme"] = "https"
 	return sc, reqInfoMap, nil
 }
 
+// readClientHello 从读取器中读取客户端 Hello 消息
 func readClientHello(reader io.Reader) (*tls.ClientHelloInfo, error) {
 	var hello *tls.ClientHelloInfo
 
-	// Note that Handshake always fails because the readOnlyConn is not a real connection.
-	// As long as the Client Hello is successfully read, the failure should only happen after GetConfigForClient is called,
-	// so we only care about the error if hello was never set.
+	// 注意：握手总是失败，因为 readOnlyConn 不是真正的连接
+	// 只要成功读取客户端 Hello，失败应该只在调用 GetConfigForClient 之后发生
+	// 所以我们只关心 hello 从未被设置时的错误
 	err := tls.Server(readOnlyConn{reader: reader}, &tls.Config{
 		GetConfigForClient: func(argHello *tls.ClientHelloInfo) (*tls.Config, error) {
 			hello = &tls.ClientHelloInfo{}
@@ -70,16 +80,19 @@ func readClientHello(reader io.Reader) (*tls.ClientHelloInfo, error) {
 	return hello, nil
 }
 
+// vhostFailed 处理虚拟主机失败的情况
 func vhostFailed(c net.Conn) {
-	// Alert with alertUnrecognizedName
+	// 发送 alertUnrecognizedName 警报
 	_ = tls.Server(c, &tls.Config{}).Handshake()
 	c.Close()
 }
 
+// readOnlyConn 只读连接
 type readOnlyConn struct {
 	reader io.Reader
 }
 
+// 只读连接的方法实现
 func (conn readOnlyConn) Read(p []byte) (int, error)         { return conn.reader.Read(p) }
 func (conn readOnlyConn) Write(_ []byte) (int, error)        { return 0, io.ErrClosedPipe }
 func (conn readOnlyConn) Close() error                       { return nil }

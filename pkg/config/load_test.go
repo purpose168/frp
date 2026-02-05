@@ -1,16 +1,16 @@
 // Copyright 2023 The frp Authors
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// Licensed under to Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with License.
+// You may obtain a copy of License at
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
+// distributed under License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// See License for the specific language governing permissions and
+// limitations under License.
 
 package config
 
@@ -56,6 +56,7 @@ const jsonServerContent = `
 }
 `
 
+// TestLoadServerConfig 测试加载服务器配置
 func TestLoadServerConfig(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -81,7 +82,7 @@ func TestLoadServerConfig(t *testing.T) {
 	}
 }
 
-// Test that loading in strict mode fails when the config is invalid.
+// TestLoadServerConfigStrictMode 测试在严格模式下加载无效配置时失败
 func TestLoadServerConfigStrictMode(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -96,7 +97,7 @@ func TestLoadServerConfigStrictMode(t *testing.T) {
 		for _, test := range tests {
 			t.Run(fmt.Sprintf("%s-strict-%t", test.name, strict), func(t *testing.T) {
 				require := require.New(t)
-				// Break the content with an innocent typo
+				// 通过一个无意的拼写错误破坏内容
 				brokenContent := strings.Replace(test.content, "bindAddr", "bindAdur", 1)
 				svrCfg := v1.ServerConfig{}
 				err := LoadConfigure([]byte(brokenContent), &svrCfg, strict)
@@ -104,7 +105,7 @@ func TestLoadServerConfigStrictMode(t *testing.T) {
 					require.ErrorContains(err, "bindAdur")
 				} else {
 					require.NoError(err)
-					// BindAddr didn't get parsed because of the typo.
+					// 由于拼写错误，BindAddr 没有被解析
 					require.EqualValues("", svrCfg.BindAddr)
 				}
 			})
@@ -112,6 +113,7 @@ func TestLoadServerConfigStrictMode(t *testing.T) {
 	}
 }
 
+// TestRenderWithTemplate 测试使用模板渲染
 func TestRenderWithTemplate(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -135,6 +137,7 @@ func TestRenderWithTemplate(t *testing.T) {
 	}
 }
 
+// TestCustomStructStrictMode 测试自定义结构的严格模式
 func TestCustomStructStrictMode(t *testing.T) {
 	require := require.New(t)
 
@@ -188,8 +191,8 @@ unixPath = "/tmp/uds.sock"
 	require.Error(err)
 }
 
-// TestYAMLMergeInStrictMode tests that YAML merge functionality works
-// even in strict mode by properly handling dot-prefixed fields
+// TestYAMLMergeInStrictMode 测试即使在严格模式下，YAML 合并功能也能正常工作
+// 通过正确处理以点号开头的字段
 func TestYAMLMergeInStrictMode(t *testing.T) {
 	require := require.New(t)
 
@@ -215,27 +218,27 @@ proxies:
 `
 
 	clientCfg := v1.ClientConfig{}
-	// This should work in strict mode
+	// 这应该在严格模式下工作
 	err := LoadConfigure([]byte(yamlContent), &clientCfg, true)
 	require.NoError(err)
 
-	// Verify the merge worked correctly
+	// 验证合并工作正常
 	require.Equal("127.0.0.1", clientCfg.ServerAddr)
 	require.Equal(7000, clientCfg.ServerPort)
 	require.Len(clientCfg.Proxies, 2)
 
-	// Check first proxy
+	// 检查第一个代理
 	sshProxy := clientCfg.Proxies[0].ProxyConfigurer
 	require.Equal("ssh", sshProxy.GetBaseConfig().Name)
 	require.Equal("stcp", sshProxy.GetBaseConfig().Type)
 
-	// Check second proxy
+	// 检查第二个代理
 	webProxy := clientCfg.Proxies[1].ProxyConfigurer
 	require.Equal("web", webProxy.GetBaseConfig().Name)
 	require.Equal("stcp", webProxy.GetBaseConfig().Type)
 }
 
-// TestOptimizedYAMLProcessing tests the optimization logic for YAML processing
+// TestOptimizedYAMLProcessing 测试 YAML 处理的优化逻辑
 func TestOptimizedYAMLProcessing(t *testing.T) {
 	require := require.New(t)
 
@@ -256,7 +259,7 @@ proxies:
   localPort: 22
 `)
 
-	// Test that YAML without dot fields works in strict mode
+	// 测试没有点字段的 YAML 在严格模式下工作
 	clientCfg := v1.ClientConfig{}
 	err := LoadConfigure(yamlWithoutDotFields, &clientCfg, true)
 	require.NoError(err)
@@ -264,7 +267,7 @@ proxies:
 	require.Len(clientCfg.Proxies, 1)
 	require.Equal("test", clientCfg.Proxies[0].ProxyConfigurer.GetBaseConfig().Name)
 
-	// Test that YAML with dot fields still works in strict mode
+	// 测试有点字段的 YAML 仍然在严格模式下工作
 	err = LoadConfigure(yamlWithDotFields, &clientCfg, true)
 	require.NoError(err)
 	require.Equal("127.0.0.1", clientCfg.ServerAddr)
@@ -273,30 +276,30 @@ proxies:
 	require.Equal("stcp", clientCfg.Proxies[0].ProxyConfigurer.GetBaseConfig().Type)
 }
 
-// TestYAMLEdgeCases tests edge cases for YAML parsing, including non-map types
+// TestYAMLEdgeCases 测试 YAML 解析的边界情况，包括非映射类型
 func TestYAMLEdgeCases(t *testing.T) {
 	require := require.New(t)
 
-	// Test array at root (should fail for frp config)
+	// 测试根级别的数组（对于 frp 配置应该失败）
 	arrayYAML := []byte(`
 - item1
 - item2
 `)
 	clientCfg := v1.ClientConfig{}
 	err := LoadConfigure(arrayYAML, &clientCfg, true)
-	require.Error(err) // Should fail because ClientConfig expects an object
+	require.Error(err) // 应该失败，因为 ClientConfig 期望一个对象
 
-	// Test scalar at root (should fail for frp config)
+	// 测试根级别的标量（对于 frp 配置应该失败）
 	scalarYAML := []byte(`"just a string"`)
 	err = LoadConfigure(scalarYAML, &clientCfg, true)
-	require.Error(err) // Should fail because ClientConfig expects an object
+	require.Error(err) // 应该失败，因为 ClientConfig 期望一个对象
 
-	// Test empty object (should work)
+	// 测试空对象（应该工作）
 	emptyYAML := []byte(`{}`)
 	err = LoadConfigure(emptyYAML, &clientCfg, true)
 	require.NoError(err)
 
-	// Test nested structure without dots (should work)
+	// 测试没有点号的嵌套结构（应该工作）
 	nestedYAML := []byte(`
 serverAddr: "127.0.0.1"
 serverPort: 7000

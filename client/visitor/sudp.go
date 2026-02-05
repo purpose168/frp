@@ -1,16 +1,15 @@
-// Copyright 2017 fatedier, fatedier@gmail.com
+// 版权所有 2017 fatedier, fatedier@gmail.com
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// 根据 Apache 许可证 2.0 版本（"许可证"）授权；
+// 除非遵守许可证，否则您不得使用此文件。
+// 您可以在以下位置获取许可证副本：
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// 除非适用法律要求或书面同意，否则根据许可证分发的软件
+// 是按"原样"分发的，不附带任何明示或暗示的担保或条件。
+// 有关许可证下特定语言的管理权限和
+// 限制，请参阅许可证。
 
 package visitor
 
@@ -33,11 +32,12 @@ import (
 	"github.com/fatedier/frp/pkg/util/xlog"
 )
 
+// SUDPVisitor SUDP 访问者结构
 type SUDPVisitor struct {
 	*BaseVisitor
 
 	checkCloseCh chan struct{}
-	// udpConn is the listener of udp packet
+	// udpConn 是 UDP 数据包的监听器
 	udpConn *net.UDPConn
 	readCh  chan *msg.UDPPacket
 	sendCh  chan *msg.UDPPacket
@@ -45,24 +45,24 @@ type SUDPVisitor struct {
 	cfg *v1.SUDPVisitorConfig
 }
 
-// SUDP Run start listen a udp port
+// Run SUDP 运行开始监听 UDP 端口
 func (sv *SUDPVisitor) Run() (err error) {
 	xl := xlog.FromContextSafe(sv.ctx)
 
 	addr, err := net.ResolveUDPAddr("udp", net.JoinHostPort(sv.cfg.BindAddr, strconv.Itoa(sv.cfg.BindPort)))
 	if err != nil {
-		return fmt.Errorf("sudp ResolveUDPAddr error: %v", err)
+		return fmt.Errorf("sudp 解析 UDP 地址错误: %v", err)
 	}
 
 	sv.udpConn, err = net.ListenUDP("udp", addr)
 	if err != nil {
-		return fmt.Errorf("listen udp port %s error: %v", addr.String(), err)
+		return fmt.Errorf("监听 UDP 端口 %s 错误: %v", addr.String(), err)
 	}
 
 	sv.sendCh = make(chan *msg.UDPPacket, 1024)
 	sv.readCh = make(chan *msg.UDPPacket, 1024)
 
-	xl.Infof("sudp start to work, listen on %s", addr)
+	xl.Infof("sudp 开始工作，监听 %s", addr)
 
 	go sv.dispatcher()
 	go udp.ForwardUserConn(sv.udpConn, sv.readCh, sv.sendCh, int(sv.clientCfg.UDPPacketSize))
@@ -70,6 +70,7 @@ func (sv *SUDPVisitor) Run() (err error) {
 	return
 }
 
+// dispatcher 分发器
 func (sv *SUDPVisitor) dispatcher() {
 	xl := xlog.FromContextSafe(sv.ctx)
 
@@ -84,21 +85,21 @@ func (sv *SUDPVisitor) dispatcher() {
 		select {
 		case firstPacket = <-sv.sendCh:
 			if firstPacket == nil {
-				xl.Infof("frpc sudp visitor proxy is closed")
+				xl.Infof("frpc sudp 访问者代理已关闭")
 				return
 			}
 		case <-sv.checkCloseCh:
-			xl.Infof("frpc sudp visitor proxy is closed")
+			xl.Infof("frpc sudp 访问者代理已关闭")
 			return
 		}
 
 		visitorConn, err = sv.getNewVisitorConn()
 		if err != nil {
-			xl.Warnf("newVisitorConn to frps error: %v, try to reconnect", err)
+			xl.Warnf("newVisitorConn 连接到 frps 错误: %v，尝试重新连接", err)
 			continue
 		}
 
-		// visitorConn always be closed when worker done.
+		// worker 完成时 visitorConn 总是被关闭
 		sv.worker(visitorConn, firstPacket)
 
 		select {
@@ -109,15 +110,16 @@ func (sv *SUDPVisitor) dispatcher() {
 	}
 }
 
+// worker 工作协程
 func (sv *SUDPVisitor) worker(workConn net.Conn, firstPacket *msg.UDPPacket) {
 	xl := xlog.FromContextSafe(sv.ctx)
-	xl.Debugf("starting sudp proxy worker")
+	xl.Debugf("启动 sudp 代理 worker")
 
 	wg := &sync.WaitGroup{}
 	wg.Add(2)
 	closeCh := make(chan struct{})
 
-	// udp service -> frpc -> frps -> frpc visitor -> user
+	// udp 服务 -> frpc -> frps -> frpc 访问者 -> 用户
 	workConnReaderFn := func(conn net.Conn) {
 		defer func() {
 			conn.Close()
@@ -131,31 +133,31 @@ func (sv *SUDPVisitor) worker(workConn net.Conn, firstPacket *msg.UDPPacket) {
 				errRet error
 			)
 
-			// frpc will send heartbeat in workConn to frpc visitor for keeping alive
+			// frpc 将在 workConn 中发送心跳到 frpc 访问者以保持连接
 			_ = conn.SetReadDeadline(time.Now().Add(60 * time.Second))
 			if rawMsg, errRet = msg.ReadMsg(conn); errRet != nil {
-				xl.Warnf("read from workconn for user udp conn error: %v", errRet)
+				xl.Warnf("从 workconn 读取用户 UDP 连接错误: %v", errRet)
 				return
 			}
 
 			_ = conn.SetReadDeadline(time.Time{})
 			switch m := rawMsg.(type) {
 			case *msg.Ping:
-				xl.Debugf("frpc visitor get ping message from frpc")
+				xl.Debugf("frpc 访问者从 frpc 获取 ping 消息")
 				continue
 			case *msg.UDPPacket:
 				if errRet := errors.PanicToError(func() {
 					sv.readCh <- m
-					xl.Tracef("frpc visitor get udp packet from workConn: %s", m.Content)
+					xl.Tracef("frpc 访问者从 workConn 获取 UDP 数据包: %s", m.Content)
 				}); errRet != nil {
-					xl.Infof("reader goroutine for udp work connection closed")
+					xl.Infof("udp 工作连接的读取器协程已关闭")
 					return
 				}
 			}
 		}
 	}
 
-	// udp service <- frpc <- frps <- frpc visitor <- user
+	// udp 服务 <- frpc <- frps <- frpc 访问者 <- 用户
 	workConnSenderFn := func(conn net.Conn) {
 		defer func() {
 			conn.Close()
@@ -165,25 +167,25 @@ func (sv *SUDPVisitor) worker(workConn net.Conn, firstPacket *msg.UDPPacket) {
 		var errRet error
 		if firstPacket != nil {
 			if errRet = msg.WriteMsg(conn, firstPacket); errRet != nil {
-				xl.Warnf("sender goroutine for udp work connection closed: %v", errRet)
+				xl.Warnf("udp 工作连接的发送器协程已关闭: %v", errRet)
 				return
 			}
-			xl.Tracef("send udp package to workConn: %s", firstPacket.Content)
+			xl.Tracef("发送 UDP 数据包到 workConn: %s", firstPacket.Content)
 		}
 
 		for {
 			select {
 			case udpMsg, ok := <-sv.sendCh:
 				if !ok {
-					xl.Infof("sender goroutine for udp work connection closed")
+					xl.Infof("udp 工作连接的发送器协程已关闭")
 					return
 				}
 
 				if errRet = msg.WriteMsg(conn, udpMsg); errRet != nil {
-					xl.Warnf("sender goroutine for udp work connection closed: %v", errRet)
+					xl.Warnf("udp 工作连接的发送器协程已关闭: %v", errRet)
 					return
 				}
-				xl.Tracef("send udp package to workConn: %s", udpMsg.Content)
+				xl.Tracef("发送 UDP 数据包到 workConn: %s", udpMsg.Content)
 			case <-closeCh:
 				return
 			}
@@ -194,14 +196,15 @@ func (sv *SUDPVisitor) worker(workConn net.Conn, firstPacket *msg.UDPPacket) {
 	go workConnSenderFn(workConn)
 
 	wg.Wait()
-	xl.Infof("sudp worker is closed")
+	xl.Infof("sudp worker 已关闭")
 }
 
+// getNewVisitorConn 获取新的访问者连接
 func (sv *SUDPVisitor) getNewVisitorConn() (net.Conn, error) {
 	xl := xlog.FromContextSafe(sv.ctx)
 	visitorConn, err := sv.helper.ConnectServer()
 	if err != nil {
-		return nil, fmt.Errorf("frpc connect frps error: %v", err)
+		return nil, fmt.Errorf("frpc 连接 frps 错误: %v", err)
 	}
 
 	now := time.Now().Unix()
@@ -215,19 +218,19 @@ func (sv *SUDPVisitor) getNewVisitorConn() (net.Conn, error) {
 	}
 	err = msg.WriteMsg(visitorConn, newVisitorConnMsg)
 	if err != nil {
-		return nil, fmt.Errorf("frpc send newVisitorConnMsg to frps error: %v", err)
+		return nil, fmt.Errorf("frpc 发送 newVisitorConnMsg 到 frps 错误: %v", err)
 	}
 
 	var newVisitorConnRespMsg msg.NewVisitorConnResp
 	_ = visitorConn.SetReadDeadline(time.Now().Add(10 * time.Second))
 	err = msg.ReadMsgInto(visitorConn, &newVisitorConnRespMsg)
 	if err != nil {
-		return nil, fmt.Errorf("frpc read newVisitorConnRespMsg error: %v", err)
+		return nil, fmt.Errorf("frpc 读取 newVisitorConnRespMsg 错误: %v", err)
 	}
 	_ = visitorConn.SetReadDeadline(time.Time{})
 
 	if newVisitorConnRespMsg.Error != "" {
-		return nil, fmt.Errorf("start new visitor connection error: %s", newVisitorConnRespMsg.Error)
+		return nil, fmt.Errorf("启动新的访问者连接错误: %s", newVisitorConnRespMsg.Error)
 	}
 
 	var remote io.ReadWriteCloser
@@ -235,7 +238,7 @@ func (sv *SUDPVisitor) getNewVisitorConn() (net.Conn, error) {
 	if sv.cfg.Transport.UseEncryption {
 		remote, err = libio.WithEncryption(remote, []byte(sv.cfg.SecretKey))
 		if err != nil {
-			xl.Errorf("create encryption stream error: %v", err)
+			xl.Errorf("创建加密流错误: %v", err)
 			return nil, err
 		}
 	}
@@ -245,6 +248,7 @@ func (sv *SUDPVisitor) getNewVisitorConn() (net.Conn, error) {
 	return netpkg.WrapReadWriteCloserToConn(remote, visitorConn), nil
 }
 
+// Close 关闭 SUDP 访问者
 func (sv *SUDPVisitor) Close() {
 	sv.mu.Lock()
 	defer sv.mu.Unlock()

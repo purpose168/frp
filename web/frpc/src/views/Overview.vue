@@ -3,34 +3,34 @@
     <el-row :gutter="20" class="stats-row">
       <el-col :xs="24" :sm="12" :lg="6">
         <StatCard
-          label="Total Proxies"
+          label="总代理数"
           :value="stats.total"
           type="proxies"
-          subtitle="Configured proxies"
+          subtitle="已配置的代理"
         />
       </el-col>
       <el-col :xs="24" :sm="12" :lg="6">
         <StatCard
-          label="Running"
+          label="运行中"
           :value="stats.running"
           type="running"
-          subtitle="Active connections"
+          subtitle="活跃连接"
         />
       </el-col>
       <el-col :xs="24" :sm="12" :lg="6">
         <StatCard
-          label="Error"
+          label="错误"
           :value="stats.error"
           type="error"
-          subtitle="Failed proxies"
+          subtitle="失败的代理"
         />
       </el-col>
       <el-col :xs="24" :sm="12" :lg="6">
         <StatCard
-          label="Configure"
-          value="Edit"
+          label="配置"
+          value="编辑"
           type="config"
-          subtitle="Manage settings"
+          subtitle="管理设置"
           to="/configure"
         />
       </el-col>
@@ -42,20 +42,20 @@
           <template #header>
             <div class="card-header">
               <div class="header-left">
-                <span class="card-title">Proxy Status</span>
+                <span class="card-title">代理状态</span>
                 <el-tag size="small" type="info"
-                  >{{ stats.total }} proxies</el-tag
+                  >{{ stats.total }} 个代理</el-tag
                 >
               </div>
               <div class="header-actions">
                 <el-input
                   v-model="searchText"
-                  placeholder="Search..."
+                  placeholder="搜索..."
                   :prefix-icon="Search"
                   clearable
                   class="search-input"
                 />
-                <el-tooltip content="Refresh" placement="top">
+                <el-tooltip content="刷新" placement="top">
                   <el-button :icon="Refresh" circle @click="fetchData" />
                 </el-tooltip>
               </div>
@@ -71,8 +71,8 @@
               />
             </div>
             <div v-else-if="!loading" class="empty-state">
-              <el-empty description="No proxies found" />
-            </div>
+            <el-empty description="未找到代理" />
+          </div>
           </div>
         </el-card>
       </el-col>
@@ -81,8 +81,8 @@
         <el-card class="types-card" shadow="hover">
           <template #header>
             <div class="card-header">
-              <span class="card-title">Proxy Types</span>
-              <el-tag size="small" type="info">Distribution</el-tag>
+              <span class="card-title">代理类型</span>
+              <el-tag size="small" type="info">分布</el-tag>
             </div>
           </template>
           <div class="proxy-types-grid">
@@ -97,7 +97,7 @@
               </div>
               <div class="proxy-type-count">{{ count }}</div>
             </div>
-            <div v-if="!hasActiveProxies" class="no-data">No proxy data</div>
+            <div v-if="!hasActiveProxies" class="no-data">无代理数据</div>
           </div>
         </el-card>
 
@@ -190,7 +190,7 @@ const fetchData = async () => {
   } catch (err: any) {
     ElMessage({
       showClose: true,
-      message: 'Get status info from frpc failed! ' + err.message,
+      message: '从frpc获取状态信息失败！' + err.message,
       type: 'warning',
     })
   } finally {

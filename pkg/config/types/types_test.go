@@ -21,11 +21,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// Wrap 是用于测试的包装结构体。
 type Wrap struct {
 	B   BandwidthQuantity `json:"b"`
 	Int int               `json:"int"`
 }
 
+// TestBandwidthQuantity 测试 BandwidthQuantity 的序列化和反序列化功能。
 func TestBandwidthQuantity(t *testing.T) {
 	require := require.New(t)
 
@@ -39,6 +41,7 @@ func TestBandwidthQuantity(t *testing.T) {
 	require.Equal(`{"b":"1KB","int":5}`, string(buf))
 }
 
+// TestPortsRangeSlice2String 测试端口范围切片转换为字符串的功能。
 func TestPortsRangeSlice2String(t *testing.T) {
 	require := require.New(t)
 
@@ -55,6 +58,7 @@ func TestPortsRangeSlice2String(t *testing.T) {
 	require.Equal("1000-2000,3000", str)
 }
 
+// TestNewPortsRangeSliceFromString 测试从字符串解析端口范围切片的功能。
 func TestNewPortsRangeSliceFromString(t *testing.T) {
 	require := require.New(t)
 

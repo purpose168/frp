@@ -9,11 +9,13 @@ const router = createRouter({
       path: '/',
       name: 'Overview',
       component: Overview,
+      meta: { title: '概览' },
     },
     {
       path: '/configure',
       name: 'ClientConfigure',
       component: ClientConfigure,
+      meta: { title: '客户端配置' },
     },
   ],
 })

@@ -22,32 +22,35 @@ import (
 	"github.com/fatedier/frp/pkg/msg"
 )
 
+// Setter 定义设置认证信息的接口
 type Setter interface {
 	SetLogin(*msg.Login) error
 	SetPing(*msg.Ping) error
 	SetNewWorkConn(*msg.NewWorkConn) error
 }
 
+// ClientAuth 定义客户端认证结构
 type ClientAuth struct {
 	Setter Setter
 	key    []byte
 }
 
+// EncryptionKey 返回加密密钥
 func (a *ClientAuth) EncryptionKey() []byte {
 	return a.key
 }
 
-// BuildClientAuth resolves any dynamic auth values and returns a prepared auth runtime.
-// Caller must run validation before calling this function.
+// BuildClientAuth 解析任何动态认证值并返回准备好的认证运行时。
+// 调用者必须在调用此函数之前运行验证。
 func BuildClientAuth(cfg *v1.AuthClientConfig) (*ClientAuth, error) {
 	if cfg == nil {
-		return nil, fmt.Errorf("auth config is nil")
+		return nil, fmt.Errorf("认证配置为空")
 	}
 	resolved := *cfg
 	if resolved.Method == v1.AuthMethodToken && resolved.TokenSource != nil {
 		token, err := resolved.TokenSource.Resolve(context.Background())
 		if err != nil {
-			return nil, fmt.Errorf("failed to resolve auth.tokenSource: %w", err)
+			return nil, fmt.Errorf("无法解析 auth.tokenSource: %w", err)
 		}
 		resolved.Token = token
 	}
@@ -61,6 +64,7 @@ func BuildClientAuth(cfg *v1.AuthClientConfig) (*ClientAuth, error) {
 	}, nil
 }
 
+// NewAuthSetter 创建认证设置器
 func NewAuthSetter(cfg v1.AuthClientConfig) (authProvider Setter, err error) {
 	switch cfg.Method {
 	case v1.AuthMethodToken:
@@ -75,37 +79,40 @@ func NewAuthSetter(cfg v1.AuthClientConfig) (authProvider Setter, err error) {
 			}
 		}
 	default:
-		return nil, fmt.Errorf("unsupported auth method: %s", cfg.Method)
+		return nil, fmt.Errorf("不支持的认证方法: %s", cfg.Method)
 	}
 	return authProvider, nil
 }
 
+// Verifier 定义验证认证信息的接口
 type Verifier interface {
 	VerifyLogin(*msg.Login) error
 	VerifyPing(*msg.Ping) error
 	VerifyNewWorkConn(*msg.NewWorkConn) error
 }
 
+// ServerAuth 定义服务端认证结构
 type ServerAuth struct {
 	Verifier Verifier
 	key      []byte
 }
 
+// EncryptionKey 返回加密密钥
 func (a *ServerAuth) EncryptionKey() []byte {
 	return a.key
 }
 
-// BuildServerAuth resolves any dynamic auth values and returns a prepared auth runtime.
-// Caller must run validation before calling this function.
+// BuildServerAuth 解析任何动态认证值并返回准备好的认证运行时。
+// 调用者必须在调用此函数之前运行验证。
 func BuildServerAuth(cfg *v1.AuthServerConfig) (*ServerAuth, error) {
 	if cfg == nil {
-		return nil, fmt.Errorf("auth config is nil")
+		return nil, fmt.Errorf("认证配置为空")
 	}
 	resolved := *cfg
 	if resolved.Method == v1.AuthMethodToken && resolved.TokenSource != nil {
 		token, err := resolved.TokenSource.Resolve(context.Background())
 		if err != nil {
-			return nil, fmt.Errorf("failed to resolve auth.tokenSource: %w", err)
+			return nil, fmt.Errorf("无法解析 auth.tokenSource: %w", err)
 		}
 		resolved.Token = token
 	}
@@ -115,6 +122,7 @@ func BuildServerAuth(cfg *v1.AuthServerConfig) (*ServerAuth, error) {
 	}, nil
 }
 
+// NewAuthVerifier 创建认证验证器
 func NewAuthVerifier(cfg v1.AuthServerConfig) (authVerifier Verifier) {
 	switch cfg.Method {
 	case v1.AuthMethodToken:

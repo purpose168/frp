@@ -19,13 +19,18 @@ import (
 	v1 "github.com/fatedier/frp/pkg/config/v1"
 )
 
+// createSuccessInfo 创建成功信息字符串
+// 参数 user 是用户名
+// 参数 pc 是代理配置器
+// 参数 ps 是代理工作状态
+// 返回格式化的成功信息字符串
 func createSuccessInfo(user string, pc v1.ProxyConfigurer, ps *proxy.WorkingStatus) string {
 	base := pc.GetBaseConfig()
 	out := "\n"
-	out += "frp (via SSH) (Ctrl+C to quit)\n\n"
-	out += "User: " + user + "\n"
-	out += "ProxyName: " + base.Name + "\n"
-	out += "Type: " + base.Type + "\n"
-	out += "RemoteAddress: " + ps.RemoteAddr + "\n"
+	out += "frp（通过 SSH）（按 Ctrl+C 退出）\n\n"
+	out += "用户：" + user + "\n"
+	out += "代理名称：" + base.Name + "\n"
+	out += "类型：" + base.Type + "\n"
+	out += "远程地址：" + ps.RemoteAddr + "\n"
 	return out
 }

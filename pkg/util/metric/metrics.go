@@ -14,21 +14,24 @@
 
 package metric
 
-// GaugeMetric represents a single numerical value that can arbitrarily go up
-// and down.
+// GaugeMetric 表示一个可以任意上下波动的数值
 type GaugeMetric interface {
+	// Inc 增加数值
 	Inc()
+	// Dec 减少数值
 	Dec()
+	// Set 设置数值
 	Set(float64)
 }
 
-// CounterMetric represents a single numerical value that only ever
-// goes up.
+// CounterMetric 表示一个只能增加的数值
 type CounterMetric interface {
+	// Inc 增加数值
 	Inc()
 }
 
-// HistogramMetric counts individual observations.
+// HistogramMetric 统计单个观测值
 type HistogramMetric interface {
+	// Observe 观测一个值
 	Observe(float64)
 }

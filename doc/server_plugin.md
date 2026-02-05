@@ -1,25 +1,25 @@
-### Server Plugin
+### 服务器插件
 
-frp server plugin is aimed to extend frp's ability without modifying the Golang code.
+frp 服务器插件旨在在不修改 Go 代码的情况下扩展 frp 的功能。
 
-An external server should run in a different process receiving RPC calls from frps.
-Before frps is doing some operations, it will send RPC requests to notify the external RPC server and act according to its response.
+外部服务器应在不同的进程中运行，接收来自 frps 的 RPC 调用。
+在 frps 执行某些操作之前，它会发送 RPC 请求通知外部 RPC 服务器，并根据其响应采取行动。
 
-### RPC request
+### RPC 请求
 
-RPC requests are based on JSON over HTTP.
+RPC 请求基于 HTTP 上的 JSON。
 
-When a server plugin accepts an operation request, it can respond with three different responses:
+当服务器插件接受操作请求时，可以返回三种不同的响应：
 
-* Reject operation and return a reason.
-* Allow operation and keep original content.
-* Allow operation and return modified content.
+* 拒绝操作并返回原因。
+* 允许操作并保持原始内容。
+* 允许操作并返回修改后的内容。
 
-### Interface
+### 接口
 
-HTTP path can be configured for each manage plugin in frps. We'll assume for this example that it's `/handler`.
+可以在 frps 中为每个管理插件配置 HTTP 路径。在此示例中，我们假设它是 `/handler`。
 
-A request to the RPC server will look like:
+对 RPC 服务器的请求如下所示：
 
 ```
 POST /handler?version=0.1.0&op=Login
@@ -27,28 +27,28 @@ POST /handler?version=0.1.0&op=Login
     "version": "0.1.0",
     "op": "Login",
     "content": {
-        ... // Operation info
+        ... // 操作信息
     }
 }
 
-Request Header:
-X-Frp-Reqid: for tracing
+请求头：
+X-Frp-Reqid: 用于追踪
 ```
 
-The response can look like any of the following:
+响应可以如下所示：
 
-* Non-200 HTTP response status code (this will automatically tell frps that the request should fail)
+* 非 200 HTTP 响应状态码（这将自动告诉 frps 请求应该失败）
 
-* Reject operation:
+* 拒绝操作：
 
 ```
 {
     "reject": true,
-    "reject_reason": "invalid user"
+    "reject_reason": "无效的用户"
 }
 ```
 
-* Allow operation and keep original content:
+* 允许操作并保持原始内容：
 
 ```
 {
@@ -57,24 +57,24 @@ The response can look like any of the following:
 }
 ```
 
-* Allow operation and modify content
+* 允许操作并修改内容
 
 ```
 {
     "unchange": "false",
     "content": {
-        ... // Replaced content
+        ... // 替换的内容
     }
 }
 ```
 
-### Operation
+### 操作
 
-Currently `Login`, `NewProxy`, `CloseProxy`, `Ping`, `NewWorkConn` and `NewUserConn` operations are supported.
+目前支持 `Login`（登录）、`NewProxy`（新建代理）、`CloseProxy`（关闭代理）、`Ping`（心跳）、`NewWorkConn`（新建工作连接）和 `NewUserConn`（新建用户连接）操作。
 
 #### Login
 
-Client login operation
+客户端登录操作
 
 ```
 {
@@ -96,7 +96,7 @@ Client login operation
 
 #### NewProxy
 
-Create new proxy
+创建新代理
 
 ```
 {
@@ -115,10 +115,10 @@ Create new proxy
         "group": <string>,
         "group_key": <string>,
 
-        // tcp and udp only
+        // 仅适用于 tcp 和 udp
         "remote_port": <int>,
 
-        // http and https only
+        // 仅适用于 http 和 https
         "custom_domains": []<string>,
         "subdomain": <string>,
         "locations": []<string>,
@@ -127,10 +127,10 @@ Create new proxy
         "host_header_rewrite": <string>,
         "headers": map<string>string,
 
-        // stcp only
+        // 仅适用于 stcp
         "sk": <string>,
 
-        // tcpmux only
+        // 仅适用于 tcpmux
         "multiplexer": <string>
 
         "metas": map<string>string
@@ -140,10 +140,9 @@ Create new proxy
 
 #### CloseProxy
 
-A previously created proxy is closed.
+关闭先前创建的代理。
 
-Please note that one request will be sent for every proxy that is closed, do **NOT** use this
-if you have too many proxies bound to a single client, as this may exhaust the server's resources.
+请注意，对于每个关闭的代理都会发送一个请求，如果单个客户端绑定了太多代理，请**不要**使用此功能，因为这可能会耗尽服务器的资源。
 
 ```
 {
@@ -160,7 +159,7 @@ if you have too many proxies bound to a single client, as this may exhaust the s
 
 #### Ping
 
-Heartbeat from frpc
+来自 frpc 的心跳
 
 ```
 {
@@ -178,7 +177,7 @@ Heartbeat from frpc
 
 #### NewWorkConn
 
-New work connection received from frpc (RPC sent after `run_id` is matched with an existing frp connection)
+从 frpc 接收到新的工作连接（在 `run_id` 与现有 frp 连接匹配后发送 RPC）
 
 ```
 {
@@ -197,7 +196,7 @@ New work connection received from frpc (RPC sent after `run_id` is matched with 
 
 #### NewUserConn
 
-New user connection received from proxy (support `tcp`, `stcp`, `https` and `tcpmux`) .
+从代理接收到新的用户连接（支持 `tcp`、`stcp`、`https` 和 `tcpmux`）。
 
 ```
 {
@@ -214,7 +213,7 @@ New user connection received from proxy (support `tcp`, `stcp`, `https` and `tcp
 }
 ```
 
-### Server Plugin Configuration
+### 服务器插件配置
 
 ```toml
 # frps.toml
@@ -233,20 +232,20 @@ path = "/handler"
 ops = ["NewProxy"]
 ```
 
-- addr: the address where the external RPC service listens. Defaults to http. For https, specify the schema: `addr = "https://127.0.0.1:9001"`.
-- path: http request url path for the POST request.
-- ops: operations plugin needs to handle (e.g. "Login", "NewProxy", ...).
-- tlsVerify: When the schema is https, we verify by default. Set this value to false if you want to skip verification.
+- addr：外部 RPC 服务监听的地址。默认为 http。对于 https，请指定协议：`addr = "https://127.0.0.1:9001"`。
+- path：POST 请求的 HTTP 请求 URL 路径。
+- ops：插件需要处理的操作（例如 "Login"、"NewProxy" 等）。
+- tlsVerify：当协议为 https 时，默认情况下我们会验证。如果要跳过验证，请将此值设置为 false。
 
-### Metadata
+### 元数据
 
-Metadata will be sent to the server plugin in each RPC request.
+元数据将在每个 RPC 请求中发送到服务器插件。
 
-There are 2 types of metadata entries - global one and the other under each proxy configuration.
-Global metadata entries will be sent in `Login` under the key `metas`, and in any other RPC request under `user.metas`.
-Metadata entries under each proxy configuration will be sent in `NewProxy` op only, under `metas`.
+有两种类型的元数据条目 - 全局元数据和每个代理配置下的元数据。
+全局元数据条目将在 `Login` 中以 `metas` 键发送，在其他任何 RPC 请求中以 `user.metas` 发送。
+每个代理配置下的元数据条目仅在 `NewProxy` 操作中以 `metas` 发送。
 
-This is an example of metadata entries:
+这是元数据条目的示例：
 
 ```toml
 # frpc.toml

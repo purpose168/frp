@@ -1,16 +1,15 @@
-// Copyright 2023 The frp Authors
+// 版权所有 2023 frp 作者
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// 根据 Apache 许可证 2.0 版本（"许可证"）授权；
+// 除非遵守许可证，否则您不得使用此文件。
+// 您可以在以下位置获取许可证副本：
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// 除非适用法律要求或书面同意，否则根据许可证分发的软件
+// 是按"原样"分发的，不附带任何明示或暗示的担保或条件。
+// 有关许可证下特定语言的管理权限和
+// 限制，请参阅许可证。
 
 //go:build !frps
 
@@ -37,6 +36,7 @@ func init() {
 	RegisterProxyFactory(reflect.TypeOf(&v1.UDPProxyConfig{}), NewUDPProxy)
 }
 
+// UDPProxy UDP 代理结构
 type UDPProxy struct {
 	*BaseProxy
 
@@ -45,12 +45,13 @@ type UDPProxy struct {
 	localAddr *net.UDPAddr
 	readCh    chan *msg.UDPPacket
 
-	// include msg.UDPPacket and msg.Ping
+	// 包含 msg.UDPPacket 和 msg.Ping
 	sendCh   chan msg.Message
 	workConn net.Conn
 	closed   bool
 }
 
+// NewUDPProxy 创建新的 UDP 代理实例
 func NewUDPProxy(baseProxy *BaseProxy, cfg v1.ProxyConfigurer) Proxy {
 	unwrapped, ok := cfg.(*v1.UDPProxyConfig)
 	if !ok {
@@ -62,6 +63,7 @@ func NewUDPProxy(baseProxy *BaseProxy, cfg v1.ProxyConfigurer) Proxy {
 	}
 }
 
+// Run 运行 UDP 代理，解析本地 UDP 地址
 func (pxy *UDPProxy) Run() (err error) {
 	pxy.localAddr, err = net.ResolveUDPAddr("udp", net.JoinHostPort(pxy.cfg.LocalIP, strconv.Itoa(pxy.cfg.LocalPort)))
 	if err != nil {
@@ -70,6 +72,7 @@ func (pxy *UDPProxy) Run() (err error) {
 	return
 }
 
+// Close 关闭 UDP 代理并释放资源
 func (pxy *UDPProxy) Close() {
 	pxy.mu.Lock()
 	defer pxy.mu.Unlock()
@@ -88,10 +91,11 @@ func (pxy *UDPProxy) Close() {
 	}
 }
 
+// InWorkConn 处理工作连接
 func (pxy *UDPProxy) InWorkConn(conn net.Conn, _ *msg.StartWorkConn) {
 	xl := pxy.xl
-	xl.Infof("incoming a new work connection for udp proxy, %s", conn.RemoteAddr().String())
-	// close resources related with old workConn
+	xl.Infof("接收到 udp 代理的新工作连接，%s", conn.RemoteAddr().String())
+	// 关闭与旧工作连接相关的资源
 	pxy.Close()
 
 	var rwc io.ReadWriteCloser = conn
@@ -105,7 +109,7 @@ func (pxy *UDPProxy) InWorkConn(conn net.Conn, _ *msg.StartWorkConn) {
 		rwc, err = libio.WithEncryption(rwc, pxy.encryptionKey)
 		if err != nil {
 			conn.Close()
-			xl.Errorf("create encryption stream error: %v", err)
+			xl.Errorf("创建加密流错误: %v", err)
 			return
 		}
 	}
@@ -125,32 +129,32 @@ func (pxy *UDPProxy) InWorkConn(conn net.Conn, _ *msg.StartWorkConn) {
 		for {
 			var udpMsg msg.UDPPacket
 			if errRet := msg.ReadMsgInto(conn, &udpMsg); errRet != nil {
-				xl.Warnf("read from workConn for udp error: %v", errRet)
+				xl.Warnf("从 udp 的工作连接读取错误: %v", errRet)
 				return
 			}
 			if errRet := errors.PanicToError(func() {
-				xl.Tracef("get udp package from workConn: %s", udpMsg.Content)
+				xl.Tracef("从工作连接获取 UDP 数据包: %s", udpMsg.Content)
 				readCh <- &udpMsg
 			}); errRet != nil {
-				xl.Infof("reader goroutine for udp work connection closed: %v", errRet)
+				xl.Infof("udp 工作连接的读取器协程已关闭: %v", errRet)
 				return
 			}
 		}
 	}
 	workConnSenderFn := func(conn net.Conn, sendCh chan msg.Message) {
 		defer func() {
-			xl.Infof("writer goroutine for udp work connection closed")
+			xl.Infof("udp 工作连接的写入器协程已关闭")
 		}()
 		var errRet error
 		for rawMsg := range sendCh {
 			switch m := rawMsg.(type) {
 			case *msg.UDPPacket:
-				xl.Tracef("send udp package to workConn: %s", m.Content)
+				xl.Tracef("发送 UDP 数据包到工作连接: %s", m.Content)
 			case *msg.Ping:
-				xl.Tracef("send ping message to udp workConn")
+				xl.Tracef("发送 ping 消息到 udp 工作连接")
 			}
 			if errRet = msg.WriteMsg(conn, rawMsg); errRet != nil {
-				xl.Errorf("udp work write error: %v", errRet)
+				xl.Errorf("udp 工作连接写入错误: %v", errRet)
 				return
 			}
 		}
@@ -162,7 +166,7 @@ func (pxy *UDPProxy) InWorkConn(conn net.Conn, _ *msg.StartWorkConn) {
 			if errRet = errors.PanicToError(func() {
 				sendCh <- &msg.Ping{}
 			}); errRet != nil {
-				xl.Tracef("heartbeat goroutine for udp work connection closed")
+				xl.Tracef("udp 工作连接的心跳协程已关闭")
 				break
 			}
 		}
@@ -172,6 +176,6 @@ func (pxy *UDPProxy) InWorkConn(conn net.Conn, _ *msg.StartWorkConn) {
 	go workConnReaderFn(pxy.workConn, pxy.readCh)
 	go heartbeatFn(pxy.sendCh)
 
-	// Call Forwarder with proxy protocol version (empty string means no proxy protocol)
+	// 使用代理协议版本调用 Forwarder（空字符串表示不使用代理协议）
 	udp.Forwarder(pxy.localAddr, pxy.readCh, pxy.sendCh, int(pxy.clientCfg.UDPPacketSize), pxy.cfg.Transport.ProxyProtocolVersion)
 }

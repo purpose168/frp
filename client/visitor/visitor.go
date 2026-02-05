@@ -1,16 +1,15 @@
-// Copyright 2017 fatedier, fatedier@gmail.com
+// 版权所有 2017 fatedier, fatedier@gmail.com
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// 根据 Apache 许可证 2.0 版本（"许可证"）授权；
+// 除非遵守许可证，否则您不得使用此文件。
+// 您可以在以下位置获取许可证副本：
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// 除非适用法律要求或书面同意，否则根据许可证分发的软件
+// 是按"原样"分发的，不附带任何明示或暗示的担保或条件。
+// 有关许可证下特定语言的管理权限和
+// 限制，请参阅许可证。
 
 package visitor
 
@@ -27,28 +26,28 @@ import (
 	"github.com/fatedier/frp/pkg/vnet"
 )
 
-// Helper wraps some functions for visitor to use.
+// Helper 封装了一些供访问者使用的函数
 type Helper interface {
-	// ConnectServer directly connects to the frp server.
+	// ConnectServer 直接连接到 frp 服务器
 	ConnectServer() (net.Conn, error)
-	// TransferConn transfers the connection to another visitor.
+	// TransferConn 将连接转移到另一个访问者
 	TransferConn(string, net.Conn) error
-	// MsgTransporter returns the message transporter that is used to send and receive messages
-	// to the frp server through the controller.
+	// MsgTransporter 返回消息传输器，用于通过控制器向 frp 服务器发送和接收消息
 	MsgTransporter() transport.MessageTransporter
-	// VNetController returns the vnet controller that is used to manage the virtual network.
+	// VNetController 返回用于管理虚拟网络的 vnet 控制器
 	VNetController() *vnet.Controller
-	// RunID returns the run id of current controller.
+	// RunID 返回当前控制器的运行 ID
 	RunID() string
 }
 
-// Visitor is used for forward traffics from local port tot remote service.
+// Visitor 用于将流量从本地端口转发到远程服务
 type Visitor interface {
 	Run() error
 	AcceptConn(conn net.Conn) error
 	Close()
 }
 
+// NewVisitor 创建新的访问者实例
 func NewVisitor(
 	ctx context.Context,
 	cfg v1.VisitorConfigurer,
@@ -104,6 +103,7 @@ func NewVisitor(
 	return visitor, nil
 }
 
+// BaseVisitor 所有访问者的基础结构
 type BaseVisitor struct {
 	clientCfg  *v1.ClientCommonConfig
 	helper     Helper
@@ -115,10 +115,12 @@ type BaseVisitor struct {
 	ctx context.Context
 }
 
+// AcceptConn 接受连接
 func (v *BaseVisitor) AcceptConn(conn net.Conn) error {
 	return v.internalLn.PutConn(conn)
 }
 
+// Close 关闭访问者
 func (v *BaseVisitor) Close() {
 	if v.l != nil {
 		v.l.Close()

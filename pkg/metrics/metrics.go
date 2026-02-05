@@ -19,6 +19,8 @@ import (
 )
 
 var (
-	EnableMem        = aggregate.EnableMem
+	// EnableMem 启用内存指标收集
+	EnableMem = aggregate.EnableMem
+	// EnablePrometheus 启用 Prometheus 指标收集
 	EnablePrometheus = aggregate.EnablePrometheus
 )

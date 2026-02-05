@@ -28,121 +28,138 @@ import (
 	"github.com/fatedier/frp/pkg/util/util"
 )
 
+// ProxyTransport 代理传输配置结构体
 type ProxyTransport struct {
-	// UseEncryption controls whether or not communication with the server will
-	// be encrypted. Encryption is done using the tokens supplied in the server
-	// and client configuration.
+	// UseEncryption 控制与服务器的通信是否加密
+	// 加密使用服务器和客户端配置中提供的令牌
 	UseEncryption bool `json:"useEncryption,omitempty"`
-	// UseCompression controls whether or not communication with the server
-	// will be compressed.
+	// UseCompression 控制与服务器的通信是否压缩
 	UseCompression bool `json:"useCompression,omitempty"`
-	// BandwidthLimit limit the bandwidth
-	// 0 means no limit
+	// BandwidthLimit 带宽限制
+	// 0 表示无限制
 	BandwidthLimit types.BandwidthQuantity `json:"bandwidthLimit,omitempty"`
-	// BandwidthLimitMode specifies whether to limit the bandwidth on the
-	// client or server side. Valid values include "client" and "server".
-	// By default, this value is "client".
+	// BandwidthLimitMode 指定在客户端还是服务端限制带宽
+	// 有效值包括 "client" 和 "server"
+	// 默认值为 "client"
 	BandwidthLimitMode string `json:"bandwidthLimitMode,omitempty"`
-	// ProxyProtocolVersion specifies which protocol version to use. Valid
-	// values include "v1", "v2", and "". If the value is "", a protocol
-	// version will be automatically selected. By default, this value is "".
+	// ProxyProtocolVersion 指定使用哪个协议版本
+	// 有效值包括 "v1"、"v2" 和 ""
+	// 如果值为 ""，将自动选择协议版本
+	// 默认值为 ""
 	ProxyProtocolVersion string `json:"proxyProtocolVersion,omitempty"`
 }
 
+// LoadBalancerConfig 负载均衡器配置结构体
 type LoadBalancerConfig struct {
-	// Group specifies which group the is a part of. The server will use
-	// this information to load balance proxies in the same group. If the value
-	// is "", this will not be in a group.
+	// Group 指定所属的组
+	// 服务器将使用此信息对同一组中的代理进行负载均衡
+	// 如果值为 ""，则不在任何组中
 	Group string `json:"group"`
-	// GroupKey specifies a group key, which should be the same among proxies
-	// of the same group.
+	// GroupKey 指定组密钥，同一组的代理应该具有相同的组密钥
 	GroupKey string `json:"groupKey,omitempty"`
 }
 
+// ProxyBackend 代理后端配置结构体
 type ProxyBackend struct {
-	// LocalIP specifies the IP address or host name of the backend.
+	// LocalIP 指定后端的 IP 地址或主机名
 	LocalIP string `json:"localIP,omitempty"`
-	// LocalPort specifies the port of the backend.
+	// LocalPort 指定后端的端口
 	LocalPort int `json:"localPort,omitempty"`
 
-	// Plugin specifies what plugin should be used for handling connections. If this value
-	// is set, the LocalIP and LocalPort values will be ignored.
+	// Plugin 指定用于处理连接的插件
+	// 如果设置了此值，将忽略 LocalIP 和 LocalPort 值
 	Plugin TypedClientPluginOptions `json:"plugin,omitempty"`
 }
 
-// HealthCheckConfig configures health checking. This can be useful for load
-// balancing purposes to detect and remove proxies to failing services.
+// HealthCheckConfig 健康检查配置结构体
+// 可用于负载均衡目的，以检测并移除到失败服务的代理
 type HealthCheckConfig struct {
-	// Type specifies what protocol to use for health checking.
-	// Valid values include "tcp", "http", and "". If this value is "", health
-	// checking will not be performed.
+	// Type 指定用于健康检查的协议
+	// 有效值包括 "tcp"、"http" 和 ""
+	// 如果此值为 ""，则不执行健康检查
 	//
-	// If the type is "tcp", a connection will be attempted to the target
-	// server. If a connection cannot be established, the health check fails.
+	// 如果类型为 "tcp"，将尝试连接到目标服务器
+	// 如果无法建立连接，则健康检查失败
 	//
-	// If the type is "http", a GET request will be made to the endpoint
-	// specified by HealthCheckURL. If the response is not a 200, the health
-	// check fails.
+	// 如果类型为 "http"，将向 HealthCheckURL 指定的端点发送 GET 请求
+	// 如果响应不是 200，则健康检查失败
 	Type string `json:"type"` // tcp | http
-	// TimeoutSeconds specifies the number of seconds to wait for a health
-	// check attempt to connect. If the timeout is reached, this counts as a
-	// health check failure. By default, this value is 3.
+	// TimeoutSeconds 指定等待健康检查尝试连接的秒数
+	// 如果达到超时，则计为健康检查失败
+	// 默认值为 3
 	TimeoutSeconds int `json:"timeoutSeconds,omitempty"`
-	// MaxFailed specifies the number of allowed failures before the
-	// is stopped. By default, this value is 1.
+	// MaxFailed 指定停止之前允许的失败次数
+	// 默认值为 1
 	MaxFailed int `json:"maxFailed,omitempty"`
-	// IntervalSeconds specifies the time in seconds between health
-	// checks. By default, this value is 10.
+	// IntervalSeconds 指定健康检查之间的时间间隔（秒）
+	// 默认值为 10
 	IntervalSeconds int `json:"intervalSeconds"`
-	// Path specifies the path to send health checks to if the
-	// health check type is "http".
+	// Path 指定如果健康检查类型为 "http" 时发送健康检查的路径
 	Path string `json:"path,omitempty"`
-	// HTTPHeaders specifies the headers to send with the health request, if
-	// the health check type is "http".
+	// HTTPHeaders 指定如果健康检查类型为 "http" 时与健康请求一起发送的头部
 	HTTPHeaders []HTTPHeader `json:"httpHeaders,omitempty"`
 }
 
+// DomainConfig 域名配置结构体
 type DomainConfig struct {
+	// CustomDomains 自定义域名列表
 	CustomDomains []string `json:"customDomains,omitempty"`
-	SubDomain     string   `json:"subdomain,omitempty"`
+	// SubDomain 子域名
+	SubDomain string `json:"subdomain,omitempty"`
 }
 
+// ProxyBaseConfig 代理基础配置结构体
 type ProxyBaseConfig struct {
+	// Name 代理名称
 	Name string `json:"name"`
+	// Type 代理类型
 	Type string `json:"type"`
-	// Enabled controls whether this proxy is enabled. nil or true means enabled, false means disabled.
-	// This allows individual control over each proxy, complementing the global "start" field.
-	Enabled     *bool             `json:"enabled,omitempty"`
+	// Enabled 控制此代理是否启用
+	// nil 或 true 表示启用，false 表示禁用
+	// 这允许对每个代理进行单独控制，补充全局 "start" 字段
+	Enabled *bool `json:"enabled,omitempty"`
+	// Annotations 注解映射
 	Annotations map[string]string `json:"annotations,omitempty"`
-	Transport   ProxyTransport    `json:"transport,omitempty"`
-	// metadata info for each proxy
-	Metadatas    map[string]string  `json:"metadatas,omitempty"`
+	// Transport 传输配置
+	Transport ProxyTransport `json:"transport,omitempty"`
+	// Metadatas 每个代理的元数据信息
+	Metadatas map[string]string `json:"metadatas,omitempty"`
+	// LoadBalancer 负载均衡器配置
 	LoadBalancer LoadBalancerConfig `json:"loadBalancer,omitempty"`
-	HealthCheck  HealthCheckConfig  `json:"healthCheck,omitempty"`
+	// HealthCheck 健康检查配置
+	HealthCheck HealthCheckConfig `json:"healthCheck,omitempty"`
 	ProxyBackend
 }
 
+// GetBaseConfig 获取基础配置
 func (c *ProxyBaseConfig) GetBaseConfig() *ProxyBaseConfig {
 	return c
 }
 
+// Complete 填充代理基础配置的默认值
 func (c *ProxyBaseConfig) Complete(namePrefix string) {
+	// 设置代理名称前缀
 	c.Name = lo.Ternary(namePrefix == "", "", namePrefix+".") + c.Name
+	// 设置默认的本地 IP
 	c.LocalIP = util.EmptyOr(c.LocalIP, "127.0.0.1")
+	// 设置默认的带宽限制模式
 	c.Transport.BandwidthLimitMode = util.EmptyOr(c.Transport.BandwidthLimitMode, types.BandwidthLimitModeClient)
 
+	// 如果配置了插件，完成插件配置
 	if c.Plugin.ClientPluginOptions != nil {
 		c.Plugin.Complete()
 	}
 }
 
+// MarshalToMsg 将此配置序列化为 msg.NewProxy 消息
+// 此函数将在 frpc 端调用
 func (c *ProxyBaseConfig) MarshalToMsg(m *msg.NewProxy) {
 	m.ProxyName = c.Name
 	m.ProxyType = c.Type
 	m.UseEncryption = c.Transport.UseEncryption
 	m.UseCompression = c.Transport.UseCompression
 	m.BandwidthLimit = c.Transport.BandwidthLimit.String()
-	// leave it empty for default value to reduce traffic
+	// 留空以使用默认值以减少流量
 	if c.Transport.BandwidthLimitMode != "client" {
 		m.BandwidthLimitMode = c.Transport.BandwidthLimitMode
 	}
@@ -152,6 +169,8 @@ func (c *ProxyBaseConfig) MarshalToMsg(m *msg.NewProxy) {
 	m.Annotations = c.Annotations
 }
 
+// UnmarshalFromMsg 将 msg.NewProxy 消息反序列化到此配置
+// 此函数将在 frps 端调用
 func (c *ProxyBaseConfig) UnmarshalFromMsg(m *msg.NewProxy) {
 	c.Name = m.ProxyName
 	c.Type = m.ProxyType
@@ -169,16 +188,21 @@ func (c *ProxyBaseConfig) UnmarshalFromMsg(m *msg.NewProxy) {
 	c.Annotations = m.Annotations
 }
 
+// TypedProxyConfig 类型化代理配置结构体
 type TypedProxyConfig struct {
+	// Type 代理类型
 	Type string `json:"type"`
 	ProxyConfigurer
 }
 
+// UnmarshalJSON 自定义 JSON 反序列化方法
 func (c *TypedProxyConfig) UnmarshalJSON(b []byte) error {
+	// 处理 null 值
 	if len(b) == 4 && string(b) == "null" {
-		return errors.New("type is required")
+		return errors.New("类型是必需的")
 	}
 
+	// 解析代理类型
 	typeStruct := struct {
 		Type string `json:"type"`
 	}{}
@@ -187,49 +211,66 @@ func (c *TypedProxyConfig) UnmarshalJSON(b []byte) error {
 	}
 
 	c.Type = typeStruct.Type
+	// 根据类型创建对应的配置器
 	configurer := NewProxyConfigurerByType(ProxyType(typeStruct.Type))
 	if configurer == nil {
-		return fmt.Errorf("unknown proxy type: %s", typeStruct.Type)
+		return fmt.Errorf("未知的代理类型: %s", typeStruct.Type)
 	}
+	// 创建 JSON 解码器
 	decoder := json.NewDecoder(bytes.NewBuffer(b))
 	if DisallowUnknownFields {
 		decoder.DisallowUnknownFields()
 	}
+	// 解码配置器
 	if err := decoder.Decode(configurer); err != nil {
-		return fmt.Errorf("unmarshal ProxyConfig error: %v", err)
+		return fmt.Errorf("反序列化 ProxyConfig 错误: %v", err)
 	}
 	c.ProxyConfigurer = configurer
 	return nil
 }
 
+// MarshalJSON 自定义 JSON 序列化方法
 func (c *TypedProxyConfig) MarshalJSON() ([]byte, error) {
 	return json.Marshal(c.ProxyConfigurer)
 }
 
+// ProxyConfigurer 代理配置器接口
 type ProxyConfigurer interface {
+	// Complete 填充配置的默认值
 	Complete(namePrefix string)
+	// GetBaseConfig 获取基础配置
 	GetBaseConfig() *ProxyBaseConfig
-	// MarshalToMsg marshals this config into a msg.NewProxy message. This
-	// function will be called on the frpc side.
+	// MarshalToMsg 将此配置序列化为 msg.NewProxy 消息
+	// 此函数将在 frpc 端调用
 	MarshalToMsg(*msg.NewProxy)
-	// UnmarshalFromMsg unmarshal a msg.NewProxy message into this config.
-	// This function will be called on the frps side.
+	// UnmarshalFromMsg 将 msg.NewProxy 消息反序列化到此配置
+	// 此函数将在 frps 端调用
 	UnmarshalFromMsg(*msg.NewProxy)
 }
 
+// ProxyType 代理类型
 type ProxyType string
 
 const (
-	ProxyTypeTCP    ProxyType = "tcp"
-	ProxyTypeUDP    ProxyType = "udp"
+	// ProxyTypeTCP TCP 代理类型
+	ProxyTypeTCP ProxyType = "tcp"
+	// ProxyTypeUDP UDP 代理类型
+	ProxyTypeUDP ProxyType = "udp"
+	// ProxyTypeTCPMUX TCP 多路复用代理类型
 	ProxyTypeTCPMUX ProxyType = "tcpmux"
-	ProxyTypeHTTP   ProxyType = "http"
-	ProxyTypeHTTPS  ProxyType = "https"
-	ProxyTypeSTCP   ProxyType = "stcp"
-	ProxyTypeXTCP   ProxyType = "xtcp"
-	ProxyTypeSUDP   ProxyType = "sudp"
+	// ProxyTypeHTTP HTTP 代理类型
+	ProxyTypeHTTP ProxyType = "http"
+	// ProxyTypeHTTPS HTTPS 代理类型
+	ProxyTypeHTTPS ProxyType = "https"
+	// ProxyTypeSTCP STCP 代理类型
+	ProxyTypeSTCP ProxyType = "stcp"
+	// ProxyTypeXTCP XTCP 代理类型
+	ProxyTypeXTCP ProxyType = "xtcp"
+	// ProxyTypeSUDP SUDP 代理类型
+	ProxyTypeSUDP ProxyType = "sudp"
 )
 
+// proxyConfigTypeMap 代理配置类型映射
 var proxyConfigTypeMap = map[ProxyType]reflect.Type{
 	ProxyTypeTCP:    reflect.TypeOf(TCPProxyConfig{}),
 	ProxyTypeUDP:    reflect.TypeOf(UDPProxyConfig{}),
@@ -241,6 +282,7 @@ var proxyConfigTypeMap = map[ProxyType]reflect.Type{
 	ProxyTypeSUDP:   reflect.TypeOf(SUDPProxyConfig{}),
 }
 
+// NewProxyConfigurerByType 根据代理类型创建代理配置器
 func NewProxyConfigurerByType(proxyType ProxyType) ProxyConfigurer {
 	v, ok := proxyConfigTypeMap[proxyType]
 	if !ok {
@@ -253,18 +295,22 @@ func NewProxyConfigurerByType(proxyType ProxyType) ProxyConfigurer {
 
 var _ ProxyConfigurer = &TCPProxyConfig{}
 
+// TCPProxyConfig TCP 代理配置结构体
 type TCPProxyConfig struct {
 	ProxyBaseConfig
 
+	// RemotePort 远程端口
 	RemotePort int `json:"remotePort,omitempty"`
 }
 
+// MarshalToMsg 将此配置序列化为 msg.NewProxy 消息
 func (c *TCPProxyConfig) MarshalToMsg(m *msg.NewProxy) {
 	c.ProxyBaseConfig.MarshalToMsg(m)
 
 	m.RemotePort = c.RemotePort
 }
 
+// UnmarshalFromMsg 将 msg.NewProxy 消息反序列化到此配置
 func (c *TCPProxyConfig) UnmarshalFromMsg(m *msg.NewProxy) {
 	c.ProxyBaseConfig.UnmarshalFromMsg(m)
 
@@ -273,18 +319,22 @@ func (c *TCPProxyConfig) UnmarshalFromMsg(m *msg.NewProxy) {
 
 var _ ProxyConfigurer = &UDPProxyConfig{}
 
+// UDPProxyConfig UDP 代理配置结构体
 type UDPProxyConfig struct {
 	ProxyBaseConfig
 
+	// RemotePort 远程端口
 	RemotePort int `json:"remotePort,omitempty"`
 }
 
+// MarshalToMsg 将此配置序列化为 msg.NewProxy 消息
 func (c *UDPProxyConfig) MarshalToMsg(m *msg.NewProxy) {
 	c.ProxyBaseConfig.MarshalToMsg(m)
 
 	m.RemotePort = c.RemotePort
 }
 
+// UnmarshalFromMsg 将 msg.NewProxy 消息反序列化到此配置
 func (c *UDPProxyConfig) UnmarshalFromMsg(m *msg.NewProxy) {
 	c.ProxyBaseConfig.UnmarshalFromMsg(m)
 
@@ -293,19 +343,28 @@ func (c *UDPProxyConfig) UnmarshalFromMsg(m *msg.NewProxy) {
 
 var _ ProxyConfigurer = &HTTPProxyConfig{}
 
+// HTTPProxyConfig HTTP 代理配置结构体
 type HTTPProxyConfig struct {
 	ProxyBaseConfig
 	DomainConfig
 
-	Locations         []string         `json:"locations,omitempty"`
-	HTTPUser          string           `json:"httpUser,omitempty"`
-	HTTPPassword      string           `json:"httpPassword,omitempty"`
-	HostHeaderRewrite string           `json:"hostHeaderRewrite,omitempty"`
-	RequestHeaders    HeaderOperations `json:"requestHeaders,omitempty"`
-	ResponseHeaders   HeaderOperations `json:"responseHeaders,omitempty"`
-	RouteByHTTPUser   string           `json:"routeByHTTPUser,omitempty"`
+	// Locations 位置列表
+	Locations []string `json:"locations,omitempty"`
+	// HTTPUser HTTP 用户名
+	HTTPUser string `json:"httpUser,omitempty"`
+	// HTTPPassword HTTP 密码
+	HTTPPassword string `json:"httpPassword,omitempty"`
+	// HostHeaderRewrite 主机头重写
+	HostHeaderRewrite string `json:"hostHeaderRewrite,omitempty"`
+	// RequestHeaders 请求头操作
+	RequestHeaders HeaderOperations `json:"requestHeaders,omitempty"`
+	// ResponseHeaders 响应头操作
+	ResponseHeaders HeaderOperations `json:"responseHeaders,omitempty"`
+	// RouteByHTTPUser 按 HTTP 用户路由
+	RouteByHTTPUser string `json:"routeByHTTPUser,omitempty"`
 }
 
+// MarshalToMsg 将此配置序列化为 msg.NewProxy 消息
 func (c *HTTPProxyConfig) MarshalToMsg(m *msg.NewProxy) {
 	c.ProxyBaseConfig.MarshalToMsg(m)
 
@@ -320,6 +379,7 @@ func (c *HTTPProxyConfig) MarshalToMsg(m *msg.NewProxy) {
 	m.RouteByHTTPUser = c.RouteByHTTPUser
 }
 
+// UnmarshalFromMsg 将 msg.NewProxy 消息反序列化到此配置
 func (c *HTTPProxyConfig) UnmarshalFromMsg(m *msg.NewProxy) {
 	c.ProxyBaseConfig.UnmarshalFromMsg(m)
 
@@ -336,11 +396,13 @@ func (c *HTTPProxyConfig) UnmarshalFromMsg(m *msg.NewProxy) {
 
 var _ ProxyConfigurer = &HTTPSProxyConfig{}
 
+// HTTPSProxyConfig HTTPS 代理配置结构体
 type HTTPSProxyConfig struct {
 	ProxyBaseConfig
 	DomainConfig
 }
 
+// MarshalToMsg 将此配置序列化为 msg.NewProxy 消息
 func (c *HTTPSProxyConfig) MarshalToMsg(m *msg.NewProxy) {
 	c.ProxyBaseConfig.MarshalToMsg(m)
 
@@ -348,6 +410,7 @@ func (c *HTTPSProxyConfig) MarshalToMsg(m *msg.NewProxy) {
 	m.SubDomain = c.SubDomain
 }
 
+// UnmarshalFromMsg 将 msg.NewProxy 消息反序列化到此配置
 func (c *HTTPSProxyConfig) UnmarshalFromMsg(m *msg.NewProxy) {
 	c.ProxyBaseConfig.UnmarshalFromMsg(m)
 
@@ -355,24 +418,32 @@ func (c *HTTPSProxyConfig) UnmarshalFromMsg(m *msg.NewProxy) {
 	c.SubDomain = m.SubDomain
 }
 
+// TCPMultiplexerType TCP 多路复用器类型
 type TCPMultiplexerType string
 
 const (
+	// TCPMultiplexerHTTPConnect HTTP CONNECT 多路复用器
 	TCPMultiplexerHTTPConnect TCPMultiplexerType = "httpconnect"
 )
 
 var _ ProxyConfigurer = &TCPMuxProxyConfig{}
 
+// TCPMuxProxyConfig TCP 多路复用代理配置结构体
 type TCPMuxProxyConfig struct {
 	ProxyBaseConfig
 	DomainConfig
 
-	HTTPUser        string `json:"httpUser,omitempty"`
-	HTTPPassword    string `json:"httpPassword,omitempty"`
+	// HTTPUser HTTP 用户名
+	HTTPUser string `json:"httpUser,omitempty"`
+	// HTTPPassword HTTP 密码
+	HTTPPassword string `json:"httpPassword,omitempty"`
+	// RouteByHTTPUser 按 HTTP 用户路由
 	RouteByHTTPUser string `json:"routeByHTTPUser,omitempty"`
-	Multiplexer     string `json:"multiplexer,omitempty"`
+	// Multiplexer 多路复用器
+	Multiplexer string `json:"multiplexer,omitempty"`
 }
 
+// MarshalToMsg 将此配置序列化为 msg.NewProxy 消息
 func (c *TCPMuxProxyConfig) MarshalToMsg(m *msg.NewProxy) {
 	c.ProxyBaseConfig.MarshalToMsg(m)
 
@@ -384,26 +455,31 @@ func (c *TCPMuxProxyConfig) MarshalToMsg(m *msg.NewProxy) {
 	m.RouteByHTTPUser = c.RouteByHTTPUser
 }
 
+// UnmarshalFromMsg 将 msg.NewProxy 消息反序列化到此配置
 func (c *TCPMuxProxyConfig) UnmarshalFromMsg(m *msg.NewProxy) {
 	c.ProxyBaseConfig.UnmarshalFromMsg(m)
 
 	c.CustomDomains = m.CustomDomains
 	c.SubDomain = m.SubDomain
 	c.Multiplexer = m.Multiplexer
-	c.HTTPUser = m.HTTPUser
+	m.HTTPUser = m.HTTPUser
 	c.HTTPPassword = m.HTTPPwd
 	c.RouteByHTTPUser = m.RouteByHTTPUser
 }
 
 var _ ProxyConfigurer = &STCPProxyConfig{}
 
+// STCPProxyConfig STCP 代理配置结构体
 type STCPProxyConfig struct {
 	ProxyBaseConfig
 
-	Secretkey  string   `json:"secretKey,omitempty"`
+	// Secretkey 密钥
+	Secretkey string `json:"secretKey,omitempty"`
+	// AllowUsers 允许的用户列表
 	AllowUsers []string `json:"allowUsers,omitempty"`
 }
 
+// MarshalToMsg 将此配置序列化为 msg.NewProxy 消息
 func (c *STCPProxyConfig) MarshalToMsg(m *msg.NewProxy) {
 	c.ProxyBaseConfig.MarshalToMsg(m)
 
@@ -411,6 +487,7 @@ func (c *STCPProxyConfig) MarshalToMsg(m *msg.NewProxy) {
 	m.AllowUsers = c.AllowUsers
 }
 
+// UnmarshalFromMsg 将 msg.NewProxy 消息反序列化到此配置
 func (c *STCPProxyConfig) UnmarshalFromMsg(m *msg.NewProxy) {
 	c.ProxyBaseConfig.UnmarshalFromMsg(m)
 
@@ -420,16 +497,20 @@ func (c *STCPProxyConfig) UnmarshalFromMsg(m *msg.NewProxy) {
 
 var _ ProxyConfigurer = &XTCPProxyConfig{}
 
+// XTCPProxyConfig XTCP 代理配置结构体
 type XTCPProxyConfig struct {
 	ProxyBaseConfig
 
-	Secretkey  string   `json:"secretKey,omitempty"`
+	// Secretkey 密钥
+	Secretkey string `json:"secretKey,omitempty"`
+	// AllowUsers 允许的用户列表
 	AllowUsers []string `json:"allowUsers,omitempty"`
 
-	// NatTraversal configuration for NAT traversal
+	// NatTraversal NAT 穿透配置
 	NatTraversal *NatTraversalConfig `json:"natTraversal,omitempty"`
 }
 
+// MarshalToMsg 将此配置序列化为 msg.NewProxy 消息
 func (c *XTCPProxyConfig) MarshalToMsg(m *msg.NewProxy) {
 	c.ProxyBaseConfig.MarshalToMsg(m)
 
@@ -437,6 +518,7 @@ func (c *XTCPProxyConfig) MarshalToMsg(m *msg.NewProxy) {
 	m.AllowUsers = c.AllowUsers
 }
 
+// UnmarshalFromMsg 将 msg.NewProxy 消息反序列化到此配置
 func (c *XTCPProxyConfig) UnmarshalFromMsg(m *msg.NewProxy) {
 	c.ProxyBaseConfig.UnmarshalFromMsg(m)
 
@@ -446,13 +528,17 @@ func (c *XTCPProxyConfig) UnmarshalFromMsg(m *msg.NewProxy) {
 
 var _ ProxyConfigurer = &SUDPProxyConfig{}
 
+// SUDPProxyConfig SUDP 代理配置结构体
 type SUDPProxyConfig struct {
 	ProxyBaseConfig
 
-	Secretkey  string   `json:"secretKey,omitempty"`
+	// Secretkey 密钥
+	Secretkey string `json:"secretKey,omitempty"`
+	// AllowUsers 允许的用户列表
 	AllowUsers []string `json:"allowUsers,omitempty"`
 }
 
+// MarshalToMsg 将此配置序列化为 msg.NewProxy 消息
 func (c *SUDPProxyConfig) MarshalToMsg(m *msg.NewProxy) {
 	c.ProxyBaseConfig.MarshalToMsg(m)
 
@@ -460,6 +546,7 @@ func (c *SUDPProxyConfig) MarshalToMsg(m *msg.NewProxy) {
 	m.AllowUsers = c.AllowUsers
 }
 
+// UnmarshalFromMsg 将 msg.NewProxy 消息反序列化到此配置
 func (c *SUDPProxyConfig) UnmarshalFromMsg(m *msg.NewProxy) {
 	c.ProxyBaseConfig.UnmarshalFromMsg(m)
 

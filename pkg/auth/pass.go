@@ -18,14 +18,19 @@ import (
 	"github.com/fatedier/frp/pkg/msg"
 )
 
+// AlwaysPassVerifier 总是通过验证器
 var AlwaysPassVerifier = &alwaysPass{}
 
 var _ Verifier = &alwaysPass{}
 
+// alwaysPass 总是通过验证结构
 type alwaysPass struct{}
 
+// VerifyLogin 验证登录消息，总是返回 nil（通过）
 func (*alwaysPass) VerifyLogin(*msg.Login) error { return nil }
 
+// VerifyPing 验证心跳消息，总是返回 nil（通过）
 func (*alwaysPass) VerifyPing(*msg.Ping) error { return nil }
 
+// VerifyNewWorkConn 验证新工作连接消息，总是返回 nil（通过）
 func (*alwaysPass) VerifyNewWorkConn(*msg.NewWorkConn) error { return nil }

@@ -20,6 +20,7 @@ import (
 	jsonMsg "github.com/fatedier/golib/msg/json"
 )
 
+// Message 消息类型
 type Message = jsonMsg.Message
 
 var msgCtl *jsonMsg.MsgCtl
@@ -31,14 +32,17 @@ func init() {
 	}
 }
 
+// ReadMsg 从连接中读取消息
 func ReadMsg(c io.Reader) (msg Message, err error) {
 	return msgCtl.ReadMsg(c)
 }
 
+// ReadMsgInto 从连接中读取消息并解析到指定的消息对象中
 func ReadMsgInto(c io.Reader, msg Message) (err error) {
 	return msgCtl.ReadMsgInto(c, msg)
 }
 
+// WriteMsg 向连接中写入消息
 func WriteMsg(c io.Writer, msg any) (err error) {
 	return msgCtl.WriteMsg(c, msg)
 }

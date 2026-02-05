@@ -1,16 +1,15 @@
-// Copyright 2017 fatedier, fatedier@gmail.com
+// 版权所有 2017 fatedier, fatedier@gmail.com
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// 根据 Apache 许可证 2.0 版本（"许可证"）授权；
+// 除非遵守许可证，否则您不得使用此文件。
+// 您可以在以下位置获取许可证副本：
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// 除非适用法律要求或书面同意，否则根据许可证分发的软件
+// 是按"原样"基础分发的，不附带任何明示或暗示的担保或条件。
+// 有关许可证下特定语言的管理权限和
+// 限制，请参阅许可证。
 
 package client
 
@@ -43,9 +42,9 @@ import (
 
 func init() {
 	crypto.DefaultSalt = "frp"
-	// Disable quic-go's receive buffer warning.
+	// 禁用 quic-go 的接收缓冲区警告
 	os.Setenv("QUIC_GO_DISABLE_RECEIVE_BUFFER_WARNING", "true")
-	// Disable quic-go's ECN support by default. It may cause issues on certain operating systems.
+	// 默认禁用 quic-go 的 ECN 支持，它可能在某些操作系统上导致问题
 	if os.Getenv("QUIC_GO_DISABLE_ECN") == "" {
 		os.Setenv("QUIC_GO_DISABLE_ECN", "true")
 	}
@@ -59,7 +58,7 @@ func (e cancelErr) Error() string {
 	return e.Err.Error()
 }
 
-// ServiceOptions contains options for creating a new client service.
+// ServiceOptions 包含用于创建新客户端服务的选项
 type ServiceOptions struct {
 	Common      *v1.ClientCommonConfig
 	ProxyCfgs   []v1.ProxyConfigurer
@@ -67,30 +66,29 @@ type ServiceOptions struct {
 
 	UnsafeFeatures *security.UnsafeFeatures
 
-	// ConfigFilePath is the path to the configuration file used to initialize.
-	// If it is empty, it means that the configuration file is not used for initialization.
-	// It may be initialized using command line parameters or called directly.
+	// ConfigFilePath 是用于初始化的配置文件路径
+	// 如果为空，表示未使用配置文件进行初始化
+	// 可能使用命令行参数初始化或直接调用
 	ConfigFilePath string
 
-	// ClientSpec is the client specification that control the client behavior.
+	// ClientSpec 是控制客户端行为的客户端规范
 	ClientSpec *msg.ClientSpec
 
-	// ConnectorCreator is a function that creates a new connector to make connections to the server.
-	// The Connector shields the underlying connection details, whether it is through TCP or QUIC connection,
-	// and regardless of whether multiplexing is used.
+	// ConnectorCreator 是创建新连接器以建立与服务端连接的函数
+	// 连接器屏蔽了底层连接细节，无论是通过 TCP 还是 QUIC 连接
+	// 以及是否使用了多路复用
 	//
-	// If it is not set, the default frpc connector will be used.
-	// By using a custom Connector, it can be used to implement a VirtualClient, which connects to frps
-	// through a pipe instead of a real physical connection.
+	// 如果未设置，将使用默认的 frpc 连接器
+	// 通过使用自定义连接器，可以实现 VirtualClient，它通过管道而不是真实的物理连接连接到 frps
 	ConnectorCreator func(context.Context, *v1.ClientCommonConfig) Connector
 
-	// HandleWorkConnCb is a callback function that is called when a new work connection is created.
+	// HandleWorkConnCb 是创建新工作连接时调用的回调函数
 	//
-	// If it is not set, the default frpc implementation will be used.
+	// 如果未设置，将使用默认的 frpc 实现
 	HandleWorkConnCb func(*v1.ProxyBaseConfig, net.Conn, *msg.StartWorkConn) bool
 }
 
-// setServiceOptionsDefault sets the default values for ServiceOptions.
+// setServiceOptionsDefault 为 ServiceOptions 设置默认值
 func setServiceOptionsDefault(options *ServiceOptions) error {
 	if options.Common != nil {
 		if err := options.Common.Complete(); err != nil {
@@ -103,18 +101,18 @@ func setServiceOptionsDefault(options *ServiceOptions) error {
 	return nil
 }
 
-// Service is the client service that connects to frps and provides proxy services.
+// Service 是连接到 frps 并提供代理服务的客户端服务
 type Service struct {
 	ctlMu sync.RWMutex
-	// manager control connection with server
+	// 管理与服务端的控制连接
 	ctl *Control
-	// Uniq id got from frps, it will be attached to loginMsg.
+	// 从 frps 获取的唯一 ID，它将被附加到 loginMsg
 	runID string
 
-	// Auth runtime and encryption materials
+	// 身份验证运行时和加密材料
 	auth *auth.ClientAuth
 
-	// web server for admin UI and apis
+	// 用于管理 UI 和 API 的 Web 服务器
 	webServer *httppkg.Server
 
 	vnetController *vnet.Controller
@@ -127,13 +125,12 @@ type Service struct {
 
 	unsafeFeatures *security.UnsafeFeatures
 
-	// The configuration file used to initialize this client, or an empty
-	// string if no configuration file was used.
+	// 用于初始化此客户端的配置文件，如果未使用配置文件则为空字符串
 	configFilePath string
 
-	// service context
+	// 服务上下文
 	ctx context.Context
-	// call cancel to stop service
+	// 调用 cancel 以停止服务
 	cancel                   context.CancelCauseFunc
 	gracefulShutdownDuration time.Duration
 
@@ -141,6 +138,7 @@ type Service struct {
 	handleWorkConnCb func(*v1.ProxyBaseConfig, net.Conn, *msg.StartWorkConn) bool
 }
 
+// NewService 创建新的客户端服务实例
 func NewService(options ServiceOptions) (*Service, error) {
 	if err := setServiceOptionsDefault(&options); err != nil {
 		return nil, err
@@ -182,44 +180,45 @@ func NewService(options ServiceOptions) (*Service, error) {
 	return s, nil
 }
 
+// Run 运行客户端服务
 func (svr *Service) Run(ctx context.Context) error {
 	ctx, cancel := context.WithCancelCause(ctx)
 	svr.ctx = xlog.NewContext(ctx, xlog.FromContextSafe(ctx))
 	svr.cancel = cancel
 
-	// set custom DNSServer
+	// 设置自定义 DNS 服务器
 	if svr.common.DNSServer != "" {
 		netpkg.SetDefaultDNSAddress(svr.common.DNSServer)
 	}
 
 	if svr.vnetController != nil {
 		if err := svr.vnetController.Init(); err != nil {
-			log.Errorf("init virtual network controller error: %v", err)
+			log.Errorf("初始化虚拟网络控制器错误: %v", err)
 			return err
 		}
 		go func() {
-			log.Infof("virtual network controller start...")
+			log.Infof("虚拟网络控制器启动中...")
 			if err := svr.vnetController.Run(); err != nil {
-				log.Warnf("virtual network controller exit with error: %v", err)
+				log.Warnf("虚拟网络控制器退出并出现错误: %v", err)
 			}
 		}()
 	}
 
 	if svr.webServer != nil {
 		go func() {
-			log.Infof("admin server listen on %s", svr.webServer.Address())
+			log.Infof("管理服务器监听在 %s", svr.webServer.Address())
 			if err := svr.webServer.Run(); err != nil {
-				log.Warnf("admin server exit with error: %v", err)
+				log.Warnf("管理服务器退出并出现错误: %v", err)
 			}
 		}()
 	}
 
-	// first login to frps
+	// 首次登录到 frps
 	svr.loopLoginUntilSuccess(10*time.Second, lo.FromPtr(svr.common.LoginFailExit))
 	if svr.ctl == nil {
 		cancelCause := cancelErr{}
 		_ = errors.As(context.Cause(svr.ctx), &cancelCause)
-		return fmt.Errorf("login to the server failed: %v. With loginFailExit enabled, no additional retries will be attempted", cancelCause.Err)
+		return fmt.Errorf("登录到服务端失败: %v。启用 loginFailExit 后，将不会尝试额外的重试", cancelCause.Err)
 	}
 
 	go svr.keepControllerWorking()
@@ -229,22 +228,23 @@ func (svr *Service) Run(ctx context.Context) error {
 	return nil
 }
 
+// keepControllerWorking 保持控制器工作，在控制器退出时重新连接
 func (svr *Service) keepControllerWorking() {
 	<-svr.ctl.Done()
 
-	// There is a situation where the login is successful but due to certain reasons,
-	// the control immediately exits. It is necessary to limit the frequency of reconnection in this case.
-	// The interval for the first three retries in 1 minute will be very short, and then it will increase exponentially.
-	// The maximum interval is 20 seconds.
+	// 存在一种情况，登录成功但由于某些原因，控制器立即退出
+	// 在这种情况下需要限制重连频率
+	// 1 分钟内前三次重试的间隔将非常短，然后呈指数增长
+	// 最大间隔为 20 秒
 	wait.BackoffUntil(func() (bool, error) {
-		// loopLoginUntilSuccess is another layer of loop that will continuously attempt to
-		// login to the server until successful.
+		// loopLoginUntilSuccess 是另一层循环，将持续尝试
+		// 登录到服务端直到成功
 		svr.loopLoginUntilSuccess(20*time.Second, false)
 		if svr.ctl != nil {
 			<-svr.ctl.Done()
-			return false, errors.New("control is closed and try another loop")
+			return false, errors.New("控制器已关闭，尝试另一个循环")
 		}
-		// If the control is nil, it means that the login failed and the service is also closed.
+		// 如果控制器为 nil，表示登录失败且服务也已关闭
 		return false, nil
 	}, wait.NewFastBackoffManager(
 		wait.FastBackoffOptions{
@@ -260,9 +260,9 @@ func (svr *Service) keepControllerWorking() {
 	), true, svr.ctx.Done())
 }
 
-// login creates a connection to frps and registers it self as a client
-// conn: control connection
-// session: if it's not nil, using tcp mux
+// login 创建到 frps 的连接并将自身注册为客户端
+// conn: 控制连接
+// session: 如果不为 nil，则使用 tcp 多路复用
 func (svr *Service) login() (conn net.Conn, connector Connector, err error) {
 	xl := xlog.FromContextSafe(svr.ctx)
 	connector = svr.connectorCreator(svr.ctx, svr.common)
@@ -299,7 +299,7 @@ func (svr *Service) login() (conn net.Conn, connector Connector, err error) {
 		loginMsg.ClientSpec = *svr.clientSpec
 	}
 
-	// Add auth
+	// 添加认证
 	if err = svr.auth.Setter.SetLogin(loginMsg); err != nil {
 		return
 	}
@@ -324,18 +324,19 @@ func (svr *Service) login() (conn net.Conn, connector Connector, err error) {
 	svr.runID = loginRespMsg.RunID
 	xl.AddPrefix(xlog.LogPrefix{Name: "runID", Value: svr.runID})
 
-	xl.Infof("login to server success, get run id [%s]", loginRespMsg.RunID)
+	xl.Infof("登录到服务端成功，获取运行 ID [%s]", loginRespMsg.RunID)
 	return
 }
 
+// loopLoginUntilSuccess 循环尝试登录到服务端直到成功
 func (svr *Service) loopLoginUntilSuccess(maxInterval time.Duration, firstLoginExit bool) {
 	xl := xlog.FromContextSafe(svr.ctx)
 
 	loginFunc := func() (bool, error) {
-		xl.Infof("try to connect to server...")
+		xl.Infof("尝试连接到服务端...")
 		conn, connector, err := svr.login()
 		if err != nil {
-			xl.Warnf("connect to server error: %v", err)
+			xl.Warnf("连接到服务端错误: %v", err)
 			if firstLoginExit {
 				svr.cancel(cancelErr{Err: err})
 			}
@@ -361,13 +362,13 @@ func (svr *Service) loopLoginUntilSuccess(maxInterval time.Duration, firstLoginE
 		ctl, err := NewControl(svr.ctx, sessionCtx)
 		if err != nil {
 			conn.Close()
-			xl.Errorf("new control error: %v", err)
+			xl.Errorf("新建控制器错误: %v", err)
 			return false, err
 		}
 		ctl.SetInWorkConnCallback(svr.handleWorkConnCb)
 
 		ctl.Run(proxyCfgs, visitorCfgs)
-		// close and replace previous control
+		// 关闭并替换之前的控制器
 		svr.ctlMu.Lock()
 		if svr.ctl != nil {
 			svr.ctl.Close()
@@ -377,7 +378,7 @@ func (svr *Service) loopLoginUntilSuccess(maxInterval time.Duration, firstLoginE
 		return true, nil
 	}
 
-	// try to reconnect to server until success
+	// 尝试重新连接到服务端直到成功
 	wait.BackoffUntil(loginFunc, wait.NewFastBackoffManager(
 		wait.FastBackoffOptions{
 			Duration:    time.Second,
@@ -387,6 +388,7 @@ func (svr *Service) loopLoginUntilSuccess(maxInterval time.Duration, firstLoginE
 		}), true, svr.ctx.Done())
 }
 
+// UpdateAllConfigurer 更新所有代理和访问者配置
 func (svr *Service) UpdateAllConfigurer(proxyCfgs []v1.ProxyConfigurer, visitorCfgs []v1.VisitorConfigurer) error {
 	svr.cfgMu.Lock()
 	svr.proxyCfgs = proxyCfgs
@@ -403,15 +405,18 @@ func (svr *Service) UpdateAllConfigurer(proxyCfgs []v1.ProxyConfigurer, visitorC
 	return nil
 }
 
+// Close 立即关闭服务
 func (svr *Service) Close() {
 	svr.GracefulClose(time.Duration(0))
 }
 
+// GracefulClose 优雅地关闭服务，等待指定的时间
 func (svr *Service) GracefulClose(d time.Duration) {
 	svr.gracefulShutdownDuration = d
 	svr.cancel(nil)
 }
 
+// stop 停止服务并清理资源
 func (svr *Service) stop() {
 	svr.ctlMu.Lock()
 	defer svr.ctlMu.Unlock()
@@ -425,6 +430,7 @@ func (svr *Service) stop() {
 	}
 }
 
+// getProxyStatus 获取指定名称的代理状态
 func (svr *Service) getProxyStatus(name string) (*proxy.WorkingStatus, bool) {
 	svr.ctlMu.RLock()
 	ctl := svr.ctl
@@ -436,20 +442,24 @@ func (svr *Service) getProxyStatus(name string) (*proxy.WorkingStatus, bool) {
 	return ctl.pm.GetProxyStatus(name)
 }
 
+// StatusExporter 返回状态导出器接口
 func (svr *Service) StatusExporter() StatusExporter {
 	return &statusExporterImpl{
 		getProxyStatusFunc: svr.getProxyStatus,
 	}
 }
 
+// StatusExporter 状态导出器接口，用于获取代理状态
 type StatusExporter interface {
 	GetProxyStatus(name string) (*proxy.WorkingStatus, bool)
 }
 
+// statusExporterImpl 状态导出器实现
 type statusExporterImpl struct {
 	getProxyStatusFunc func(name string) (*proxy.WorkingStatus, bool)
 }
 
+// GetProxyStatus 获取指定名称的代理状态
 func (s *statusExporterImpl) GetProxyStatus(name string) (*proxy.WorkingStatus, bool) {
 	return s.getProxyStatusFunc(name)
 }

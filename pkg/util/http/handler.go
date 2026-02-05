@@ -21,21 +21,24 @@ import (
 	"github.com/fatedier/frp/pkg/util/log"
 )
 
+// GeneralResponse 是通用响应结构
 type GeneralResponse struct {
+	// Code 是响应码
 	Code int
-	Msg  string
+	// Msg 是响应消息
+	Msg string
 }
 
-// APIHandler is a handler function that returns a response object or an error.
+// APIHandler 是一个处理函数，返回响应对象或错误。
 type APIHandler func(ctx *Context) (any, error)
 
-// MakeHTTPHandlerFunc turns a normal APIHandler into a http.HandlerFunc.
+// MakeHTTPHandlerFunc 将普通的 APIHandler 转换为 http.HandlerFunc。
 func MakeHTTPHandlerFunc(handler APIHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := NewContext(w, r)
 		res, err := handler(ctx)
 		if err != nil {
-			log.Warnf("http response [%s]: error: %v", r.URL.Path, err)
+			log.Warnf("http 响应 [%s]：错误：%v", r.URL.Path, err)
 			code := http.StatusInternalServerError
 			if e, ok := err.(*Error); ok {
 				code = e.Code

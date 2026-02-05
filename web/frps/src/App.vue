@@ -36,16 +36,16 @@
 
         <nav class="nav-bar">
           <router-link to="/" class="nav-link" active-class="active"
-            >Overview</router-link
+            >概览</router-link
           >
           <router-link to="/clients" class="nav-link" active-class="active"
-            >Clients</router-link
+            >客户端</router-link
           >
           <router-link
             to="/proxies"
             class="nav-link"
             :class="{ active: route.path.startsWith('/proxies') }"
-            >Proxies</router-link
+            >代理</router-link
           >
         </nav>
       </div>
@@ -69,9 +69,9 @@ const route = useRoute()
 const isDark = useDark()
 
 const currentRouteName = computed(() => {
-  if (route.path === '/') return 'Overview'
-  if (route.path.startsWith('/clients')) return 'Clients'
-  if (route.path.startsWith('/proxies')) return 'Proxies'
+  if (route.path === '/') return '概览'
+  if (route.path.startsWith('/clients')) return '客户端'
+  if (route.path.startsWith('/proxies')) return '代理'
   return ''
 })
 </script>

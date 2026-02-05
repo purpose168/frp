@@ -12,6 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// 版权所有 2023 The frp Authors
+//
+// 根据 Apache 许可证 2.0 版本（"许可证"）授权；
+// 除非遵守许可证，否则您不得使用此文件。
+// 您可以在以下位置获取许可证副本：
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// 除非适用法律要求或书面同意，否则根据许可证分发的软件
+// 是按"原样"基础分发的，不附带任何明示或暗示的担保或条件。
+// 有关许可证下特定语言的管理权限和限制，请参阅许可证。
+
 package legacy
 
 import (
@@ -29,7 +41,7 @@ const (
 	VisitorTypeSUDP VisitorType = "sudp"
 )
 
-// Visitor
+// 访问者
 var (
 	visitorConfTypeMap = map[VisitorType]reflect.Type{
 		VisitorTypeSTCP: reflect.TypeOf(STCPVisitorConf{}),
@@ -39,14 +51,14 @@ var (
 )
 
 type VisitorConf interface {
-	// GetBaseConfig returns the base config of visitor.
+	// GetBaseConfig 返回访问者的基础配置。
 	GetBaseConfig() *BaseVisitorConf
-	// UnmarshalFromIni unmarshals config from ini.
+	// UnmarshalFromIni 从 ini 解组配置。
 	UnmarshalFromIni(prefix string, name string, section *ini.Section) error
 }
 
-// DefaultVisitorConf creates a empty VisitorConf object by visitorType.
-// If visitorType doesn't exist, return nil.
+// DefaultVisitorConf 通过 visitorType 创建一个空的 VisitorConf 对象。
+// 如果 visitorType 不存在，则返回 nil。
 func DefaultVisitorConf(visitorType VisitorType) VisitorConf {
 	v, ok := visitorConfTypeMap[visitorType]
 	if !ok {
@@ -62,23 +74,23 @@ type BaseVisitorConf struct {
 	UseCompression bool   `ini:"use_compression" json:"use_compression"`
 	Role           string `ini:"role" json:"role"`
 	Sk             string `ini:"sk" json:"sk"`
-	// if the server user is not set, it defaults to the current user
+	// 如果未设置服务器用户，则默认为当前用户
 	ServerUser string `ini:"server_user" json:"server_user"`
 	ServerName string `ini:"server_name" json:"server_name"`
 	BindAddr   string `ini:"bind_addr" json:"bind_addr"`
-	// BindPort is the port that visitor listens on.
-	// It can be less than 0, it means don't bind to the port and only receive connections redirected from
-	// other visitors. (This is not supported for SUDP now)
+	// BindPort 是访问者监听的端口。
+	// 它可以小于 0，这意味着不绑定到端口，仅接收从其他访问者重定向的连接。
+	// （目前 SUDP 不支持此功能）
 	BindPort int `ini:"bind_port" json:"bind_port"`
 }
 
-// Base
+// 基础
 func (cfg *BaseVisitorConf) GetBaseConfig() *BaseVisitorConf {
 	return cfg
 }
 
 func (cfg *BaseVisitorConf) unmarshalFromIni(_ string, name string, _ *ini.Section) error {
-	// Custom decoration after basic unmarshal:
+	// 基本解组后的自定义装饰：
 	cfg.ProxyName = name
 
 	// bind_addr
@@ -111,7 +123,7 @@ func (cfg *SUDPVisitorConf) UnmarshalFromIni(prefix string, name string, section
 		return
 	}
 
-	// Add custom logic unmarshal, if exists
+	// 添加自定义逻辑解组（如果存在）
 
 	return
 }
@@ -126,7 +138,7 @@ func (cfg *STCPVisitorConf) UnmarshalFromIni(prefix string, name string, section
 		return
 	}
 
-	// Add custom logic unmarshal, if exists
+	// 添加自定义逻辑解组（如果存在）
 
 	return
 }
@@ -148,7 +160,7 @@ func (cfg *XTCPVisitorConf) UnmarshalFromIni(prefix string, name string, section
 		return
 	}
 
-	// Add custom logic unmarshal, if exists
+	// 添加自定义逻辑解组（如果存在）
 	if cfg.Protocol == "" {
 		cfg.Protocol = "quic"
 	}
@@ -164,22 +176,22 @@ func (cfg *XTCPVisitorConf) UnmarshalFromIni(prefix string, name string, section
 	return
 }
 
-// Visitor loaded from ini
+// 从 ini 加载的访问者
 func NewVisitorConfFromIni(prefix string, name string, section *ini.Section) (VisitorConf, error) {
-	// section.Key: if key not exists, section will set it with default value.
+	// section.Key: 如果键不存在，section 将使用默认值设置它。
 	visitorType := VisitorType(section.Key("type").String())
 
 	if visitorType == "" {
-		return nil, fmt.Errorf("type shouldn't be empty")
+		return nil, fmt.Errorf("类型不应为空")
 	}
 
 	conf := DefaultVisitorConf(visitorType)
 	if conf == nil {
-		return nil, fmt.Errorf("type [%s] error", visitorType)
+		return nil, fmt.Errorf("类型 [%s] 错误", visitorType)
 	}
 
 	if err := conf.UnmarshalFromIni(prefix, name, section); err != nil {
-		return nil, fmt.Errorf("type [%s] error", visitorType)
+		return nil, fmt.Errorf("类型 [%s] 错误", visitorType)
 	}
 	return conf, nil
 }

@@ -1,13 +1,13 @@
 // Copyright 2023 The frp Authors
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// Licensed under to Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with License.
+// You may obtain a copy of License at
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
+// distributed under License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
@@ -35,42 +35,65 @@ import (
 	"github.com/fatedier/frp/pkg/util/util"
 )
 
-// NatHoleTimeout seconds.
+// NatHoleTimeout NAT 穿透超时时间（秒）
 var NatHoleTimeout int64 = 10
 
+// NewTransactionID 创建新的事务 ID
 func NewTransactionID() string {
 	id, _ := util.RandID()
 	return fmt.Sprintf("%d%s", time.Now().Unix(), id)
 }
 
+// ClientCfg 客户端配置
 type ClientCfg struct {
-	name       string
-	sk         string
+	// name 名称
+	name string
+	// sk 密钥
+	sk string
+	// allowUsers 允许的用户列表
 	allowUsers []string
-	sidCh      chan string
+	// sidCh 会话 ID 通道
+	sidCh chan string
 }
 
+// Session 会话
 type Session struct {
-	sid            string
-	analysisKey    string
-	recommandMode  int
+	// sid 会话 ID
+	sid string
+	// analysisKey 分析键
+	analysisKey string
+	// recommandMode 推荐模式
+	recommandMode int
+	// recommandIndex 推荐索引
 	recommandIndex int
 
-	visitorMsg         *msg.NatHoleVisitor
+	// visitorMsg 访问者消息
+	visitorMsg *msg.NatHoleVisitor
+	// visitorTransporter 访问者传输器
 	visitorTransporter transport.MessageTransporter
-	vResp              *msg.NatHoleResp
-	vNatFeature        *NatFeature
-	vBehavior          RecommandBehavior
+	// vResp 访问者响应
+	vResp *msg.NatHoleResp
+	// vNatFeature 访问者 NAT 特征
+	vNatFeature *NatFeature
+	// vBehavior 访问者行为
+	vBehavior RecommandBehavior
 
-	clientMsg         *msg.NatHoleClient
+	// clientMsg 客户端消息
+	clientMsg *msg.NatHoleClient
+	// clientTransporter 客户端传输器
 	clientTransporter transport.MessageTransporter
-	cResp             *msg.NatHoleResp
-	cNatFeature       *NatFeature
-	cBehavior         RecommandBehavior
+	// cResp 客户端响应
+	cResp *msg.NatHoleResp
+	// cNatFeature 客户端 NAT 特征
+	cNatFeature *NatFeature
+	// cBehavior 客户端行为
+	cBehavior RecommandBehavior
 
+	// notifyCh 通知通道
 	notifyCh chan struct{}
 }
 
+// genAnalysisKey 生成分析键
 func (s *Session) genAnalysisKey() {
 	hash := md5.New()
 	vIPs := slices.Compact(parseIPs(s.visitorMsg.MappedAddrs))
@@ -91,14 +114,19 @@ func (s *Session) genAnalysisKey() {
 	s.analysisKey = hex.EncodeToString(hash.Sum(nil))
 }
 
+// Controller 控制器
 type Controller struct {
+	// clientCfgs 客户端配置映射
 	clientCfgs map[string]*ClientCfg
-	sessions   map[string]*Session
-	analyzer   *Analyzer
+	// sessions 会话映射
+	sessions map[string]*Session
+	// analyzer 分析器
+	analyzer *Analyzer
 
 	mu sync.RWMutex
 }
 
+// NewController 创建新的控制器
 func NewController(analysisDataReserveDuration time.Duration) (*Controller, error) {
 	return &Controller{
 		clientCfgs: make(map[string]*ClientCfg),
@@ -107,6 +135,7 @@ func NewController(analysisDataReserveDuration time.Duration) (*Controller, erro
 	}, nil
 }
 
+// CleanWorker 清理工作协程
 func (c *Controller) CleanWorker(ctx context.Context) {
 	ticker := time.NewTicker(time.Hour)
 	defer ticker.Stop()
@@ -115,13 +144,14 @@ func (c *Controller) CleanWorker(ctx context.Context) {
 		case <-ticker.C:
 			start := time.Now()
 			count, total := c.analyzer.Clean()
-			log.Tracef("clean %d/%d nathole analysis data, cost %v", count, total, time.Since(start))
+			log.Tracef("清理 %d/%d NAT 穿透分析数据，耗时 %v", count, total, time.Since(start))
 		case <-ctx.Done():
 			return
 		}
 	}
 }
 
+// ListenClient 监听客户端
 func (c *Controller) ListenClient(name string, sk string, allowUsers []string) (chan string, error) {
 	cfg := &ClientCfg{
 		name:       name,
@@ -132,33 +162,36 @@ func (c *Controller) ListenClient(name string, sk string, allowUsers []string) (
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if _, ok := c.clientCfgs[name]; ok {
-		return nil, fmt.Errorf("proxy [%s] is repeated", name)
+		return nil, fmt.Errorf("代理 [%s] 重复", name)
 	}
 	c.clientCfgs[name] = cfg
 	return cfg.sidCh, nil
 }
 
+// CloseClient 关闭客户端
 func (c *Controller) CloseClient(name string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	delete(c.clientCfgs, name)
 }
 
+// GenSid 生成会话 ID
 func (c *Controller) GenSid() string {
 	t := time.Now().Unix()
 	id, _ := util.RandID()
 	return fmt.Sprintf("%d%s", t, id)
 }
 
+// HandleVisitor 处理访问者
 func (c *Controller) HandleVisitor(m *msg.NatHoleVisitor, transporter transport.MessageTransporter, visitorUser string) {
 	if m.PreCheck {
 		cfg, ok := c.clientCfgs[m.ProxyName]
 		if !ok {
-			_ = transporter.Send(c.GenNatHoleResponse(m.TransactionID, nil, fmt.Sprintf("xtcp server for [%s] doesn't exist", m.ProxyName)))
+			_ = transporter.Send(c.GenNatHoleResponse(m.TransactionID, nil, fmt.Sprintf("[%s] 的 xtcp 服务器不存在", m.ProxyName)))
 			return
 		}
 		if !slices.Contains(cfg.allowUsers, visitorUser) && !slices.Contains(cfg.allowUsers, "*") {
-			_ = transporter.Send(c.GenNatHoleResponse(m.TransactionID, nil, fmt.Sprintf("xtcp visitor user [%s] not allowed for [%s]", visitorUser, m.ProxyName)))
+			_ = transporter.Send(c.GenNatHoleResponse(m.TransactionID, nil, fmt.Sprintf("xtcp 访问者用户 [%s] 不允许访问 [%s]", visitorUser, m.ProxyName)))
 			return
 		}
 		_ = transporter.Send(c.GenNatHoleResponse(m.TransactionID, nil, ""))
@@ -182,20 +215,20 @@ func (c *Controller) HandleVisitor(m *msg.NatHoleVisitor, transporter transport.
 
 		clientCfg, ok = c.clientCfgs[m.ProxyName]
 		if !ok {
-			return fmt.Errorf("xtcp server for [%s] doesn't exist", m.ProxyName)
+			return fmt.Errorf("[%s] 的 xtcp 服务器不存在", m.ProxyName)
 		}
 		if !util.ConstantTimeEqString(m.SignKey, util.GetAuthKey(clientCfg.sk, m.Timestamp)) {
-			return fmt.Errorf("xtcp connection of [%s] auth failed", m.ProxyName)
+			return fmt.Errorf("[%s] 的 xtcp 连接身份验证失败", m.ProxyName)
 		}
 		c.sessions[sid] = session
 		return nil
 	}()
 	if err != nil {
-		log.Warnf("handle visitorMsg error: %v", err)
+		log.Warnf("处理访问者消息错误: %v", err)
 		_ = transporter.Send(c.GenNatHoleResponse(m.TransactionID, nil, err.Error()))
 		return
 	}
-	log.Tracef("handle visitor message, sid [%s], server name: %s", sid, m.ProxyName)
+	log.Tracef("处理访问者消息，sid [%s]，服务器名称: %s", sid, m.ProxyName)
 
 	defer func() {
 		c.mu.Lock()
@@ -209,28 +242,28 @@ func (c *Controller) HandleVisitor(m *msg.NatHoleVisitor, transporter transport.
 		return
 	}
 
-	// wait for NatHoleClient message
+	// 等待 NatHoleClient 消息
 	select {
 	case <-session.notifyCh:
 	case <-time.After(time.Duration(NatHoleTimeout) * time.Second):
-		log.Debugf("wait for NatHoleClient message timeout, sid [%s]", sid)
+		log.Debugf("等待 NatHoleClient 消息超时，sid [%s]", sid)
 		return
 	}
 
-	// Make hole-punching decisions based on the NAT information of the client and visitor.
+	// 根据客户端和访问者的 NAT 信息进行打洞决策
 	vResp, cResp, err := c.analysis(session)
 	if err != nil {
-		log.Debugf("sid [%s] analysis error: %v", err)
+		log.Debugf("sid [%s] 分析错误: %v", err)
 		vResp = c.GenNatHoleResponse(session.visitorMsg.TransactionID, nil, err.Error())
 		cResp = c.GenNatHoleResponse(session.clientMsg.TransactionID, nil, err.Error())
 	}
 	session.cResp = cResp
 	session.vResp = vResp
 
-	// send response to visitor and client
+	// 向访问者和客户端发送响应
 	var g errgroup.Group
 	g.Go(func() error {
-		// if it's sender, wait for a while to make sure the client has send the detect messages
+		// 如果是发送方，等待一段时间以确保客户端已发送检测消息
 		if vResp.DetectBehavior.Role == "sender" {
 			time.Sleep(1 * time.Second)
 		}
@@ -238,7 +271,7 @@ func (c *Controller) HandleVisitor(m *msg.NatHoleVisitor, transporter transport.
 		return nil
 	})
 	g.Go(func() error {
-		// if it's sender, wait for a while to make sure the client has send the detect messages
+		// 如果是发送方，等待一段时间以确保客户端已发送检测消息
 		if cResp.DetectBehavior.Role == "sender" {
 			time.Sleep(1 * time.Second)
 		}
@@ -250,6 +283,7 @@ func (c *Controller) HandleVisitor(m *msg.NatHoleVisitor, transporter transport.
 	time.Sleep(time.Duration(cResp.DetectBehavior.ReadTimeoutMs+30000) * time.Millisecond)
 }
 
+// HandleClient 处理客户端
 func (c *Controller) HandleClient(m *msg.NatHoleClient, transporter transport.MessageTransporter) {
 	c.mu.RLock()
 	session, ok := c.sessions[m.Sid]
@@ -257,7 +291,7 @@ func (c *Controller) HandleClient(m *msg.NatHoleClient, transporter transport.Me
 	if !ok {
 		return
 	}
-	log.Tracef("handle client message, sid [%s], server name: %s", session.sid, m.ProxyName)
+	log.Tracef("处理客户端消息，sid [%s]，服务器名称: %s", session.sid, m.ProxyName)
 	session.clientMsg = m
 	session.clientTransporter = transporter
 	select {
@@ -266,21 +300,23 @@ func (c *Controller) HandleClient(m *msg.NatHoleClient, transporter transport.Me
 	}
 }
 
+// HandleReport 处理报告
 func (c *Controller) HandleReport(m *msg.NatHoleReport) {
 	c.mu.RLock()
 	session, ok := c.sessions[m.Sid]
 	c.mu.RUnlock()
 	if !ok {
-		log.Tracef("sid [%s] report make hole success: %v, but session not found", m.Sid, m.Success)
+		log.Tracef("sid [%s] 报告打洞成功: %v，但会话未找到", m.Sid, m.Success)
 		return
 	}
 	if m.Success {
 		c.analyzer.ReportSuccess(session.analysisKey, session.recommandMode, session.recommandIndex)
 	}
-	log.Infof("sid [%s] report make hole success: %v, mode %v, index %v",
+	log.Infof("sid [%s] 报告打洞成功: %v，模式 %v，索引 %v",
 		m.Sid, m.Success, session.recommandMode, session.recommandIndex)
 }
 
+// GenNatHoleResponse 生成 NAT 穿透响应
 func (c *Controller) GenNatHoleResponse(transactionID string, session *Session, errInfo string) *msg.NatHoleResp {
 	var sid string
 	if session != nil {
@@ -293,20 +329,20 @@ func (c *Controller) GenNatHoleResponse(transactionID string, session *Session, 
 	}
 }
 
-// analysis analyzes the NAT type and behavior of the visitor and client, then makes hole-punching decisions.
-// return the response to the visitor and client.
+// analysis 分析访问者和客户端的 NAT 类型和行为，然后进行打洞决策
+// 返回给访问者和客户端的响应
 func (c *Controller) analysis(session *Session) (*msg.NatHoleResp, *msg.NatHoleResp, error) {
 	cm := session.clientMsg
 	vm := session.visitorMsg
 
 	cNatFeature, err := ClassifyNATFeature(cm.MappedAddrs, parseIPs(cm.AssistedAddrs))
 	if err != nil {
-		return nil, nil, fmt.Errorf("classify client nat feature error: %v", err)
+		return nil, nil, fmt.Errorf("分类客户端 NAT 特征错误: %v", err)
 	}
 
 	vNatFeature, err := ClassifyNATFeature(vm.MappedAddrs, parseIPs(vm.AssistedAddrs))
 	if err != nil {
-		return nil, nil, fmt.Errorf("classify visitor nat feature error: %v", err)
+		return nil, nil, fmt.Errorf("分类访问者 NAT 特征错误: %v", err)
 	}
 	session.cNatFeature = cNatFeature
 	session.vNatFeature = vNatFeature
@@ -359,13 +395,14 @@ func (c *Controller) analysis(session *Session) (*msg.NatHoleResp, *msg.NatHoleR
 		},
 	}
 
-	log.Debugf("sid [%s] visitor nat: %+v, candidateAddrs: %v; client nat: %+v, candidateAddrs: %v, protocol: %s",
+	log.Debugf("sid [%s] 访问者 NAT: %+v，候选地址: %v；客户端 NAT: %+v，候选地址: %v，协议: %s",
 		session.sid, *vNatFeature, vm.MappedAddrs, *cNatFeature, cm.MappedAddrs, protocol)
-	log.Debugf("sid [%s] visitor detect behavior: %+v", session.sid, vResp.DetectBehavior)
-	log.Debugf("sid [%s] client detect behavior: %+v", session.sid, cResp.DetectBehavior)
+	log.Debugf("sid [%s] 访问者检测行为: %+v", session.sid, vResp.DetectBehavior)
+	log.Debugf("sid [%s] 客户端检测行为: %+v", session.sid, cResp.DetectBehavior)
 	return vResp, cResp, nil
 }
 
+// getRangePorts 获取端口范围
 func getRangePorts(addrs []string, difference, maxNumber int) []msg.PortsRange {
 	if maxNumber <= 0 {
 		return nil

@@ -1,25 +1,25 @@
-# Virtual Network (VirtualNet)
+# 虚拟网络 (VirtualNet)
 
-*Alpha feature added in v0.62.0*
+*添加于 v0.62.0 的 Alpha 功能*
 
-The VirtualNet feature enables frp to create and manage virtual network connections between clients and visitors through a TUN interface. This allows for IP-level routing between machines, extending frp beyond simple port forwarding to support full network connectivity.
+VirtualNet 功能使 frp 能够通过 TUN 接口在客户端和访问者之间创建和管理虚拟网络连接。这允许在机器之间进行 IP 级别的路由，将 frp 从简单的端口转发扩展到支持完整的网络连接。
 
-> **Note**: VirtualNet is an Alpha stage feature and is currently unstable. Its configuration methods and functionality may be adjusted and changed at any time in subsequent versions. Do not use this feature in production environments; it is only recommended for testing and evaluation purposes.
+> **注意**：VirtualNet 是一个 Alpha 阶段的功能，目前不稳定。其配置方法和功能可能会在后续版本中随时调整和更改。不要在生产环境中使用此功能；仅建议用于测试和评估目的。
 
-## Enabling VirtualNet
+## 启用 VirtualNet
 
-Since VirtualNet is currently an alpha feature, you need to enable it with feature gates in your configuration:
+由于 VirtualNet 目前是 Alpha 功能，您需要在配置中使用功能门来启用它：
 
 ```toml
 # frpc.toml
 featureGates = { VirtualNet = true }
 ```
 
-## Basic Configuration
+## 基本配置
 
-To use the virtual network capabilities:
+要使用虚拟网络功能：
 
-1. First, configure your frpc with a virtual network address:
+1. 首先，为您的 frpc 配置虚拟网络地址：
 
 ```toml
 # frpc.toml
@@ -27,14 +27,14 @@ serverAddr = "x.x.x.x"
 serverPort = 7000
 featureGates = { VirtualNet = true }
 
-# Configure the virtual network interface
+# 配置虚拟网络接口
 virtualNet.address = "100.86.0.1/24"
 ```
 
-2. For client proxies, use the `virtual_net` plugin:
+2. 对于客户端代理，使用 `virtual_net` 插件：
 
 ```toml
-# frpc.toml (server side)
+# frpc.toml (服务端)
 [[proxies]]
 name = "vnet-server"
 type = "stcp"
@@ -43,15 +43,15 @@ secretKey = "your-secret-key"
 type = "virtual_net"
 ```
 
-3. For visitor connections, configure the `virtual_net` visitor plugin:
+3. 对于访问者连接，配置 `virtual_net` 访问者插件：
 
 ```toml
-# frpc.toml (client side)
+# frpc.toml (客户端)
 serverAddr = "x.x.x.x"
 serverPort = 7000
 featureGates = { VirtualNet = true }
 
-# Configure the virtual network interface
+# 配置虚拟网络接口
 virtualNet.address = "100.86.0.2/24"
 
 [[visitors]]
@@ -65,9 +65,9 @@ type = "virtual_net"
 destinationIP = "100.86.0.1"
 ```
 
-## Requirements and Limitations
+## 要求和限制
 
-- **Permissions**: Creating a TUN interface requires elevated permissions (root/admin)
-- **Platform Support**: Currently supported on Linux and macOS
-- **Default Status**: As an alpha feature, VirtualNet is disabled by default
-- **Configuration**: A valid IP/CIDR must be provided for each endpoint in the virtual network 
+- **权限**：创建 TUN 接口需要提升的权限（root/admin）
+- **平台支持**：目前在 Linux 和 macOS 上支持
+- **默认状态**：作为 Alpha 功能，VirtualNet 默认处于禁用状态
+- **配置**：必须为虚拟网络中的每个端点提供有效的 IP/CIDR

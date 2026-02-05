@@ -9,7 +9,7 @@
             </div>
             <span class="divider">/</span>
             <span class="brand-name">frp</span>
-            <span class="badge client-badge">Client</span>
+            <span class="badge client-badge">客户端</span>
             <span class="badge" v-if="currentRouteName">{{
               currentRouteName
             }}</span>
@@ -36,10 +36,10 @@
 
         <nav class="nav-bar">
           <router-link to="/" class="nav-link" active-class="active"
-            >Overview</router-link
+            >概览</router-link
           >
           <router-link to="/configure" class="nav-link" active-class="active"
-            >Configure</router-link
+            >配置</router-link
           >
         </nav>
       </div>
@@ -63,8 +63,8 @@ const route = useRoute()
 const isDark = useDark()
 
 const currentRouteName = computed(() => {
-  if (route.path === '/') return 'Overview'
-  if (route.path === '/configure') return 'Configure'
+  if (route.path === '/') return '概览'
+  if (route.path === '/configure') return '配置'
   return ''
 })
 </script>

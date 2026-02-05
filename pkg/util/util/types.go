@@ -14,10 +14,15 @@
 
 package util
 
+// EmptyOr 如果值为零值，则返回回退值；否则返回原值
+// 这是一个泛型函数，适用于所有可比较的类型
 func EmptyOr[T comparable](v T, fallback T) T {
+	// 获取类型的零值
 	var zero T
+	// 如果值等于零值，返回回退值
 	if zero == v {
 		return fallback
 	}
+	// 否则返回原值
 	return v
 }

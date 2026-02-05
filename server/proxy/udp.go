@@ -1,16 +1,16 @@
 // Copyright 2019 fatedier, fatedier@gmail.com
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// 依据 Apache License, Version 2.0 许可证授权；
+// 除非符合许可证的要求，否则您不能使用此文件。
+// 您可以在以下网址获取许可证副本：
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// 除非适用法律要求或书面同意，否则软件
+// 根据许可证分发是基于“按原样”基础，
+// 不附带任何明示或暗示的担保或条件。
+// 请参阅许可证中有关管理权限和
+// 限制的特定语言。
 
 package proxy
 
@@ -34,35 +34,42 @@ import (
 	"github.com/fatedier/frp/server/metrics"
 )
 
+// init 注册UDP代理工厂
 func init() {
 	RegisterProxyFactory(reflect.TypeOf(&v1.UDPProxyConfig{}), NewUDPProxy)
 }
 
+// UDPProxy UDP代理
+// 实现了Proxy接口，用于处理UDP代理请求
 type UDPProxy struct {
 	*BaseProxy
+	// cfg UDP代理配置
 	cfg *v1.UDPProxyConfig
 
+	// realBindPort 实际绑定的端口号
 	realBindPort int
 
-	// udpConn is the listener of udp packages
+	// udpConn 是UDP包的监听器
 	udpConn *net.UDPConn
 
-	// there are always only one workConn at the same time
-	// get another one if it closed
+	// 同一时间始终只有一个workConn
+	// 如果它关闭了，获取另一个
 	workConn net.Conn
 
-	// sendCh is used for sending packages to workConn
+	// sendCh 用于向workConn发送包
 	sendCh chan *msg.UDPPacket
 
-	// readCh is used for reading packages from workConn
+	// readCh 用于从workConn读取包
 	readCh chan *msg.UDPPacket
 
-	// checkCloseCh is used for watching if workConn is closed
+	// checkCloseCh 用于监视workConn是否关闭
 	checkCloseCh chan int
 
 	isClosed bool
 }
 
+// NewUDPProxy 创建一个新的UDP代理
+// 参数baseProxy是基础代理
 func NewUDPProxy(baseProxy *BaseProxy) Proxy {
 	unwrapped, ok := baseProxy.GetConfigurer().(*v1.UDPProxyConfig)
 	if !ok {
@@ -75,11 +82,13 @@ func NewUDPProxy(baseProxy *BaseProxy) Proxy {
 	}
 }
 
+// Run 启动UDP代理
+// 返回值是远程地址和可能的错误
 func (pxy *UDPProxy) Run() (remoteAddr string, err error) {
 	xl := pxy.xl
 	pxy.realBindPort, err = pxy.rc.UDPPortManager.Acquire(pxy.name, pxy.cfg.RemotePort)
 	if err != nil {
-		return "", fmt.Errorf("acquire port %d error: %v", pxy.cfg.RemotePort, err)
+		return "", fmt.Errorf("获取端口 %d 错误: %v", pxy.cfg.RemotePort, err)
 	}
 	defer func() {
 		if err != nil {
@@ -97,46 +106,46 @@ func (pxy *UDPProxy) Run() (remoteAddr string, err error) {
 	udpConn, errRet := net.ListenUDP("udp", addr)
 	if errRet != nil {
 		err = errRet
-		xl.Warnf("listen udp port error: %v", err)
+		xl.Warnf("监听udp端口错误: %v", err)
 		return
 	}
-	xl.Infof("udp proxy listen port [%d]", pxy.cfg.RemotePort)
+	xl.Infof("udp代理监听端口 [%d]", pxy.cfg.RemotePort)
 
 	pxy.udpConn = udpConn
 	pxy.sendCh = make(chan *msg.UDPPacket, 1024)
 	pxy.readCh = make(chan *msg.UDPPacket, 1024)
 	pxy.checkCloseCh = make(chan int)
 
-	// read message from workConn, if it returns any error, notify proxy to start a new workConn
+	// workConnReaderFn 从workConn读取消息，如果返回任何错误，通知代理启动一个新的workConn
 	workConnReaderFn := func(conn net.Conn) {
 		for {
 			var (
 				rawMsg msg.Message
 				errRet error
 			)
-			xl.Tracef("loop waiting message from udp workConn")
-			// client will send heartbeat in workConn for keeping alive
+			xl.Tracef("循环等待来自udp workConn的消息")
+			// 客户端将在workConn中发送心跳以保持连接
 			_ = conn.SetReadDeadline(time.Now().Add(time.Duration(60) * time.Second))
 			if rawMsg, errRet = msg.ReadMsg(conn); errRet != nil {
-				xl.Warnf("read from workConn for udp error: %v", errRet)
+				xl.Warnf("从udp workConn读取错误: %v", errRet)
 				_ = conn.Close()
-				// notify proxy to start a new work connection
-				// ignore error here, it means the proxy is closed
+				// 通知代理启动一个新的工作连接
+				// 忽略这里的错误，这意味着代理已关闭
 				_ = errors.PanicToError(func() {
 					pxy.checkCloseCh <- 1
 				})
 				return
 			}
 			if err := conn.SetReadDeadline(time.Time{}); err != nil {
-				xl.Warnf("set read deadline error: %v", err)
+				xl.Warnf("设置读取超时错误: %v", err)
 			}
 			switch m := rawMsg.(type) {
 			case *msg.Ping:
-				xl.Tracef("udp work conn get ping message")
+				xl.Tracef("udp工作连接获取ping消息")
 				continue
 			case *msg.UDPPacket:
 				if errRet := errors.PanicToError(func() {
-					xl.Tracef("get udp message from workConn: %s", m.Content)
+					xl.Tracef("从workConn获取udp消息: %s", m.Content)
 					pxy.readCh <- m
 					metrics.Server.AddTrafficOut(
 						pxy.GetName(),
@@ -145,29 +154,29 @@ func (pxy *UDPProxy) Run() (remoteAddr string, err error) {
 					)
 				}); errRet != nil {
 					conn.Close()
-					xl.Infof("reader goroutine for udp work connection closed")
+					xl.Infof("udp工作连接的读取goroutine已关闭")
 					return
 				}
 			}
 		}
 	}
 
-	// send message to workConn
+	// workConnSenderFn 向workConn发送消息
 	workConnSenderFn := func(conn net.Conn, ctx context.Context) {
 		var errRet error
 		for {
 			select {
 			case udpMsg, ok := <-pxy.sendCh:
 				if !ok {
-					xl.Infof("sender goroutine for udp work connection closed")
+					xl.Infof("udp工作连接的发送goroutine已关闭")
 					return
 				}
 				if errRet = msg.WriteMsg(conn, udpMsg); errRet != nil {
-					xl.Infof("sender goroutine for udp work connection closed: %v", errRet)
+					xl.Infof("udp工作连接的发送goroutine已关闭: %v", errRet)
 					conn.Close()
 					return
 				}
-				xl.Tracef("send message to udp workConn: %s", udpMsg.Content)
+				xl.Tracef("向udp workConn发送消息: %s", udpMsg.Content)
 				metrics.Server.AddTrafficIn(
 					pxy.GetName(),
 					pxy.GetConfigurer().GetBaseConfig().Type,
@@ -175,20 +184,20 @@ func (pxy *UDPProxy) Run() (remoteAddr string, err error) {
 				)
 				continue
 			case <-ctx.Done():
-				xl.Infof("sender goroutine for udp work connection closed")
+				xl.Infof("udp工作连接的发送goroutine已关闭")
 				return
 			}
 		}
 	}
 
 	go func() {
-		// Sleep a while for waiting control send the NewProxyResp to client.
+		// 等待一段时间，让控制层将NewProxyResp发送给客户端
 		time.Sleep(500 * time.Millisecond)
 		for {
 			workConn, err := pxy.GetWorkConnFromPool(nil, nil)
 			if err != nil {
 				time.Sleep(1 * time.Second)
-				// check if proxy is closed
+				// 检查代理是否关闭
 				select {
 				case _, ok := <-pxy.checkCloseCh:
 					if !ok {
@@ -198,7 +207,7 @@ func (pxy *UDPProxy) Run() (remoteAddr string, err error) {
 				}
 				continue
 			}
-			// close the old workConn and replace it with a new one
+			// 关闭旧的workConn，并用新的替换它
 			if pxy.workConn != nil {
 				pxy.workConn.Close()
 			}
@@ -207,7 +216,7 @@ func (pxy *UDPProxy) Run() (remoteAddr string, err error) {
 			if pxy.cfg.Transport.UseEncryption {
 				rwc, err = libio.WithEncryption(rwc, pxy.encryptionKey)
 				if err != nil {
-					xl.Errorf("create encryption stream error: %v", err)
+					xl.Errorf("创建加密流错误: %v", err)
 					workConn.Close()
 					continue
 				}
@@ -234,10 +243,10 @@ func (pxy *UDPProxy) Run() (remoteAddr string, err error) {
 		}
 	}()
 
-	// Read from user connections and send wrapped udp message to sendCh (forwarded by workConn).
-	// Client will transfor udp message to local udp service and waiting for response for a while.
-	// Response will be wrapped to be forwarded by work connection to server.
-	// Close readCh and sendCh at the end.
+	// 从用户连接读取数据，并将包装后的udp消息发送到sendCh（由workConn转发）。
+	// 客户端将udp消息转换为本地udp服务，并等待一段时间的响应。
+	// 响应将被包装，通过工作连接转发到服务器。
+	// 最后关闭readCh和sendCh。
 	go func() {
 		udp.ForwardUserConn(udpConn, pxy.readCh, pxy.sendCh, int(pxy.serverCfg.UDPPacketSize))
 		pxy.Close()
@@ -245,6 +254,7 @@ func (pxy *UDPProxy) Run() (remoteAddr string, err error) {
 	return remoteAddr, nil
 }
 
+// Close 关闭UDP代理
 func (pxy *UDPProxy) Close() {
 	pxy.mu.Lock()
 	defer pxy.mu.Unlock()
@@ -257,7 +267,7 @@ func (pxy *UDPProxy) Close() {
 		}
 		pxy.udpConn.Close()
 
-		// all channels only closed here
+		// 所有通道只在这里关闭
 		close(pxy.checkCloseCh)
 		close(pxy.readCh)
 		close(pxy.sendCh)

@@ -21,68 +21,109 @@ import (
 )
 
 const (
+	// ReserveDays 保留天数，用于存储历史流量数据
 	ReserveDays = 7
 )
 
+// ServerStats 服务器统计信息，用于对外展示服务器级别的统计数据
 type ServerStats struct {
-	TotalTrafficIn  int64
+	// TotalTrafficIn 服务器总入站流量（字节）
+	TotalTrafficIn int64
+	// TotalTrafficOut 服务器总出站流量（字节）
 	TotalTrafficOut int64
-	CurConns        int64
-	ClientCounts    int64
+	// CurConns 当前连接数
+	CurConns int64
+	// ClientCounts 客户端数量
+	ClientCounts int64
+	// ProxyTypeCounts 各类型代理的数量统计，key 为代理类型，value 为数量
 	ProxyTypeCounts map[string]int64
 }
 
+// ProxyStats 代理统计信息，用于对外展示单个代理的统计数据
 type ProxyStats struct {
-	Name            string
-	Type            string
-	User            string
-	ClientID        string
-	TodayTrafficIn  int64
+	// Name 代理名称
+	Name string
+	// Type 代理类型
+	Type string
+	// User 用户名
+	User string
+	// ClientID 客户端ID
+	ClientID string
+	// TodayTrafficIn 今日入站流量（字节）
+	TodayTrafficIn int64
+	// TodayTrafficOut 今日出站流量（字节）
 	TodayTrafficOut int64
-	LastStartTime   string
-	LastCloseTime   string
-	CurConns        int64
+	// LastStartTime 最后启动时间
+	LastStartTime string
+	// LastCloseTime 最后关闭时间
+	LastCloseTime string
+	// CurConns 当前连接数
+	CurConns int64
 }
 
+// ProxyTrafficInfo 代理流量信息，用于展示代理的历史流量数据
 type ProxyTrafficInfo struct {
-	Name       string
-	TrafficIn  []int64
+	// Name 代理名称
+	Name string
+	// TrafficIn 入站流量历史数据，按日期存储
+	TrafficIn []int64
+	// TrafficOut 出站流量历史数据，按日期存储
 	TrafficOut []int64
 }
 
+// ProxyStatistics 代理统计信息，用于内部存储代理的详细统计数据
 type ProxyStatistics struct {
-	Name          string
-	ProxyType     string
-	User          string
-	ClientID      string
-	TrafficIn     metric.DateCounter
-	TrafficOut    metric.DateCounter
-	CurConns      metric.Counter
+	// Name 代理名称
+	Name string
+	// ProxyType 代理类型
+	ProxyType string
+	// User 用户名
+	User string
+	// ClientID 客户端ID
+	ClientID string
+	// TrafficIn 入站流量计数器，按日期存储
+	TrafficIn metric.DateCounter
+	// TrafficOut 出站流量计数器，按日期存储
+	TrafficOut metric.DateCounter
+	// CurConns 当前连接数计数器
+	CurConns metric.Counter
+	// LastStartTime 最后启动时间
 	LastStartTime time.Time
+	// LastCloseTime 最后关闭时间
 	LastCloseTime time.Time
 }
 
+// ServerStatistics 服务器统计信息，用于内部存储服务器的详细统计数据
 type ServerStatistics struct {
-	TotalTrafficIn  metric.DateCounter
+	// TotalTrafficIn 总入站流量计数器，按日期存储
+	TotalTrafficIn metric.DateCounter
+	// TotalTrafficOut 总出站流量计数器，按日期存储
 	TotalTrafficOut metric.DateCounter
-	CurConns        metric.Counter
+	// CurConns 当前连接数计数器
+	CurConns metric.Counter
 
-	// counter for clients
+	// ClientCounts 客户端数量计数器
 	ClientCounts metric.Counter
 
-	// counter for proxy types
+	// ProxyTypeCounts 各类型代理的数量统计，key 为代理类型，value 为计数器
 	ProxyTypeCounts map[string]metric.Counter
 
-	// statistics for different proxies
-	// key is proxy name
+	// ProxyStatistics 不同代理的统计信息，key 为代理名称
 	ProxyStatistics map[string]*ProxyStatistics
 }
 
+// Collector 指标收集器接口，定义了收集和获取服务器及代理指标的方法
 type Collector interface {
+	// GetServer 获取服务器统计信息
 	GetServer() *ServerStats
+	// GetProxiesByType 根据代理类型获取代理统计信息列表
 	GetProxiesByType(proxyType string) []*ProxyStats
+	// GetProxiesByTypeAndName 根据代理类型和名称获取代理统计信息
 	GetProxiesByTypeAndName(proxyType string, proxyName string) *ProxyStats
+	// GetProxyByName 根据代理名称获取代理统计信息
 	GetProxyByName(proxyName string) *ProxyStats
+	// GetProxyTraffic 获取代理流量信息
 	GetProxyTraffic(name string) *ProxyTrafficInfo
+	// ClearOfflineProxies 清理离线代理，返回清理的代理数量和清理的连接数量
 	ClearOfflineProxies() (int, int)
 }

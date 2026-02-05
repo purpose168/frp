@@ -56,7 +56,8 @@ func NewController(
 	}
 }
 
-// /api/serverinfo
+// /api/serverinfo - 获取服务器信息API
+// 返回服务器的版本、端口配置、流量统计等完整信息
 func (c *Controller) APIServerInfo(ctx *httppkg.Context) (any, error) {
 	serverStats := mem.StatsCollector.GetServer()
 	svrResp := ServerInfoResp{
@@ -80,30 +81,31 @@ func (c *Controller) APIServerInfo(ctx *httppkg.Context) (any, error) {
 		ClientCounts:    serverStats.ClientCounts,
 		ProxyTypeCounts: serverStats.ProxyTypeCounts,
 	}
-	// For API that returns struct, we can just return it.
-	// But current GeneralResponse.Msg in legacy code expects a JSON string.
-	// Since MakeHTTPHandlerFunc handles struct by encoding to JSON, we can return svrResp directly?
-	// The original code wraps it in GeneralResponse{Msg: string(json)}.
-	// If we return svrResp, the response body will be the JSON of svrResp.
-	// We should check if the frontend expects { "code": 200, "msg": "{...}" } or just {...}.
-	// Looking at previous code:
+	// 对于返回结构体的API，我们可以直接返回
+	// 但当前遗留代码中的GeneralResponse.Msg期望JSON字符串
+	// 由于MakeHTTPHandlerFunc通过编码为JSON处理结构体，我们可以直接返回svrResp
+	// 原始代码将其包装在GeneralResponse{Msg: string(json)}中
+	// 如果返回svrResp，响应体将是svrResp的JSON
+	// 我们需要检查前端期望{ "code": 200, "msg": "{...}" }还是{...}
+	// 查看之前的代码：
 	// res := GeneralResponse{Code: 200}
 	// buf, _ := json.Marshal(&svrResp)
 	// res.Msg = string(buf)
-	// Response body: {"code": 200, "msg": "{\"version\":...}"}
-	// Wait, is it double encoded JSON? Yes it seems so!
-	// Let's check dashboard_api.go original code again.
-	// Yes: res.Msg = string(buf).
-	// So the frontend expects { "code": 200, "msg": "JSON_STRING" }.
-	// This is kind of ugly, but we must preserve compatibility.
+	// 响应体：{"code": 200, "msg": "{\"version\":...}"}
+	// 这是双重编码的JSON！是的，看起来是这样
+	// 再次检查dashboard_api.go原始代码
+	// 是的：res.Msg = string(buf)
+	// 因此前端期望{ "code": 200, "msg": "JSON_STRING" }
+	// 虽然不太优雅，但我们必须保持兼容性
 
 	return svrResp, nil
 }
 
-// /api/clients
+// /api/clients - 获取客户端列表API
+// 返回所有连接的客户端信息，支持多种筛选条件
 func (c *Controller) APIClientList(ctx *httppkg.Context) (any, error) {
 	if c.clientRegistry == nil {
-		return nil, fmt.Errorf("client registry unavailable")
+		return nil, fmt.Errorf("客户端注册表不可用")
 	}
 
 	userFilter := ctx.Query("user")
@@ -142,11 +144,12 @@ func (c *Controller) APIClientList(ctx *httppkg.Context) (any, error) {
 	return items, nil
 }
 
-// /api/clients/{key}
+// /api/clients/{key} - 获取指定客户端详细信息API
+// 根据客户端密钥返回该客户端的完整连接信息
 func (c *Controller) APIClientDetail(ctx *httppkg.Context) (any, error) {
 	key := ctx.Param("key")
 	if key == "" {
-		return nil, fmt.Errorf("missing client key")
+		return nil, fmt.Errorf("缺少客户端密钥")
 	}
 
 	if c.clientRegistry == nil {
@@ -155,13 +158,14 @@ func (c *Controller) APIClientDetail(ctx *httppkg.Context) (any, error) {
 
 	info, ok := c.clientRegistry.GetByKey(key)
 	if !ok {
-		return nil, httppkg.NewError(http.StatusNotFound, fmt.Sprintf("client %s not found", key))
+		return nil, httppkg.NewError(http.StatusNotFound, fmt.Sprintf("客户端 %s 未找到", key))
 	}
 
 	return buildClientInfoResp(info), nil
 }
 
-// /api/proxy/:type
+// /api/proxy/:type - 按类型获取代理列表API
+// 返回指定类型的所有代理统计信息
 func (c *Controller) APIProxyByType(ctx *httppkg.Context) (any, error) {
 	proxyType := ctx.Param("type")
 
@@ -174,7 +178,8 @@ func (c *Controller) APIProxyByType(ctx *httppkg.Context) (any, error) {
 	return proxyInfoResp, nil
 }
 
-// /api/proxy/:type/:name
+// /api/proxy/:type/:name - 按类型和名称获取特定代理信息API
+// 返回指定类型和名称的代理详细信息
 func (c *Controller) APIProxyByTypeAndName(ctx *httppkg.Context) (any, error) {
 	proxyType := ctx.Param("type")
 	name := ctx.Param("name")
@@ -187,7 +192,8 @@ func (c *Controller) APIProxyByTypeAndName(ctx *httppkg.Context) (any, error) {
 	return proxyStatsResp, nil
 }
 
-// /api/traffic/:name
+// /api/traffic/:name - 获取指定代理流量信息API
+// 返回指定代理名称的入站和出站流量数据
 func (c *Controller) APIProxyTraffic(ctx *httppkg.Context) (any, error) {
 	name := ctx.Param("name")
 
@@ -196,7 +202,7 @@ func (c *Controller) APIProxyTraffic(ctx *httppkg.Context) (any, error) {
 	proxyTrafficInfo := mem.StatsCollector.GetProxyTraffic(name)
 
 	if proxyTrafficInfo == nil {
-		return nil, httppkg.NewError(http.StatusNotFound, "no proxy info found")
+		return nil, httppkg.NewError(http.StatusNotFound, "未找到代理信息")
 	}
 	trafficResp.TrafficIn = proxyTrafficInfo.TrafficIn
 	trafficResp.TrafficOut = proxyTrafficInfo.TrafficOut
@@ -204,13 +210,14 @@ func (c *Controller) APIProxyTraffic(ctx *httppkg.Context) (any, error) {
 	return trafficResp, nil
 }
 
-// /api/proxies/:name
+// /api/proxies/:name - 获取指定代理完整信息API
+// 返回指定名称代理的完整配置和状态信息
 func (c *Controller) APIProxyByName(ctx *httppkg.Context) (any, error) {
 	name := ctx.Param("name")
 
 	ps := mem.StatsCollector.GetProxyByName(name)
 	if ps == nil {
-		return nil, httppkg.NewError(http.StatusNotFound, "no proxy info found")
+		return nil, httppkg.NewError(http.StatusNotFound, "未找到代理信息")
 	}
 
 	proxyInfo := GetProxyStatsResp{
@@ -227,13 +234,13 @@ func (c *Controller) APIProxyByName(ctx *httppkg.Context) (any, error) {
 	if pxy, ok := c.pxyManager.GetByName(name); ok {
 		content, err := json.Marshal(pxy.GetConfigurer())
 		if err != nil {
-			log.Warnf("marshal proxy [%s] conf info error: %v", name, err)
-			return nil, httppkg.NewError(http.StatusBadRequest, "parse conf error")
+			log.Warnf("序列化代理 [%s] 配置信息错误: %v", name, err)
+			return nil, httppkg.NewError(http.StatusBadRequest, "解析配置错误")
 		}
 		proxyInfo.Conf = getConfByType(ps.Type)
 		if err = json.Unmarshal(content, &proxyInfo.Conf); err != nil {
-			log.Warnf("unmarshal proxy [%s] conf info error: %v", name, err)
-			return nil, httppkg.NewError(http.StatusBadRequest, "parse conf error")
+			log.Warnf("反序列化代理 [%s] 配置信息错误: %v", name, err)
+			return nil, httppkg.NewError(http.StatusBadRequest, "解析配置错误")
 		}
 		proxyInfo.Status = "online"
 		c.fillProxyClientInfo(&proxyClientInfo{
@@ -246,14 +253,15 @@ func (c *Controller) APIProxyByName(ctx *httppkg.Context) (any, error) {
 	return proxyInfo, nil
 }
 
-// DELETE /api/proxies?status=offline
+// DELETE /api/proxies?status=offline - 删除离线代理API
+// 仅支持删除状态为offline的代理
 func (c *Controller) DeleteProxies(ctx *httppkg.Context) (any, error) {
 	status := ctx.Query("status")
 	if status != "offline" {
-		return nil, httppkg.NewError(http.StatusBadRequest, "status only support offline")
+		return nil, httppkg.NewError(http.StatusBadRequest, "状态参数仅支持offline")
 	}
 	cleared, total := mem.StatsCollector.ClearOfflineProxies()
-	log.Infof("cleared [%d] offline proxies, total [%d] proxies", cleared, total)
+	log.Infof("已清除 [%d] 个离线代理，总计 [%d] 个代理", cleared, total)
 	return nil, nil
 }
 
@@ -268,12 +276,12 @@ func (c *Controller) getProxyStatsByType(proxyType string) (proxyInfos []*ProxyS
 		if pxy, ok := c.pxyManager.GetByName(ps.Name); ok {
 			content, err := json.Marshal(pxy.GetConfigurer())
 			if err != nil {
-				log.Warnf("marshal proxy [%s] conf info error: %v", ps.Name, err)
+				log.Warnf("序列化代理 [%s] 配置信息错误: %v", ps.Name, err)
 				continue
 			}
 			proxyInfo.Conf = getConfByType(ps.Type)
 			if err = json.Unmarshal(content, &proxyInfo.Conf); err != nil {
-				log.Warnf("unmarshal proxy [%s] conf info error: %v", ps.Name, err)
+				log.Warnf("反序列化代理 [%s] 配置信息错误: %v", ps.Name, err)
 				continue
 			}
 			proxyInfo.Status = "online"
@@ -299,23 +307,23 @@ func (c *Controller) getProxyStatsByTypeAndName(proxyType string, proxyName stri
 	ps := mem.StatsCollector.GetProxiesByTypeAndName(proxyType, proxyName)
 	if ps == nil {
 		code = 404
-		msg = "no proxy info found"
+		msg = "未找到代理信息"
 	} else {
 		proxyInfo.User = ps.User
 		proxyInfo.ClientID = ps.ClientID
 		if pxy, ok := c.pxyManager.GetByName(proxyName); ok {
 			content, err := json.Marshal(pxy.GetConfigurer())
 			if err != nil {
-				log.Warnf("marshal proxy [%s] conf info error: %v", ps.Name, err)
+				log.Warnf("序列化代理 [%s] 配置信息错误: %v", ps.Name, err)
 				code = 400
-				msg = "parse conf error"
+				msg = "解析配置错误"
 				return
 			}
 			proxyInfo.Conf = getConfByType(ps.Type)
 			if err = json.Unmarshal(content, &proxyInfo.Conf); err != nil {
-				log.Warnf("unmarshal proxy [%s] conf info error: %v", ps.Name, err)
+				log.Warnf("反序列化代理 [%s] 配置信息错误: %v", ps.Name, err)
 				code = 400
-				msg = "parse conf error"
+				msg = "解析配置错误"
 				return
 			}
 			proxyInfo.Status = "online"

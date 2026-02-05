@@ -29,22 +29,32 @@ import (
 	netpkg "github.com/fatedier/frp/pkg/util/net"
 )
 
+// Gateway 是 SSH 网关，用于管理 SSH 隧道连接
 type Gateway struct {
+	// bindPort 是绑定的端口号
 	bindPort int
-	ln       net.Listener
+	// ln 是网络监听器
+	ln net.Listener
 
+	// peerServerListener 是对端服务器监听器
 	peerServerListener *netpkg.InternalListener
 
+	// sshConfig 是 SSH 服务器配置
 	sshConfig *ssh.ServerConfig
 }
 
+// NewGateway 创建一个新的 SSH 网关
+// 参数 cfg 是 SSH 隧道网关配置
+// 参数 bindAddr 是绑定的地址
+// 参数 peerServerListener 是对端服务器监听器
+// 返回网关实例和可能的错误
 func NewGateway(
 	cfg v1.SSHTunnelGateway, bindAddr string,
 	peerServerListener *netpkg.InternalListener,
 ) (*Gateway, error) {
 	sshConfig := &ssh.ServerConfig{}
 
-	// privateKey
+	// 私钥处理
 	var (
 		privateKeyBytes []byte
 		err             error
@@ -75,13 +85,13 @@ func NewGateway(
 	sshConfig.PublicKeyCallback = func(conn ssh.ConnMetadata, key ssh.PublicKey) (*ssh.Permissions, error) {
 		authorizedKeysMap, err := loadAuthorizedKeysFromFile(cfg.AuthorizedKeysFile)
 		if err != nil {
-			log.Errorf("load authorized keys file error: %v", err)
-			return nil, fmt.Errorf("internal error")
+			log.Errorf("加载授权密钥文件错误：%v", err)
+			return nil, fmt.Errorf("内部错误")
 		}
 
 		user, ok := authorizedKeysMap[string(key.Marshal())]
 		if !ok {
-			return nil, fmt.Errorf("unknown public key for remoteAddr %q", conn.RemoteAddr())
+			return nil, fmt.Errorf("远程地址 %q 的公钥未知", conn.RemoteAddr())
 		}
 		return &ssh.Permissions{
 			Extensions: map[string]string{
@@ -102,6 +112,7 @@ func NewGateway(
 	}, nil
 }
 
+// Run 运行网关，接受并处理传入的连接
 func (g *Gateway) Run() {
 	for {
 		conn, err := g.ln.Accept()
@@ -112,10 +123,13 @@ func (g *Gateway) Run() {
 	}
 }
 
+// Close 关闭网关
 func (g *Gateway) Close() error {
 	return g.ln.Close()
 }
 
+// handleConn 处理传入的连接
+// 参数 conn 是传入的网络连接
 func (g *Gateway) handleConn(conn net.Conn) {
 	defer conn.Close()
 
@@ -124,12 +138,15 @@ func (g *Gateway) handleConn(conn net.Conn) {
 		return
 	}
 	if err := ts.Run(); err != nil {
-		log.Errorf("ssh tunnel server run error: %v", err)
+		log.Errorf("SSH 隧道服务器运行错误：%v", err)
 	}
 }
 
+// loadAuthorizedKeysFromFile 从文件加载授权密钥
+// 参数 path 是授权密钥文件路径
+// 返回公钥到用户名的映射和可能的错误
 func loadAuthorizedKeysFromFile(path string) (map[string]string, error) {
-	authorizedKeysMap := make(map[string]string) // value is username
+	authorizedKeysMap := make(map[string]string) // 值是用户名
 	authorizedKeysBytes, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err

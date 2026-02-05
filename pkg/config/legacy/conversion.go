@@ -12,6 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// 版权所有 2023 The frp Authors
+//
+// 根据 Apache 许可证 2.0 版本（"许可证"）授权；
+// 除非遵守许可证，否则您不得使用此文件。
+// 您可以在以下位置获取许可证副本：
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// 除非适用法律要求或书面同意，否则根据许可证分发的软件
+// 是按"原样"基础分发的，不附带任何明示或暗示的担保或条件。
+// 有关许可证下特定语言的管理权限和限制，请参阅许可证。
+
 package legacy
 
 import (
@@ -23,6 +35,7 @@ import (
 	v1 "github.com/fatedier/frp/pkg/config/v1"
 )
 
+// Convert_ClientCommonConf_To_v1 将旧的客户端配置转换为 v1 版本的客户端配置
 func Convert_ClientCommonConf_To_v1(conf *ClientCommonConf) *v1.ClientCommonConfig {
 	out := &v1.ClientCommonConfig{}
 	out.User = conf.User
@@ -85,6 +98,7 @@ func Convert_ClientCommonConf_To_v1(conf *ClientCommonConf) *v1.ClientCommonConf
 	return out
 }
 
+// Convert_ServerCommonConf_To_v1 将旧的服务器配置转换为 v1 版本的服务器配置
 func Convert_ServerCommonConf_To_v1(conf *ServerCommonConf) *v1.ServerConfig {
 	out := &v1.ServerConfig{}
 	out.Auth.Method = v1.AuthMethod(conf.AuthenticationMethod)
@@ -168,6 +182,7 @@ func Convert_ServerCommonConf_To_v1(conf *ServerCommonConf) *v1.ServerConfig {
 	return out
 }
 
+// transformHeadersFromPluginParams 从插件参数中转换 HTTP 头部操作
 func transformHeadersFromPluginParams(params map[string]string) v1.HeaderOperations {
 	out := v1.HeaderOperations{}
 	for k, v := range params {
@@ -184,6 +199,7 @@ func transformHeadersFromPluginParams(params map[string]string) v1.HeaderOperati
 	return out
 }
 
+// Convert_ProxyConf_To_v1_Base 将代理配置转换为 v1 版本的基础代理配置
 func Convert_ProxyConf_To_v1_Base(conf ProxyConf) *v1.ProxyBaseConfig {
 	out := &v1.ProxyBaseConfig{}
 	base := conf.GetBaseConfig()
@@ -259,6 +275,7 @@ func Convert_ProxyConf_To_v1_Base(conf ProxyConf) *v1.ProxyBaseConfig {
 	return out
 }
 
+// Convert_ProxyConf_To_v1 将代理配置转换为 v1 版本的代理配置
 func Convert_ProxyConf_To_v1(conf ProxyConf) v1.ProxyConfigurer {
 	outBase := Convert_ProxyConf_To_v1_Base(conf)
 	var out v1.ProxyConfigurer
@@ -315,6 +332,7 @@ func Convert_ProxyConf_To_v1(conf ProxyConf) v1.ProxyConfigurer {
 	return out
 }
 
+// Convert_VisitorConf_To_v1_Base 将访问者配置转换为 v1 版本的基础访问者配置
 func Convert_VisitorConf_To_v1_Base(conf VisitorConf) *v1.VisitorBaseConfig {
 	out := &v1.VisitorBaseConfig{}
 	base := conf.GetBaseConfig()
@@ -331,6 +349,7 @@ func Convert_VisitorConf_To_v1_Base(conf VisitorConf) *v1.VisitorBaseConfig {
 	return out
 }
 
+// Convert_VisitorConf_To_v1 将访问者配置转换为 v1 版本的访问者配置
 func Convert_VisitorConf_To_v1(conf VisitorConf) v1.VisitorConfigurer {
 	outBase := Convert_VisitorConf_To_v1_Base(conf)
 	var out v1.VisitorConfigurer

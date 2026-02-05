@@ -10,11 +10,11 @@ import (
 )
 
 type HTTPGroupController struct {
-	// groups indexed by group name
+	// 按组名索引的组
 	groups map[string]*HTTPGroup
 
-	// register createConn for each group to vhostRouter.
-	// createConn will get a connection from one proxy of the group
+	// 为每个组向vhostRouter注册createConn
+	// createConn将从组中的一个代理获取连接
 	vhostRouter *vhost.Routers
 
 	mu sync.Mutex
@@ -65,7 +65,7 @@ type HTTPGroup struct {
 	location        string
 	routeByHTTPUser string
 
-	// CreateConnFuncs indexed by proxy name
+	// 按代理名称索引的CreateConnFuncs
 	createFuncs map[string]vhost.CreateConnFunc
 	pxyNames    []string
 	index       uint64
@@ -88,8 +88,8 @@ func (g *HTTPGroup) Register(
 	g.mu.Lock()
 	defer g.mu.Unlock()
 	if len(g.createFuncs) == 0 {
-		// the first proxy in this group
-		tmp := routeConfig // copy object
+		// 该组中的第一个代理
+		tmp := routeConfig // 复制对象
 		tmp.CreateConnFn = g.createConn
 		tmp.ChooseEndpointFn = g.chooseEndpoint
 		tmp.CreateConnByEndpointFn = g.createConnByEndpoint
@@ -157,7 +157,7 @@ func (g *HTTPGroup) createConn(remoteAddr string) (net.Conn, error) {
 	g.mu.RUnlock()
 
 	if f == nil {
-		return nil, fmt.Errorf("no CreateConnFunc for http group [%s], domain [%s], location [%s], routeByHTTPUser [%s]",
+		return nil, fmt.Errorf("http组[%s]、域[%s]、位置[%s]、routeByHTTPUser[%s]没有CreateConnFunc",
 			group, domain, location, routeByHTTPUser)
 	}
 
@@ -179,7 +179,7 @@ func (g *HTTPGroup) chooseEndpoint() (string, error) {
 	g.mu.RUnlock()
 
 	if name == "" {
-		return "", fmt.Errorf("no healthy endpoint for http group [%s], domain [%s], location [%s], routeByHTTPUser [%s]",
+		return "", fmt.Errorf("http组[%s]、域[%s]、位置[%s]、routeByHTTPUser[%s]没有健康的端点",
 			group, domain, location, routeByHTTPUser)
 	}
 	return name, nil
@@ -192,7 +192,7 @@ func (g *HTTPGroup) createConnByEndpoint(endpoint, remoteAddr string) (net.Conn,
 	g.mu.RUnlock()
 
 	if f == nil {
-		return nil, fmt.Errorf("no CreateConnFunc for endpoint [%s] in group [%s]", endpoint, g.group)
+		return nil, fmt.Errorf("组[%s]中的端点[%s]没有CreateConnFunc", endpoint, g.group)
 	}
 	return f(remoteAddr)
 }

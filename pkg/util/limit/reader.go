@@ -21,11 +21,18 @@ import (
 	"golang.org/x/time/rate"
 )
 
+// Reader 是限流读取器
 type Reader struct {
-	r       io.Reader
+	// r 是底层读取器
+	r io.Reader
+	// limiter 是速率限制器
 	limiter *rate.Limiter
 }
 
+// NewReader 创建新的限流读取器
+// 参数 r 是底层读取器
+// 参数 limiter 是速率限制器
+// 返回限流读取器实例
 func NewReader(r io.Reader, limiter *rate.Limiter) *Reader {
 	return &Reader{
 		r:       r,
@@ -33,6 +40,9 @@ func NewReader(r io.Reader, limiter *rate.Limiter) *Reader {
 	}
 }
 
+// Read 从底层读取器读取数据，并应用速率限制
+// 参数 p 是读取缓冲区
+// 返回读取的字节数和可能的错误
 func (r *Reader) Read(p []byte) (n int, err error) {
 	b := r.limiter.Burst()
 	if b < len(p) {

@@ -23,54 +23,54 @@ import (
 	"strings"
 )
 
-// ValueSource provides a way to dynamically resolve configuration values
-// from various sources like files, environment variables, or external services.
+// ValueSource 提供了一种从各种来源（如文件、环境变量或外部服务）动态解析配置值的方法
 type ValueSource struct {
 	Type string      `json:"type"`
 	File *FileSource `json:"file,omitempty"`
 	Exec *ExecSource `json:"exec,omitempty"`
 }
 
-// FileSource specifies how to load a value from a file.
+// FileSource 指定如何从文件加载值
 type FileSource struct {
 	Path string `json:"path"`
 }
 
-// ExecSource specifies how to get a value from another program launched as subprocess.
+// ExecSource 指定如何从作为子进程启动的其他程序获取值
 type ExecSource struct {
 	Command string       `json:"command"`
 	Args    []string     `json:"args,omitempty"`
 	Env     []ExecEnvVar `json:"env,omitempty"`
 }
 
+// ExecEnvVar 执行环境变量结构体
 type ExecEnvVar struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
 }
 
-// Validate validates the ValueSource configuration.
+// Validate 验证 ValueSource 配置
 func (v *ValueSource) Validate() error {
 	if v == nil {
-		return errors.New("valueSource cannot be nil")
+		return errors.New("valueSource 不能为 nil")
 	}
 
 	switch v.Type {
 	case "file":
 		if v.File == nil {
-			return errors.New("file configuration is required when type is 'file'")
+			return errors.New("当类型为 'file' 时需要 file 配置")
 		}
 		return v.File.Validate()
 	case "exec":
 		if v.Exec == nil {
-			return errors.New("exec configuration is required when type is 'exec'")
+			return errors.New("当类型为 'exec' 时需要 exec 配置")
 		}
 		return v.Exec.Validate()
 	default:
-		return fmt.Errorf("unsupported value source type: %s (only 'file' and 'exec' are supported)", v.Type)
+		return fmt.Errorf("不支持的值源类型: %s (仅支持 'file' 和 'exec')", v.Type)
 	}
 }
 
-// Resolve resolves the value from the configured source.
+// Resolve 从配置的源解析值
 func (v *ValueSource) Resolve(ctx context.Context) (string, error) {
 	if err := v.Validate(); err != nil {
 		return "", err
@@ -82,23 +82,23 @@ func (v *ValueSource) Resolve(ctx context.Context) (string, error) {
 	case "exec":
 		return v.Exec.Resolve(ctx)
 	default:
-		return "", fmt.Errorf("unsupported value source type: %s", v.Type)
+		return "", fmt.Errorf("不支持的值源类型: %s", v.Type)
 	}
 }
 
-// Validate validates the FileSource configuration.
+// Validate 验证 FileSource 配置
 func (f *FileSource) Validate() error {
 	if f == nil {
-		return errors.New("fileSource cannot be nil")
+		return errors.New("fileSource 不能为 nil")
 	}
 
 	if f.Path == "" {
-		return errors.New("file path cannot be empty")
+		return errors.New("文件路径不能为空")
 	}
 	return nil
 }
 
-// Resolve reads and returns the content from the specified file.
+// Resolve 读取并返回指定文件的内容
 func (f *FileSource) Resolve(_ context.Context) (string, error) {
 	if err := f.Validate(); err != nil {
 		return "", err
@@ -106,35 +106,35 @@ func (f *FileSource) Resolve(_ context.Context) (string, error) {
 
 	content, err := os.ReadFile(f.Path)
 	if err != nil {
-		return "", fmt.Errorf("failed to read file %s: %v", f.Path, err)
+		return "", fmt.Errorf("读取文件 %s 失败: %v", f.Path, err)
 	}
 
-	// Trim whitespace, which is important for file-based tokens
+	// 去除空白字符，这对于基于文件的令牌很重要
 	return strings.TrimSpace(string(content)), nil
 }
 
-// Validate validates the ExecSource configuration.
+// Validate 验证 ExecSource 配置
 func (e *ExecSource) Validate() error {
 	if e == nil {
-		return errors.New("execSource cannot be nil")
+		return errors.New("execSource 不能为 nil")
 	}
 
 	if e.Command == "" {
-		return errors.New("exec command cannot be empty")
+		return errors.New("执行命令不能为空")
 	}
 
 	for _, env := range e.Env {
 		if env.Name == "" {
-			return errors.New("exec env name cannot be empty")
+			return errors.New("执行环境变量名称不能为空")
 		}
 		if strings.Contains(env.Name, "=") {
-			return errors.New("exec env name cannot contain '='")
+			return errors.New("执行环境变量名称不能包含 '='")
 		}
 	}
 	return nil
 }
 
-// Resolve reads and returns the content captured from stdout of launched subprocess.
+// Resolve 读取并返回从启动的子进程的标准输出捕获的内容
 func (e *ExecSource) Resolve(ctx context.Context) (string, error) {
 	if err := e.Validate(); err != nil {
 		return "", err
@@ -150,9 +150,9 @@ func (e *ExecSource) Resolve(ctx context.Context) (string, error) {
 
 	content, err := cmd.Output()
 	if err != nil {
-		return "", fmt.Errorf("failed to execute command %v: %v", e.Command, err)
+		return "", fmt.Errorf("执行命令 %v 失败: %v", e.Command, err)
 	}
 
-	// Trim whitespace, which is important for exec-based tokens
+	// 去除空白字符，这对于基于执行的令牌很重要
 	return strings.TrimSpace(string(content)), nil
 }

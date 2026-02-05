@@ -1,16 +1,15 @@
-// Copyright 2023 The frp Authors
+// 版权所有 2023 The frp Authors
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// 根据 Apache 许可证 2.0 版本（"许可证"）授权；
+// 除非遵守许可证，否则您不得使用此文件。
+// 您可以在以下位置获取许可证副本：
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// 除非适用法律要求或书面同意，否则根据许可证分发的软件
+// 是按"原样"分发的，不附带任何明示或暗示的担保或条件。
+// 有关许可证下特定语言的管理权限和
+// 限制，请参阅许可证。
 
 package proxy
 
@@ -31,6 +30,7 @@ import (
 	"github.com/fatedier/frp/pkg/vnet"
 )
 
+// Manager 代理管理器，管理所有代理实例
 type Manager struct {
 	proxies            map[string]*Wrapper
 	msgTransporter     transport.MessageTransporter
@@ -46,6 +46,7 @@ type Manager struct {
 	ctx context.Context
 }
 
+// NewManager 创建新的代理管理器
 func NewManager(
 	ctx context.Context,
 	clientCfg *v1.ClientCommonConfig,
@@ -64,12 +65,13 @@ func NewManager(
 	}
 }
 
+// StartProxy 启动指定的代理
 func (pm *Manager) StartProxy(name string, remoteAddr string, serverRespErr string) error {
 	pm.mu.RLock()
 	pxy, ok := pm.proxies[name]
 	pm.mu.RUnlock()
 	if !ok {
-		return fmt.Errorf("proxy [%s] not found", name)
+		return fmt.Errorf("代理 [%s] 未找到", name)
 	}
 
 	err := pxy.SetRunningStatus(remoteAddr, serverRespErr)
@@ -79,10 +81,12 @@ func (pm *Manager) StartProxy(name string, remoteAddr string, serverRespErr stri
 	return nil
 }
 
+// SetInWorkConnCallback 设置工作连接回调函数
 func (pm *Manager) SetInWorkConnCallback(cb func(*v1.ProxyBaseConfig, net.Conn, *msg.StartWorkConn) bool) {
 	pm.inWorkConnCallback = cb
 }
 
+// Close 关闭所有代理
 func (pm *Manager) Close() {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -92,6 +96,7 @@ func (pm *Manager) Close() {
 	pm.proxies = make(map[string]*Wrapper)
 }
 
+// HandleWorkConn 处理工作连接
 func (pm *Manager) HandleWorkConn(name string, workConn net.Conn, m *msg.StartWorkConn) {
 	pm.mu.RLock()
 	pw, ok := pm.proxies[name]
@@ -103,6 +108,7 @@ func (pm *Manager) HandleWorkConn(name string, workConn net.Conn, m *msg.StartWo
 	}
 }
 
+// HandleEvent 处理事件
 func (pm *Manager) HandleEvent(payload any) error {
 	var m msg.Message
 	switch e := payload.(type) {
@@ -117,6 +123,7 @@ func (pm *Manager) HandleEvent(payload any) error {
 	return pm.msgTransporter.Send(m)
 }
 
+// GetAllProxyStatus 获取所有代理的状态
 func (pm *Manager) GetAllProxyStatus() []*WorkingStatus {
 	ps := make([]*WorkingStatus, 0)
 	pm.mu.RLock()
@@ -127,6 +134,7 @@ func (pm *Manager) GetAllProxyStatus() []*WorkingStatus {
 	return ps
 }
 
+// GetProxyStatus 获取指定代理的状态
 func (pm *Manager) GetProxyStatus(name string) (*WorkingStatus, bool) {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -136,6 +144,7 @@ func (pm *Manager) GetProxyStatus(name string) (*WorkingStatus, bool) {
 	return nil, false
 }
 
+// UpdateAll 更新所有代理配置
 func (pm *Manager) UpdateAll(proxyCfgs []v1.ProxyConfigurer) {
 	xl := xlog.FromContextSafe(pm.ctx)
 	proxyCfgsMap := lo.KeyBy(proxyCfgs, func(c v1.ProxyConfigurer) string {

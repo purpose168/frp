@@ -30,12 +30,15 @@ const (
 	BandwidthLimitModeServer = "server"
 )
 
+// BandwidthQuantity 表示带宽数量，支持 MB 和 KB 单位。
 type BandwidthQuantity struct {
-	s string // MB or KB
+	s string // MB 或 KB
 
-	i int64 // bytes
+	i int64 // 字节数
 }
 
+// NewBandwidthQuantity 从字符串创建 BandwidthQuantity。
+// 返回创建的 BandwidthQuantity 和可能的错误。
 func NewBandwidthQuantity(s string) (BandwidthQuantity, error) {
 	q := BandwidthQuantity{}
 	err := q.UnmarshalString(s)
@@ -45,6 +48,8 @@ func NewBandwidthQuantity(s string) (BandwidthQuantity, error) {
 	return q, nil
 }
 
+// Equal 比较两个 BandwidthQuantity 是否相等。
+// 返回 true 表示相等，false 表示不相等。
 func (q *BandwidthQuantity) Equal(u *BandwidthQuantity) bool {
 	if q == nil && u == nil {
 		return true
@@ -55,10 +60,13 @@ func (q *BandwidthQuantity) Equal(u *BandwidthQuantity) bool {
 	return false
 }
 
+// String 返回 BandwidthQuantity 的字符串表示。
 func (q *BandwidthQuantity) String() string {
 	return q.s
 }
 
+// UnmarshalString 从字符串解析 BandwidthQuantity。
+// 返回解析过程中可能出现的错误。
 func (q *BandwidthQuantity) UnmarshalString(s string) error {
 	s = strings.TrimSpace(s)
 	if s == "" {
@@ -86,7 +94,7 @@ func (q *BandwidthQuantity) UnmarshalString(s string) error {
 			return err
 		}
 	default:
-		return errors.New("unit not support")
+		return errors.New("不支持的单位")
 	}
 
 	q.s = s
@@ -94,6 +102,8 @@ func (q *BandwidthQuantity) UnmarshalString(s string) error {
 	return nil
 }
 
+// UnmarshalJSON 从 JSON 数据解析 BandwidthQuantity。
+// 返回解析过程中可能出现的错误。
 func (q *BandwidthQuantity) UnmarshalJSON(b []byte) error {
 	if len(b) == 4 && string(b) == "null" {
 		return nil
@@ -108,22 +118,29 @@ func (q *BandwidthQuantity) UnmarshalJSON(b []byte) error {
 	return q.UnmarshalString(str)
 }
 
+// MarshalJSON 将 BandwidthQuantity 序列化为 JSON 数据。
+// 返回 JSON 字节数组和可能的错误。
 func (q *BandwidthQuantity) MarshalJSON() ([]byte, error) {
 	return []byte("\"" + q.s + "\""), nil
 }
 
+// Bytes 返回 BandwidthQuantity 的字节数。
 func (q *BandwidthQuantity) Bytes() int64 {
 	return q.i
 }
 
+// PortsRange 表示端口范围，可以是单个端口或端口范围。
 type PortsRange struct {
 	Start  int `json:"start,omitempty"`
 	End    int `json:"end,omitempty"`
 	Single int `json:"single,omitempty"`
 }
 
+// PortsRangeSlice 是端口范围的切片。
 type PortsRangeSlice []PortsRange
 
+// String 返回端口范围切片的字符串表示。
+// 格式为 "1000-2000,3000"。
 func (p PortsRangeSlice) String() string {
 	if len(p) == 0 {
 		return ""
@@ -139,40 +156,42 @@ func (p PortsRangeSlice) String() string {
 	return strings.Join(strs, ",")
 }
 
-// the format of str is like "1000-2000,3000,4000-5000"
+// str 的格式类似于 "1000-2000,3000,4000-5000"
+// NewPortsRangeSliceFromString 从字符串解析端口范围切片。
+// 返回解析后的端口范围切片和可能的错误。
 func NewPortsRangeSliceFromString(str string) ([]PortsRange, error) {
 	str = strings.TrimSpace(str)
 	out := []PortsRange{}
 	numRanges := strings.Split(str, ",")
 	for _, numRangeStr := range numRanges {
-		// 1000-2000 or 2001
+		// 1000-2000 或 2001
 		numArray := strings.Split(numRangeStr, "-")
-		// length: only 1 or 2 is correct
+		// 长度：只有 1 或 2 是正确的
 		rangeType := len(numArray)
 		switch rangeType {
 		case 1:
-			// single number
+			// 单个数字
 			singleNum, err := strconv.ParseInt(strings.TrimSpace(numArray[0]), 10, 64)
 			if err != nil {
-				return nil, fmt.Errorf("range number is invalid, %v", err)
+				return nil, fmt.Errorf("范围数字无效，%v", err)
 			}
 			out = append(out, PortsRange{Single: int(singleNum)})
 		case 2:
-			// range numbers
+			// 范围数字
 			minNum, err := strconv.ParseInt(strings.TrimSpace(numArray[0]), 10, 64)
 			if err != nil {
-				return nil, fmt.Errorf("range number is invalid, %v", err)
+				return nil, fmt.Errorf("范围数字无效，%v", err)
 			}
 			maxNum, err := strconv.ParseInt(strings.TrimSpace(numArray[1]), 10, 64)
 			if err != nil {
-				return nil, fmt.Errorf("range number is invalid, %v", err)
+				return nil, fmt.Errorf("范围数字无效，%v", err)
 			}
 			if maxNum < minNum {
-				return nil, fmt.Errorf("range number is invalid")
+				return nil, fmt.Errorf("范围数字无效")
 			}
 			out = append(out, PortsRange{Start: int(minNum), End: int(maxNum)})
 		default:
-			return nil, fmt.Errorf("range number is invalid")
+			return nil, fmt.Errorf("范围数字无效")
 		}
 	}
 	return out, nil

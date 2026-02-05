@@ -21,12 +21,19 @@ import (
 	kcp "github.com/xtaci/kcp-go/v5"
 )
 
+// KCPListener 是 KCP 监听器
 type KCPListener struct {
-	listener  net.Listener
-	acceptCh  chan net.Conn
+	// listener 是底层监听器
+	listener net.Listener
+	// acceptCh 是接受连接的通道
+	acceptCh chan net.Conn
+	// closeFlag 是关闭标志
 	closeFlag bool
 }
 
+// ListenKcp 创建 KCP 监听器
+// 参数 address 是监听地址
+// 返回 KCP 监听器和可能的错误
 func ListenKcp(address string) (l *KCPListener, err error) {
 	listener, err := kcp.ListenWithOptions(address, nil, 10, 3)
 	if err != nil {
@@ -64,14 +71,18 @@ func ListenKcp(address string) (l *KCPListener, err error) {
 	return l, err
 }
 
+// Accept 接受连接
+// 返回连接和可能的错误
 func (l *KCPListener) Accept() (net.Conn, error) {
 	conn, ok := <-l.acceptCh
 	if !ok {
-		return conn, fmt.Errorf("channel for kcp listener closed")
+		return conn, fmt.Errorf("kcp 监听器通道已关闭")
 	}
 	return conn, nil
 }
 
+// Close 关闭监听器
+// 返回可能的错误
 func (l *KCPListener) Close() error {
 	if !l.closeFlag {
 		l.closeFlag = true
@@ -80,10 +91,16 @@ func (l *KCPListener) Close() error {
 	return nil
 }
 
+// Addr 返回监听地址
 func (l *KCPListener) Addr() net.Addr {
 	return l.listener.Addr()
 }
 
+// NewKCPConnFromUDP 从 UDP 连接创建 KCP 连接
+// 参数 conn 是 UDP 连接
+// 参数 connected 是否是已连接的 UDP
+// 参数 raddr 是远程地址
+// 返回 KCP 连接和可能的错误
 func NewKCPConnFromUDP(conn *net.UDPConn, connected bool, raddr string) (net.Conn, error) {
 	udpAddr, err := net.ResolveUDPAddr("udp", raddr)
 	if err != nil {

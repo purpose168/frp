@@ -1,16 +1,14 @@
 // Copyright 2018 fatedier, fatedier@gmail.com
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// 依据 Apache License, Version 2.0 许可协议授权；
+// 除非符合许可协议的规定，否则不得使用此文件。
+// 您可以在以下网址获取许可协议的副本：
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// 除非适用法律要求或者书面同意，否则本软件按"原样"分发，
+// 不附带任何明示或暗示的担保或条件。
+// 请参阅许可协议以了解管理权限和限制的特定语言。
 
 package group
 
@@ -19,9 +17,14 @@ import (
 )
 
 var (
-	ErrGroupAuthFailed    = errors.New("group auth failed")
-	ErrGroupParamsInvalid = errors.New("group params invalid")
-	ErrListenerClosed     = errors.New("group listener closed")
-	ErrGroupDifferentPort = errors.New("group should have same remote port")
-	ErrProxyRepeated      = errors.New("group proxy repeated")
+	// ErrGroupAuthFailed 组认证失败
+	ErrGroupAuthFailed = errors.New("组认证失败")
+	// ErrGroupParamsInvalid 组参数无效
+	ErrGroupParamsInvalid = errors.New("组参数无效")
+	// ErrListenerClosed 组监听器已关闭
+	ErrListenerClosed = errors.New("组监听器已关闭")
+	// ErrGroupDifferentPort 组应具有相同的远程端口
+	ErrGroupDifferentPort = errors.New("组应具有相同的远程端口")
+	// ErrProxyRepeated 组代理重复
+	ErrProxyRepeated = errors.New("组代理重复")
 )

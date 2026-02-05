@@ -1,16 +1,14 @@
 // Copyright 2020 guylewin, guy@lewin.co.il
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// 依据 Apache License, Version 2.0 许可协议授权；
+// 除非符合许可协议的规定，否则不得使用此文件。
+// 您可以在以下网址获取许可协议的副本：
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// 除非适用法律要求或者书面同意，否则本软件按"原样"分发，
+// 不附带任何明示或暗示的担保或条件。
+// 请参阅许可协议以了解管理权限和限制的特定语言。
 
 package group
 
@@ -27,16 +25,19 @@ import (
 	"github.com/fatedier/frp/pkg/util/vhost"
 )
 
-// TCPMuxGroupCtl manage all TCPMuxGroups
+// TCPMuxGroupCtl 管理所有TCPMux组
 type TCPMuxGroupCtl struct {
+	// groups 存储所有TCPMux组，键为组名
 	groups map[string]*TCPMuxGroup
 
-	// portManager is used to manage port
+	// tcpMuxHTTPConnectMuxer 用于管理HTTP Connect类型的TCP多路复用器
 	tcpMuxHTTPConnectMuxer *tcpmux.HTTPConnectTCPMuxer
-	mu                     sync.Mutex
+	// mu 保护groups的并发访问
+	mu sync.Mutex
 }
 
-// NewTCPMuxGroupCtl return a new TCPMuxGroupCtl
+// NewTCPMuxGroupCtl 创建一个新的TCPMux组控制器
+// 参数tcpMuxHTTPConnectMuxer是HTTP Connect类型的TCP多路复用器
 func NewTCPMuxGroupCtl(tcpMuxHTTPConnectMuxer *tcpmux.HTTPConnectTCPMuxer) *TCPMuxGroupCtl {
 	return &TCPMuxGroupCtl{
 		groups:                 make(map[string]*TCPMuxGroup),
@@ -44,8 +45,14 @@ func NewTCPMuxGroupCtl(tcpMuxHTTPConnectMuxer *tcpmux.HTTPConnectTCPMuxer) *TCPM
 	}
 }
 
-// Listen is the wrapper for TCPMuxGroup's Listen
-// If there are no group, we will create one here
+// Listen 为指定的TCPMux组创建监听器
+// 如果组不存在，则创建新组
+// 参数ctx用于控制操作的生命周期
+// 参数multiplexer是多路复用器类型
+// 参数group是组名
+// 参数groupKey是组的密钥，用于验证组的身份
+// 参数routeConfig是路由配置，包含域名和其他路由信息
+// 返回值是监听器和可能的错误
 func (tmgc *TCPMuxGroupCtl) Listen(
 	ctx context.Context,
 	multiplexer, group, groupKey string,
@@ -63,35 +70,49 @@ func (tmgc *TCPMuxGroupCtl) Listen(
 	case v1.TCPMultiplexerHTTPConnect:
 		return tcpMuxGroup.HTTPConnectListen(ctx, group, groupKey, routeConfig)
 	default:
-		err = fmt.Errorf("unknown multiplexer [%s]", multiplexer)
+		err = fmt.Errorf("未知的多路复用器类型 [%s]", multiplexer)
 		return
 	}
 }
 
-// RemoveGroup remove TCPMuxGroup from controller
+// RemoveGroup 移除指定的TCPMux组
+// 参数group是要移除的组名
 func (tmgc *TCPMuxGroupCtl) RemoveGroup(group string) {
 	tmgc.mu.Lock()
 	defer tmgc.mu.Unlock()
 	delete(tmgc.groups, group)
 }
 
-// TCPMuxGroup route connections to different proxies
+// TCPMuxGroup 表示一个TCPMux组
+// 负责将连接路由到不同的代理
 type TCPMuxGroup struct {
-	group           string
-	groupKey        string
-	domain          string
+	// group 组名
+	group string
+	// groupKey 组的密钥，用于验证组的身份
+	groupKey string
+	// domain 组对应的域名
+	domain string
+	// routeByHTTPUser 按HTTP用户路由的标识
 	routeByHTTPUser string
-	username        string
-	password        string
+	// username 用户名，用于认证
+	username string
+	// password 密码，用于认证
+	password string
 
+	// acceptCh 用于接收新连接的通道
 	acceptCh chan net.Conn
+	// tcpMuxLn 实际的TCPMux监听器
 	tcpMuxLn net.Listener
-	lns      []*TCPMuxGroupListener
-	ctl      *TCPMuxGroupCtl
-	mu       sync.Mutex
+	// lns 组中的所有监听器
+	lns []*TCPMuxGroupListener
+	// ctl 组控制器
+	ctl *TCPMuxGroupCtl
+	// mu 保护组的并发访问
+	mu sync.Mutex
 }
 
-// NewTCPMuxGroup return a new TCPMuxGroup
+// NewTCPMuxGroup 创建一个新的TCPMux组
+// 参数ctl是组控制器
 func NewTCPMuxGroup(ctl *TCPMuxGroupCtl) *TCPMuxGroup {
 	return &TCPMuxGroup{
 		lns:      make([]*TCPMuxGroupListener, 0),
@@ -100,9 +121,14 @@ func NewTCPMuxGroup(ctl *TCPMuxGroupCtl) *TCPMuxGroup {
 	}
 }
 
-// Listen will return a new TCPMuxGroupListener
-// if TCPMuxGroup already has a listener, just add a new TCPMuxGroupListener to the queues
-// otherwise, listen on the real address
+// HTTPConnectListen 为TCPMux组创建HTTP Connect类型的监听器
+// 如果是组中的第一个监听器，则创建实际的TCPMux监听器
+// 否则，验证组参数并创建新的监听器
+// 参数ctx用于控制操作的生命周期
+// 参数group是组名
+// 参数groupKey是组的密钥，用于验证组的身份
+// 参数routeConfig是路由配置，包含域名和其他路由信息
+// 返回值是监听器和可能的错误
 func (tmg *TCPMuxGroup) HTTPConnectListen(
 	ctx context.Context,
 	group, groupKey string,
@@ -111,7 +137,7 @@ func (tmg *TCPMuxGroup) HTTPConnectListen(
 	tmg.mu.Lock()
 	defer tmg.mu.Unlock()
 	if len(tmg.lns) == 0 {
-		// the first listener, listen on the real address
+		// 第一个监听器，监听实际地址
 		tcpMuxLn, errRet := tmg.ctl.tcpMuxHTTPConnectMuxer.Listen(ctx, &routeConfig)
 		if errRet != nil {
 			return nil, errRet
@@ -131,7 +157,7 @@ func (tmg *TCPMuxGroup) HTTPConnectListen(
 		}
 		go tmg.worker()
 	} else {
-		// route config in the same group must be equal
+		// 同一组的路由配置必须相同
 		if tmg.group != group || tmg.domain != routeConfig.Domain ||
 			tmg.routeByHTTPUser != routeConfig.RouteByHTTPUser ||
 			tmg.username != routeConfig.Username ||
@@ -147,7 +173,8 @@ func (tmg *TCPMuxGroup) HTTPConnectListen(
 	return
 }
 
-// worker is called when the real TCP listener has been created
+// worker 当实际的TCPMux监听器创建后被调用
+// 从实际的TCPMux监听器接收连接，并将其发送到acceptCh通道
 func (tmg *TCPMuxGroup) worker() {
 	for {
 		c, err := tmg.tcpMuxLn.Accept()
@@ -163,11 +190,14 @@ func (tmg *TCPMuxGroup) worker() {
 	}
 }
 
+// Accept 返回接收新连接的通道
 func (tmg *TCPMuxGroup) Accept() <-chan net.Conn {
 	return tmg.acceptCh
 }
 
-// CloseListener remove the TCPMuxGroupListener from the TCPMuxGroup
+// CloseListener 关闭组中的一个监听器
+// 如果组中没有监听器了，则关闭实际的TCPMux监听器并从控制器中移除组
+// 参数ln是要关闭的监听器
 func (tmg *TCPMuxGroup) CloseListener(ln *TCPMuxGroupListener) {
 	tmg.mu.Lock()
 	defer tmg.mu.Unlock()
@@ -184,15 +214,23 @@ func (tmg *TCPMuxGroup) CloseListener(ln *TCPMuxGroupListener) {
 	}
 }
 
-// TCPMuxGroupListener
+// TCPMuxGroupListener 表示TCPMux组中的一个监听器
 type TCPMuxGroupListener struct {
+	// groupName 组名
 	groupName string
-	group     *TCPMuxGroup
+	// group 所属的TCPMux组
+	group *TCPMuxGroup
 
-	addr    net.Addr
+	// addr 监听器的地址
+	addr net.Addr
+	// closeCh 用于关闭监听器的通道
 	closeCh chan struct{}
 }
 
+// newTCPMuxGroupListener 创建一个新的TCPMux组监听器
+// 参数name是组名
+// 参数group是所属的TCPMux组
+// 参数addr是监听器的地址
 func newTCPMuxGroupListener(name string, group *TCPMuxGroup, addr net.Addr) *TCPMuxGroupListener {
 	return &TCPMuxGroupListener{
 		groupName: name,
@@ -202,7 +240,9 @@ func newTCPMuxGroupListener(name string, group *TCPMuxGroup, addr net.Addr) *TCP
 	}
 }
 
-// Accept will accept connections from TCPMuxGroup
+// Accept 从TCPMux组接收新的连接
+// 如果监听器已关闭，则返回错误
+// 否则，从组的acceptCh通道接收连接
 func (ln *TCPMuxGroupListener) Accept() (c net.Conn, err error) {
 	var ok bool
 	select {
@@ -216,15 +256,17 @@ func (ln *TCPMuxGroupListener) Accept() (c net.Conn, err error) {
 	}
 }
 
+// Addr 返回监听器的地址
 func (ln *TCPMuxGroupListener) Addr() net.Addr {
 	return ln.addr
 }
 
-// Close close the listener
+// Close 关闭监听器
+// 关闭closeCh通道，并从组中移除自己
 func (ln *TCPMuxGroupListener) Close() (err error) {
 	close(ln.closeCh)
 
-	// remove self from TcpMuxGroup
+	// 从TCPMux组中移除自己
 	ln.group.CloseListener(ln)
 	return
 }

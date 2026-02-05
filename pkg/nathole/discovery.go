@@ -1,13 +1,13 @@
 // Copyright 2023 The frp Authors
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// Licensed under to Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with License.
+// You may obtain a copy of License at
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
+// distributed under License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
@@ -24,14 +24,18 @@ import (
 
 var responseTimeout = 3 * time.Second
 
+// Message 消息
 type Message struct {
+	// Body 消息体
 	Body []byte
+	// Addr 地址
 	Addr string
 }
 
-// If the localAddr is empty, it will listen on a random port.
+// Discover 发现外部地址
+// 如果 localAddr 为空，则监听随机端口
 func Discover(stunServers []string, localAddr string) ([]string, net.Addr, error) {
-	// create a discoverConn and get response from messageChan
+	// 创建 discoverConn 并从 messageChan 获取响应
 	discoverConn, err := listen(localAddr)
 	if err != nil {
 		return nil, nil, err
@@ -42,7 +46,7 @@ func Discover(stunServers []string, localAddr string) ([]string, net.Addr, error
 
 	addresses := make([]string, 0, len(stunServers))
 	for _, addr := range stunServers {
-		// get external address from stun server
+		// 从 STUN 服务器获取外部地址
 		externalAddrs, err := discoverConn.discoverFromStunServer(addr)
 		if err != nil {
 			return nil, nil, err
@@ -52,18 +56,26 @@ func Discover(stunServers []string, localAddr string) ([]string, net.Addr, error
 	return addresses, discoverConn.localAddr, nil
 }
 
+// stunResponse STUN 响应
 type stunResponse struct {
+	// externalAddr 外部地址
 	externalAddr string
-	otherAddr    string
+	// otherAddr 其他地址
+	otherAddr string
 }
 
+// discoverConn 发现连接
 type discoverConn struct {
+	// conn UDP 连接
 	conn *net.UDPConn
 
-	localAddr   net.Addr
+	// localAddr 本地地址
+	localAddr net.Addr
+	// messageChan 消息通道
 	messageChan chan *Message
 }
 
+// listen 监听
 func listen(localAddr string) (*discoverConn, error) {
 	var local *net.UDPAddr
 	if localAddr != "" {
@@ -85,6 +97,7 @@ func listen(localAddr string) (*discoverConn, error) {
 	}, nil
 }
 
+// Close 关闭连接
 func (c *discoverConn) Close() error {
 	if c.messageChan != nil {
 		close(c.messageChan)
@@ -93,6 +106,7 @@ func (c *discoverConn) Close() error {
 	return c.conn.Close()
 }
 
+// readLoop 读取循环
 func (c *discoverConn) readLoop() {
 	for {
 		buf := make([]byte, 1024)
@@ -109,6 +123,7 @@ func (c *discoverConn) readLoop() {
 	}
 }
 
+// doSTUNRequest 执行 STUN 请求
 func (c *discoverConn) doSTUNRequest(addr string) (*stunResponse, error) {
 	serverAddr, err := net.ResolveUDPAddr("udp4", addr)
 	if err != nil {
@@ -134,7 +149,7 @@ func (c *discoverConn) doSTUNRequest(addr string) (*stunResponse, error) {
 			return nil, err
 		}
 	case <-time.After(responseTimeout):
-		return nil, fmt.Errorf("wait response from stun server timeout")
+		return nil, fmt.Errorf("等待 STUN 服务器响应超时")
 	}
 	xorAddrGetter := &stun.XORMappedAddress{}
 	mappedAddrGetter := &stun.MappedAddress{}
@@ -157,13 +172,14 @@ func (c *discoverConn) doSTUNRequest(addr string) (*stunResponse, error) {
 	return resp, nil
 }
 
+// discoverFromStunServer 从 STUN 服务器发现
 func (c *discoverConn) discoverFromStunServer(addr string) ([]string, error) {
 	resp, err := c.doSTUNRequest(addr)
 	if err != nil {
 		return nil, err
 	}
 	if resp.externalAddr == "" {
-		return nil, fmt.Errorf("no external address found")
+		return nil, fmt.Errorf("未找到外部地址")
 	}
 
 	externalAddrs := make([]string, 0, 2)
@@ -173,7 +189,7 @@ func (c *discoverConn) discoverFromStunServer(addr string) ([]string, error) {
 		return externalAddrs, nil
 	}
 
-	// find external address from changed address
+	// 从变更地址查找外部地址
 	resp, err = c.doSTUNRequest(resp.otherAddr)
 	if err != nil {
 		return nil, err

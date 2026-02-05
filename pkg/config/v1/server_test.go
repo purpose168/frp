@@ -21,6 +21,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// TestServerConfigComplete 测试服务器配置的完整化功能
 func TestServerConfigComplete(t *testing.T) {
 	require := require.New(t)
 	c := &ServerConfig{}
@@ -32,6 +33,7 @@ func TestServerConfigComplete(t *testing.T) {
 	require.Equal(true, lo.FromPtr(c.DetailedErrorsToClient))
 }
 
+// TestAuthServerConfig_Complete 测试认证服务器配置的完整化功能
 func TestAuthServerConfig_Complete(t *testing.T) {
 	require := require.New(t)
 	cfg := &AuthServerConfig{}

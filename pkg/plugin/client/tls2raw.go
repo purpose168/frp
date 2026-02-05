@@ -33,12 +33,16 @@ func init() {
 	Register(v1.PluginTLS2Raw, NewTLS2RawPlugin)
 }
 
+// TLS2RawPlugin TLS到原始TCP连接插件
 type TLS2RawPlugin struct {
+	// opts 插件选项
 	opts *v1.TLS2RawPluginOptions
 
+	// tlsConfig TLS配置
 	tlsConfig *tls.Config
 }
 
+// NewTLS2RawPlugin 创建TLS到原始TCP连接插件
 func NewTLS2RawPlugin(_ PluginContext, options v1.ClientPluginOptions) (Plugin, error) {
 	opts := options.(*v1.TLS2RawPluginOptions)
 
@@ -54,6 +58,7 @@ func NewTLS2RawPlugin(_ PluginContext, options v1.ClientPluginOptions) (Plugin, 
 	return p, nil
 }
 
+// Handle 处理连接
 func (p *TLS2RawPlugin) Handle(ctx context.Context, connInfo *ConnectionInfo) {
 	xl := xlog.FromContextSafe(ctx)
 
@@ -61,22 +66,24 @@ func (p *TLS2RawPlugin) Handle(ctx context.Context, connInfo *ConnectionInfo) {
 	tlsConn := tls.Server(wrapConn, p.tlsConfig)
 
 	if err := tlsConn.Handshake(); err != nil {
-		xl.Warnf("tls handshake error: %v", err)
+		xl.Warnf("TLS握手错误: %v", err)
 		return
 	}
 	rawConn, err := net.Dial("tcp", p.opts.LocalAddr)
 	if err != nil {
-		xl.Warnf("dial to local addr error: %v", err)
+		xl.Warnf("连接本地地址错误: %v", err)
 		return
 	}
 
 	libio.Join(tlsConn, rawConn)
 }
 
+// Name 返回插件名称
 func (p *TLS2RawPlugin) Name() string {
 	return v1.PluginTLS2Raw
 }
 
+// Close 关闭插件
 func (p *TLS2RawPlugin) Close() error {
 	return nil
 }

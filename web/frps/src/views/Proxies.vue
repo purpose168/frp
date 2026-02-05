@@ -3,25 +3,25 @@
     <div class="page-header">
       <div class="header-top">
         <div class="title-section">
-          <h1 class="page-title">Proxies</h1>
-          <p class="page-subtitle">View and manage all proxy configurations</p>
+          <h1 class="page-title">代理</h1>
+          <p class="page-subtitle">查看和管理所有代理配置</p>
         </div>
 
         <div class="actions-section">
           <el-button :icon="Refresh" class="action-btn" @click="fetchData"
-            >Refresh</el-button
+            >刷新</el-button
           >
 
           <el-popconfirm
-            title="Clear all offline proxies?"
+            title="清除所有离线代理？"
             width="220"
-            confirm-button-text="Clear"
-            cancel-button-text="Cancel"
+            confirm-button-text="清除"
+            cancel-button-text="取消"
             @confirm="clearOfflineProxies"
           >
             <template #reference>
               <el-button :icon="Delete" class="action-btn" type="danger" plain
-                >Clear Offline</el-button
+                >清除离线代理</el-button
               >
             </template>
           </el-popconfirm>
@@ -32,7 +32,7 @@
         <div class="search-row">
           <el-input
             v-model="searchText"
-            placeholder="Search proxies..."
+            placeholder="搜索代理..."
             :prefix-icon="Search"
             clearable
             class="main-search"
@@ -40,16 +40,16 @@
 
           <el-select
             :model-value="selectedClientKey"
-            placeholder="All Clients"
+            placeholder="所有客户端"
             clearable
             filterable
             class="client-select"
             @change="onClientFilterChange"
           >
-            <el-option label="All Clients" value="" />
+            <el-option label="所有客户端" value="" />
             <el-option
               v-if="clientIDFilter && !selectedClientInList"
-              :label="`${userFilter ? userFilter + '.' : ''}${clientIDFilter} (not found)`"
+              :label="`${userFilter ? userFilter + '.' : ''}${clientIDFilter} (未找到)`"
               :value="selectedClientKey"
               style="color: var(--el-color-warning); font-style: italic"
             />
@@ -85,7 +85,7 @@
         />
       </div>
       <div v-else-if="!loading" class="empty-state">
-        <el-empty description="No proxies found" />
+        <el-empty description="未找到代理" />
       </div>
     </div>
   </div>
@@ -267,7 +267,7 @@ const fetchData = async () => {
   } catch (error: any) {
     ElMessage({
       showClose: true,
-      message: 'Failed to fetch proxies: ' + error.message,
+      message: '获取代理列表失败: ' + error.message,
       type: 'error',
     })
   } finally {
@@ -279,13 +279,13 @@ const clearOfflineProxies = async () => {
   try {
     await apiClearOfflineProxies()
     ElMessage({
-      message: 'Successfully cleared offline proxies',
+      message: '成功清除离线代理',
       type: 'success',
     })
     fetchData()
   } catch (err: any) {
     ElMessage({
-      message: 'Failed to clear offline proxies: ' + err.message,
+      message: '清除离线代理失败: ' + err.message,
       type: 'warning',
     })
   }

@@ -27,18 +27,29 @@ import (
 )
 
 const (
-	PluginHTTP2HTTPS       = "http2https"
-	PluginHTTPProxy        = "http_proxy"
-	PluginHTTPS2HTTP       = "https2http"
-	PluginHTTPS2HTTPS      = "https2https"
-	PluginHTTP2HTTP        = "http2http"
-	PluginSocks5           = "socks5"
-	PluginStaticFile       = "static_file"
+	// PluginHTTP2HTTPS HTTP 到 HTTPS 插件
+	PluginHTTP2HTTPS = "http2https"
+	// PluginHTTPProxy HTTP 代理插件
+	PluginHTTPProxy = "http_proxy"
+	// PluginHTTPS2HTTP HTTPS 到 HTTP 插件
+	PluginHTTPS2HTTP = "https2http"
+	// PluginHTTPS2HTTPS HTTPS 到 HTTPS 插件
+	PluginHTTPS2HTTPS = "https2https"
+	// PluginHTTP2HTTP HTTP 到 HTTP 插件
+	PluginHTTP2HTTP = "http2http"
+	// PluginSocks5 Socks5 插件
+	PluginSocks5 = "socks5"
+	// PluginStaticFile 静态文件插件
+	PluginStaticFile = "static_file"
+	// PluginUnixDomainSocket Unix 域套接字插件
 	PluginUnixDomainSocket = "unix_domain_socket"
-	PluginTLS2Raw          = "tls2raw"
-	PluginVirtualNet       = "virtual_net"
+	// PluginTLS2Raw TLS 到原始数据插件
+	PluginTLS2Raw = "tls2raw"
+	// PluginVirtualNet 虚拟网络插件
+	PluginVirtualNet = "virtual_net"
 )
 
+// clientPluginOptionsTypeMap 客户端插件选项类型映射
 var clientPluginOptionsTypeMap = map[string]reflect.Type{
 	PluginHTTP2HTTPS:       reflect.TypeOf(HTTP2HTTPSPluginOptions{}),
 	PluginHTTPProxy:        reflect.TypeOf(HTTPProxyPluginOptions{}),
@@ -52,20 +63,26 @@ var clientPluginOptionsTypeMap = map[string]reflect.Type{
 	PluginVirtualNet:       reflect.TypeOf(VirtualNetPluginOptions{}),
 }
 
+// ClientPluginOptions 客户端插件选项接口
 type ClientPluginOptions interface {
 	Complete()
 }
 
+// TypedClientPluginOptions 类型化客户端插件选项结构体
 type TypedClientPluginOptions struct {
+	// Type 插件类型
 	Type string `json:"type"`
 	ClientPluginOptions
 }
 
+// UnmarshalJSON 自定义 JSON 反序列化方法
 func (c *TypedClientPluginOptions) UnmarshalJSON(b []byte) error {
+	// 处理 null 值
 	if len(b) == 4 && string(b) == "null" {
 		return nil
 	}
 
+	// 解析插件类型
 	typeStruct := struct {
 		Type string `json:"type"`
 	}{}
@@ -75,121 +92,187 @@ func (c *TypedClientPluginOptions) UnmarshalJSON(b []byte) error {
 
 	c.Type = typeStruct.Type
 	if c.Type == "" {
-		return errors.New("plugin type is empty")
+		return errors.New("插件类型为空")
 	}
 
+	// 根据类型获取对应的选项结构
 	v, ok := clientPluginOptionsTypeMap[typeStruct.Type]
 	if !ok {
-		return fmt.Errorf("unknown plugin type: %s", typeStruct.Type)
+		return fmt.Errorf("未知的插件类型: %s", typeStruct.Type)
 	}
 	options := reflect.New(v).Interface().(ClientPluginOptions)
 
+	// 创建 JSON 解码器
 	decoder := json.NewDecoder(bytes.NewBuffer(b))
 	if DisallowUnknownFields {
 		decoder.DisallowUnknownFields()
 	}
 
+	// 解码插件选项
 	if err := decoder.Decode(options); err != nil {
-		return fmt.Errorf("unmarshal ClientPluginOptions error: %v", err)
+		return fmt.Errorf("反序列化 ClientPluginOptions 错误: %v", err)
 	}
 	c.ClientPluginOptions = options
 	return nil
 }
 
+// MarshalJSON 自定义 JSON 序列化方法
 func (c *TypedClientPluginOptions) MarshalJSON() ([]byte, error) {
 	return json.Marshal(c.ClientPluginOptions)
 }
 
+// HTTP2HTTPSPluginOptions HTTP 到 HTTPS 插件选项结构体
 type HTTP2HTTPSPluginOptions struct {
-	Type              string           `json:"type,omitempty"`
-	LocalAddr         string           `json:"localAddr,omitempty"`
-	HostHeaderRewrite string           `json:"hostHeaderRewrite,omitempty"`
-	RequestHeaders    HeaderOperations `json:"requestHeaders,omitempty"`
+	// Type 插件类型
+	Type string `json:"type,omitempty"`
+	// LocalAddr 本地地址
+	LocalAddr string `json:"localAddr,omitempty"`
+	// HostHeaderRewrite 主机头重写
+	HostHeaderRewrite string `json:"hostHeaderRewrite,omitempty"`
+	// RequestHeaders 请求头操作
+	RequestHeaders HeaderOperations `json:"requestHeaders,omitempty"`
 }
 
+// Complete 填充 HTTP 到 HTTPS 插件选项的默认值
 func (o *HTTP2HTTPSPluginOptions) Complete() {}
 
+// HTTPProxyPluginOptions HTTP 代理插件选项结构体
 type HTTPProxyPluginOptions struct {
-	Type         string `json:"type,omitempty"`
-	HTTPUser     string `json:"httpUser,omitempty"`
+	// Type 插件类型
+	Type string `json:"type,omitempty"`
+	// HTTPUser HTTP 用户名
+	HTTPUser string `json:"httpUser,omitempty"`
+	// HTTPPassword HTTP 密码
 	HTTPPassword string `json:"httpPassword,omitempty"`
 }
 
+// Complete 填充 HTTP 代理插件选项的默认值
 func (o *HTTPProxyPluginOptions) Complete() {}
 
+// HTTPS2HTTPPluginOptions HTTPS 到 HTTP 插件选项结构体
 type HTTPS2HTTPPluginOptions struct {
-	Type              string           `json:"type,omitempty"`
-	LocalAddr         string           `json:"localAddr,omitempty"`
-	HostHeaderRewrite string           `json:"hostHeaderRewrite,omitempty"`
-	RequestHeaders    HeaderOperations `json:"requestHeaders,omitempty"`
-	EnableHTTP2       *bool            `json:"enableHTTP2,omitempty"`
-	CrtPath           string           `json:"crtPath,omitempty"`
-	KeyPath           string           `json:"keyPath,omitempty"`
+	// Type 插件类型
+	Type string `json:"type,omitempty"`
+	// LocalAddr 本地地址
+	LocalAddr string `json:"localAddr,omitempty"`
+	// HostHeaderRewrite 主机头重写
+	HostHeaderRewrite string `json:"hostHeaderRewrite,omitempty"`
+	// RequestHeaders 请求头操作
+	RequestHeaders HeaderOperations `json:"requestHeaders,omitempty"`
+	// EnableHTTP2 是否启用 HTTP/2
+	EnableHTTP2 *bool `json:"enableHTTP2,omitempty"`
+	// CrtPath 证书文件路径
+	CrtPath string `json:"crtPath,omitempty"`
+	// KeyPath 密钥文件路径
+	KeyPath string `json:"keyPath,omitempty"`
 }
 
+// Complete 填充 HTTPS 到 HTTP 插件选项的默认值
 func (o *HTTPS2HTTPPluginOptions) Complete() {
+	// 设置默认启用 HTTP/2
 	o.EnableHTTP2 = util.EmptyOr(o.EnableHTTP2, lo.ToPtr(true))
 }
 
+// HTTPS2HTTPSPluginOptions HTTPS 到 HTTPS 插件选项结构体
 type HTTPS2HTTPSPluginOptions struct {
-	Type              string           `json:"type,omitempty"`
-	LocalAddr         string           `json:"localAddr,omitempty"`
-	HostHeaderRewrite string           `json:"hostHeaderRewrite,omitempty"`
-	RequestHeaders    HeaderOperations `json:"requestHeaders,omitempty"`
-	EnableHTTP2       *bool            `json:"enableHTTP2,omitempty"`
-	CrtPath           string           `json:"crtPath,omitempty"`
-	KeyPath           string           `json:"keyPath,omitempty"`
+	// Type 插件类型
+	Type string `json:"type,omitempty"`
+	// LocalAddr 本地地址
+	LocalAddr string `json:"localAddr,omitempty"`
+	// HostHeaderRewrite 主机头重写
+	HostHeaderRewrite string `json:"hostHeaderRewrite,omitempty"`
+	// RequestHeaders 请求头操作
+	RequestHeaders HeaderOperations `json:"requestHeaders,omitempty"`
+	// EnableHTTP2 是否启用 HTTP/2
+	EnableHTTP2 *bool `json:"enableHTTP2,omitempty"`
+	// CrtPath 证书文件路径
+	CrtPath string `json:"crtPath,omitempty"`
+	// KeyPath 密钥文件路径
+	KeyPath string `json:"keyPath,omitempty"`
 }
 
+// Complete 填充 HTTPS 到 HTTPS 插件选项的默认值
 func (o *HTTPS2HTTPSPluginOptions) Complete() {
+	// 设置默认启用 HTTP/2
 	o.EnableHTTP2 = util.EmptyOr(o.EnableHTTP2, lo.ToPtr(true))
 }
 
+// HTTP2HTTPPluginOptions HTTP 到 HTTP 插件选项结构体
 type HTTP2HTTPPluginOptions struct {
-	Type              string           `json:"type,omitempty"`
-	LocalAddr         string           `json:"localAddr,omitempty"`
-	HostHeaderRewrite string           `json:"hostHeaderRewrite,omitempty"`
-	RequestHeaders    HeaderOperations `json:"requestHeaders,omitempty"`
+	// Type 插件类型
+	Type string `json:"type,omitempty"`
+	// LocalAddr 本地地址
+	LocalAddr string `json:"localAddr,omitempty"`
+	// HostHeaderRewrite 主机头重写
+	HostHeaderRewrite string `json:"hostHeaderRewrite,omitempty"`
+	// RequestHeaders 请求头操作
+	RequestHeaders HeaderOperations `json:"requestHeaders,omitempty"`
 }
 
+// Complete 填充 HTTP 到 HTTP 插件选项的默认值
 func (o *HTTP2HTTPPluginOptions) Complete() {}
 
+// Socks5PluginOptions Socks5 插件选项结构体
 type Socks5PluginOptions struct {
-	Type     string `json:"type,omitempty"`
+	// Type 插件类型
+	Type string `json:"type,omitempty"`
+	// Username 用户名
 	Username string `json:"username,omitempty"`
+	// Password 密码
 	Password string `json:"password,omitempty"`
 }
 
+// Complete 填充 Socks5 插件选项的默认值
 func (o *Socks5PluginOptions) Complete() {}
 
+// StaticFilePluginOptions 静态文件插件选项结构体
 type StaticFilePluginOptions struct {
-	Type         string `json:"type,omitempty"`
-	LocalPath    string `json:"localPath,omitempty"`
-	StripPrefix  string `json:"stripPrefix,omitempty"`
-	HTTPUser     string `json:"httpUser,omitempty"`
+	// Type 插件类型
+	Type string `json:"type,omitempty"`
+	// LocalPath 本地路径
+	LocalPath string `json:"localPath,omitempty"`
+	// StripPrefix 要去除的前缀
+	StripPrefix string `json:"stripPrefix,omitempty"`
+	// HTTPUser HTTP 用户名
+	HTTPUser string `json:"httpUser,omitempty"`
+	// HTTPPassword HTTP 密码
 	HTTPPassword string `json:"httpPassword,omitempty"`
 }
 
+// Complete 填充静态文件插件选项的默认值
 func (o *StaticFilePluginOptions) Complete() {}
 
+// UnixDomainSocketPluginOptions Unix 域套接字插件选项结构体
 type UnixDomainSocketPluginOptions struct {
-	Type     string `json:"type,omitempty"`
+	// Type 插件类型
+	Type string `json:"type,omitempty"`
+	// UnixPath Unix 路径
 	UnixPath string `json:"unixPath,omitempty"`
 }
 
+// Complete 填充 Unix 域套接字插件选项的默认值
 func (o *UnixDomainSocketPluginOptions) Complete() {}
 
+// TLS2RawPluginOptions TLS 到原始数据插件选项结构体
 type TLS2RawPluginOptions struct {
-	Type      string `json:"type,omitempty"`
+	// Type 插件类型
+	Type string `json:"type,omitempty"`
+	// LocalAddr 本地地址
 	LocalAddr string `json:"localAddr,omitempty"`
-	CrtPath   string `json:"crtPath,omitempty"`
-	KeyPath   string `json:"keyPath,omitempty"`
+	// CrtPath 证书文件路径
+	CrtPath string `json:"crtPath,omitempty"`
+	// KeyPath 密钥文件路径
+	KeyPath string `json:"keyPath,omitempty"`
 }
 
+// Complete 填充 TLS 到原始数据插件选项的默认值
 func (o *TLS2RawPluginOptions) Complete() {}
 
+// VirtualNetPluginOptions 虚拟网络插件选项结构体
 type VirtualNetPluginOptions struct {
+	// Type 插件类型
 	Type string `json:"type,omitempty"`
 }
 
+// Complete 填充虚拟网络插件选项的默认值
 func (o *VirtualNetPluginOptions) Complete() {}

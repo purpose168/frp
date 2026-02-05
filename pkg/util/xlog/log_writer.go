@@ -16,19 +16,25 @@ package xlog
 
 import "strings"
 
-// LogWriter forwards writes to frp's logger at configurable level.
-// It is safe for concurrent use as long as the underlying Logger is thread-safe.
+// LogWriter 将写入操作转发到 frp 的日志记录器，支持配置日志级别。
+// 只要底层的 Logger 是线程安全的，它就可以安全地并发使用。
 type LogWriter struct {
-	xl      *Logger
-	logFunc func(string)
+	xl      *Logger      // 日志记录器实例
+	logFunc func(string) // 日志写入函数，根据不同级别调用不同的日志方法
 }
 
+// Write 实现 io.Writer 接口，将字节切片转换为字符串并写入日志
+// p: 要写入的字节切片
+// 返回写入的字节数和可能的错误
 func (w LogWriter) Write(p []byte) (n int, err error) {
 	msg := strings.TrimSpace(string(p))
 	w.logFunc(msg)
 	return len(p), nil
 }
 
+// NewTraceWriter 创建一个 Trace 级别的日志写入器
+// xl: 日志记录器实例
+// 返回 Trace 级别的 LogWriter
 func NewTraceWriter(xl *Logger) LogWriter {
 	return LogWriter{
 		xl:      xl,
@@ -36,6 +42,9 @@ func NewTraceWriter(xl *Logger) LogWriter {
 	}
 }
 
+// NewDebugWriter 创建一个 Debug 级别的日志写入器
+// xl: 日志记录器实例
+// 返回 Debug 级别的 LogWriter
 func NewDebugWriter(xl *Logger) LogWriter {
 	return LogWriter{
 		xl:      xl,
@@ -43,6 +52,9 @@ func NewDebugWriter(xl *Logger) LogWriter {
 	}
 }
 
+// NewInfoWriter 创建一个 Info 级别的日志写入器
+// xl: 日志记录器实例
+// 返回 Info 级别的 LogWriter
 func NewInfoWriter(xl *Logger) LogWriter {
 	return LogWriter{
 		xl:      xl,
@@ -50,6 +62,9 @@ func NewInfoWriter(xl *Logger) LogWriter {
 	}
 }
 
+// NewWarnWriter 创建一个 Warn 级别的日志写入器
+// xl: 日志记录器实例
+// 返回 Warn 级别的 LogWriter
 func NewWarnWriter(xl *Logger) LogWriter {
 	return LogWriter{
 		xl:      xl,
@@ -57,6 +72,9 @@ func NewWarnWriter(xl *Logger) LogWriter {
 	}
 }
 
+// NewErrorWriter 创建一个 Error 级别的日志写入器
+// xl: 日志记录器实例
+// 返回 Error 级别的 LogWriter
 func NewErrorWriter(xl *Logger) LogWriter {
 	return LogWriter{
 		xl:      xl,

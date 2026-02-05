@@ -10,7 +10,7 @@ if [ "${TARGET_ARCH}" ]; then
   ARCH="${TARGET_ARCH}"
 fi
 
-# Determine the latest version by version number ignoring alpha, beta, and rc versions.
+# 通过版本号确定最新版本，忽略 alpha、beta 和 rc 版本。
 if [ "${FRP_VERSION}" = "" ] ; then
   FRP_VERSION="$(curl -sL https://github.com/fatedier/frp/releases | \
                   grep -o 'releases/tag/v[0-9]*.[0-9]*.[0-9]*"' | sort -V | \
@@ -20,7 +20,7 @@ if [ "${FRP_VERSION}" = "" ] ; then
 fi
 
 if [ "${FRP_VERSION}" = "" ] ; then
-  printf "Unable to get latest frp version. Set FRP_VERSION env var and re-run. For example: export FRP_VERSION=1.0.0"
+  printf "无法获取最新的 frp 版本。请设置 FRP_VERSION 环境变量并重新运行。例如：export FRP_VERSION=1.0.0"
   exit 1;
 fi
 
@@ -33,9 +33,9 @@ DIR_NAME="frp_${FRP_VERSION}_${OS}_${ARCH}"
 URL="https://github.com/fatedier/frp/releases/download/v${FRP_VERSION}/${NAME}"
 
 download_and_extract() {
-  printf "Downloading %s from %s ...\n" "$NAME" "${URL}"
+  printf "正在从 %s 下载 %s ...\n" "${URL}" "$NAME"
   if ! curl -o /dev/null -sIf "${URL}"; then
-    printf "\n%s is not found, please specify a valid FRP_VERSION\n" "${URL}"
+    printf "\n未找到 %s，请指定有效的 FRP_VERSION\n" "${URL}"
     exit 1
   fi
   curl -fsLO "${URL}"
@@ -57,7 +57,7 @@ download_and_extract() {
 download_and_extract
 
 printf ""
-printf "\nfrp %s Download Complete!\n" "$FRP_VERSION"
+printf "\nfrp %s 下载完成！\n" "$FRP_VERSION"
 printf "\n"
-printf "frp has been successfully downloaded into the %s folder on your system.\n" "$DIR_NAME"
+printf "frp 已成功下载到您系统上的 %s 文件夹中。\n" "$DIR_NAME"
 printf "\n"

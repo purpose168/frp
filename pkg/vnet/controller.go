@@ -33,17 +33,21 @@ import (
 )
 
 const (
-	maxPacketSize = 1420
+	maxPacketSize = 1420 // 最大数据包大小
 )
 
+// Controller 虚拟网络控制器，负责管理 TUN 设备和路由
 type Controller struct {
 	addr string
 
-	tun          io.ReadWriteCloser
-	clientRouter *clientRouter // Route based on destination IP (client mode)
-	serverRouter *serverRouter // Route based on source IP (server mode)
+	tun          io.ReadWriteCloser // TUN 设备接口
+	clientRouter *clientRouter      // 基于目标 IP 路由（客户端模式）
+	serverRouter *serverRouter      // 基于源 IP 路由（服务器模式）
 }
 
+// NewController 创建一个新的虚拟网络控制器
+// cfg: 虚拟网络配置，包含地址等信息
+// 返回创建的控制器实例
 func NewController(cfg v1.VirtualNetConfig) *Controller {
 	return &Controller{
 		addr:         cfg.Address,
@@ -52,7 +56,10 @@ func NewController(cfg v1.VirtualNetConfig) *Controller {
 	}
 }
 
+// Init 初始化控制器，打开 TUN 设备
+// 返回可能的错误
 func (c *Controller) Init() error {
+	// 打开 TUN 设备
 	tunDevice, err := OpenTun(context.Background(), c.addr)
 	if err != nil {
 		return err
@@ -61,33 +68,42 @@ func (c *Controller) Init() error {
 	return nil
 }
 
+// Run 运行控制器主循环，从 TUN 设备读取数据包并处理
+// 返回可能的错误
 func (c *Controller) Run() error {
 	conn := c.tun
 
 	for {
+		// 从池中获取缓冲区
 		buf := pool.GetBuf(maxPacketSize)
 		n, err := conn.Read(buf)
 		if err != nil {
 			pool.PutBuf(buf)
-			log.Warnf("vnet read from tun error: %v", err)
+			log.Warnf("vnet 从 tun 设备读取错误: %v", err)
 			return err
 		}
 
+		// 处理数据包
 		c.handlePacket(buf[:n])
 		pool.PutBuf(buf)
 	}
 }
 
-// handlePacket processes a single packet. The caller is responsible for managing the buffer.
+// handlePacket 处理单个数据包的路由和转发
+// 调用方负责管理缓冲区
 func (c *Controller) handlePacket(buf []byte) {
-	log.Tracef("vnet read from tun [%d]: %s", len(buf), base64.StdEncoding.EncodeToString(buf))
+	// 记录收到的数据包
+	log.Tracef("vnet 从 tun 读取 [%d]: %s", len(buf), base64.StdEncoding.EncodeToString(buf))
 
-	var src, dst net.IP
+	var src, dst net.IP // 源 IP 和目标 IP
+
+	// 根据 IP 版本进行不同的处理
 	switch {
 	case waterutil.IsIPv4(buf):
+		// 解析 IPv4 头
 		header, err := ipv4.ParseHeader(buf)
 		if err != nil {
-			log.Warnf("parse ipv4 header error: %v", err)
+			log.Warnf("解析 IPv4 头错误: %v", err)
 			return
 		}
 		src = header.Src
@@ -96,9 +112,10 @@ func (c *Controller) handlePacket(buf []byte) {
 			header.Src, header.Dst,
 			header.Len, header.TotalLen, header.ID, header.Flags)
 	case waterutil.IsIPv6(buf):
+		// 解析 IPv6 头
 		header, err := ipv6.ParseHeader(buf)
 		if err != nil {
-			log.Warnf("parse ipv6 header error: %v", err)
+			log.Warnf("解析 IPv6 头错误: %v", err)
 			return
 		}
 		src = header.Src
@@ -107,58 +124,68 @@ func (c *Controller) handlePacket(buf []byte) {
 			header.Src, header.Dst,
 			header.PayloadLen, header.TrafficClass)
 	default:
-		log.Tracef("unknown packet, discarded(%d)", len(buf))
+		log.Tracef("未知数据包，已丢弃(%d)", len(buf))
 		return
 	}
 
+	// 首先尝试根据目标 IP 查找客户端连接
 	targetConn, err := c.clientRouter.findConn(dst)
 	if err == nil {
 		if err := WriteMessage(targetConn, buf); err != nil {
-			log.Warnf("write to client target conn error: %v", err)
+			log.Warnf("写入客户端目标连接错误: %v", err)
 		}
 		return
 	}
 
+	// 如果客户端路由没有找到，尝试服务器端路由
 	targetConn, err = c.serverRouter.findConnBySrc(dst)
 	if err == nil {
 		if err := WriteMessage(targetConn, buf); err != nil {
-			log.Warnf("write to server target conn error: %v", err)
+			log.Warnf("写入服务器目标连接错误: %v", err)
 		}
 		return
 	}
 
-	log.Tracef("no route found for packet from %s to %s", src, dst)
+	log.Tracef("没有找到从 %s 到 %s 的数据包路由", src, dst)
 }
 
+// Stop 停止控制器，关闭 TUN 设备
+// 返回可能的错误
 func (c *Controller) Stop() error {
 	return c.tun.Close()
 }
 
-// Client connection read loop
+// readLoopClient 客户端连接读取循环
+// ctx: 上下文，用于获取日志记录器
+// conn: 要读取的连接
 func (c *Controller) readLoopClient(ctx context.Context, conn io.ReadWriteCloser) {
+	// 从上下文获取日志记录器
 	xl := xlog.FromContextSafe(ctx)
 	defer func() {
-		// Remove the route when read loop ends (connection closed)
+		// 读取循环结束时移除路由（连接关闭）
 		c.clientRouter.removeConnRoute(conn)
 		conn.Close()
 	}()
 
 	for {
+		// 读取消息
 		data, err := ReadMessage(conn)
 		if err != nil {
-			xl.Warnf("client read error: %v", err)
+			xl.Warnf("客户端读取错误: %v", err)
 			return
 		}
 
+		// 忽略空数据
 		if len(data) == 0 {
 			continue
 		}
 
+		// 根据 IP 版本解析头部并记录
 		switch {
 		case waterutil.IsIPv4(data):
 			header, err := ipv4.ParseHeader(data)
 			if err != nil {
-				xl.Warnf("parse ipv4 header error: %v", err)
+				xl.Warnf("解析 IPv4 头错误: %v", err)
 				continue
 			}
 			xl.Tracef("%s >> %s %d/%-4d %-4x %d",
@@ -167,32 +194,36 @@ func (c *Controller) readLoopClient(ctx context.Context, conn io.ReadWriteCloser
 		case waterutil.IsIPv6(data):
 			header, err := ipv6.ParseHeader(data)
 			if err != nil {
-				xl.Warnf("parse ipv6 header error: %v", err)
+				xl.Warnf("解析 IPv6 头错误: %v", err)
 				continue
 			}
 			xl.Tracef("%s >> %s %d %d",
 				header.Src, header.Dst,
 				header.PayloadLen, header.TrafficClass)
 		default:
-			xl.Tracef("unknown packet, discarded(%d)", len(data))
+			xl.Tracef("未知数据包，已丢弃(%d)", len(data))
 			continue
 		}
 
-		xl.Tracef("vnet write to tun (client) [%d]: %s", len(data), base64.StdEncoding.EncodeToString(data))
+		// 写入 TUN 设备
+		xl.Tracef("vnet 写入 tun (客户端) [%d]: %s", len(data), base64.StdEncoding.EncodeToString(data))
 		_, err = c.tun.Write(data)
 		if err != nil {
-			xl.Warnf("client write tun error: %v", err)
+			xl.Warnf("客户端写入 tun 错误: %v", err)
 		}
 	}
 }
 
-// Server connection read loop
+// readLoopServer 服务器连接读取循环
+// ctx: 上下文，用于获取日志记录器
+// conn: 要读取的连接
+// onClose: 连接关闭时的回调函数
 func (c *Controller) readLoopServer(ctx context.Context, conn io.ReadWriteCloser, onClose func()) {
 	xl := xlog.FromContextSafe(ctx)
 	defer func() {
-		// Clean up all IP mappings associated with this connection when it closes
+		// 连接关闭时清理所有关联的 IP 映射
 		c.serverRouter.cleanupConnIPs(conn)
-		// Call the provided callback upon closure
+		// 调用关闭回调
 		if onClose != nil {
 			onClose()
 		}
@@ -202,15 +233,16 @@ func (c *Controller) readLoopServer(ctx context.Context, conn io.ReadWriteCloser
 	for {
 		data, err := ReadMessage(conn)
 		if err != nil {
-			xl.Warnf("server read error: %v", err)
+			xl.Warnf("服务器读取错误: %v", err)
 			return
 		}
 
+		// 忽略空数据
 		if len(data) == 0 {
 			continue
 		}
 
-		// Register source IP to connection mapping
+		// 注册源 IP 到连接的映射
 		if waterutil.IsIPv4(data) || waterutil.IsIPv6(data) {
 			var src net.IP
 			if waterutil.IsIPv4(data) {
@@ -228,49 +260,59 @@ func (c *Controller) readLoopServer(ctx context.Context, conn io.ReadWriteCloser
 			}
 		}
 
-		xl.Tracef("vnet write to tun (server) [%d]: %s", len(data), base64.StdEncoding.EncodeToString(data))
+		xl.Tracef("vnet 写入 tun (服务器) [%d]: %s", len(data), base64.StdEncoding.EncodeToString(data))
 		_, err = c.tun.Write(data)
 		if err != nil {
-			xl.Warnf("server write tun error: %v", err)
+			xl.Warnf("服务器写入 tun 错误: %v", err)
 		}
 	}
 }
 
-// RegisterClientRoute registers a client route (based on destination IP CIDR)
-// and starts the read loop
+// RegisterClientRoute 注册客户端路由（基于目标 IP CIDR）
+// 并启动读取循环
+// ctx: 上下文
+// name: 路由名称
+// routes: IP 网络列表
+// conn: 关联的连接
 func (c *Controller) RegisterClientRoute(ctx context.Context, name string, routes []net.IPNet, conn io.ReadWriteCloser) {
 	c.clientRouter.addRoute(name, routes, conn)
 	go c.readLoopClient(ctx, conn)
 }
 
-// UnregisterClientRoute Remove client route from routing table
+// UnregisterClientRoute 从路由表中移除客户端路由
+// name: 要移除的路由名称
 func (c *Controller) UnregisterClientRoute(name string) {
 	c.clientRouter.delRoute(name)
 }
 
-// StartServerConnReadLoop starts the read loop for a server connection
-// (dynamically associates with source IPs)
+// StartServerConnReadLoop 启动服务器连接的读取循环
+// （动态关联源 IP）
+// ctx: 上下文
+// conn: 要读取的连接
+// onClose: 连接关闭时的回调函数
 func (c *Controller) StartServerConnReadLoop(ctx context.Context, conn io.ReadWriteCloser, onClose func()) {
 	go c.readLoopServer(ctx, conn, onClose)
 }
 
-// ParseRoutes Convert route strings to IPNet objects
+// ParseRoutes 将路由字符串转换为 IPNet 对象
+// routeStrings: 路由字符串数组
+// 返回 IPNet 数组和可能的错误
 func ParseRoutes(routeStrings []string) ([]net.IPNet, error) {
 	routes := make([]net.IPNet, 0, len(routeStrings))
 	for _, r := range routeStrings {
 		_, ipNet, err := net.ParseCIDR(r)
 		if err != nil {
-			return nil, fmt.Errorf("parse route %s error: %v", r, err)
+			return nil, fmt.Errorf("解析路由 %s 错误: %v", r, err)
 		}
 		routes = append(routes, *ipNet)
 	}
 	return routes, nil
 }
 
-// Client router (based on destination IP routing)
+// Client router（基于目标 IP 路由）
 type clientRouter struct {
-	routes map[string]*routeElement
-	mu     sync.RWMutex
+	routes map[string]*routeElement // 路由映射表
+	mu     sync.RWMutex             // 读写锁
 }
 
 func newClientRouter() *clientRouter {
@@ -279,6 +321,10 @@ func newClientRouter() *clientRouter {
 	}
 }
 
+// addRoute 添加客户端路由
+// name: 路由名称
+// routes: IP 网络列表
+// conn: 关联的连接
 func (r *clientRouter) addRoute(name string, routes []net.IPNet, conn io.ReadWriteCloser) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -289,25 +335,33 @@ func (r *clientRouter) addRoute(name string, routes []net.IPNet, conn io.ReadWri
 	}
 }
 
+// findConn 根据目标 IP 查找连接
+// dst: 目标 IP 地址
+// 返回找到的连接和可能的错误
 func (r *clientRouter) findConn(dst net.IP) (io.Writer, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	for _, re := range r.routes {
 		for _, route := range re.routes {
+			// 检查目标 IP 是否在路由范围内
 			if route.Contains(dst) {
 				return re.conn, nil
 			}
 		}
 	}
-	return nil, fmt.Errorf("no route found for destination %s", dst)
+	return nil, fmt.Errorf("没有找到目标 %s 的路由", dst)
 }
 
+// delRoute 删除指定名称的路由
+// name: 要删除的路由名称
 func (r *clientRouter) delRoute(name string) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	delete(r.routes, name)
 }
 
+// removeConnRoute 移除与指定连接关联的路由
+// conn: 要移除的连接
 func (r *clientRouter) removeConnRoute(conn io.Writer) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -319,10 +373,10 @@ func (r *clientRouter) removeConnRoute(conn io.Writer) {
 	}
 }
 
-// Server router (based solely on source IP routing)
+// Server router（仅基于源 IP 路由）
 type serverRouter struct {
-	srcIPConns map[string]io.Writer // Source IP string to connection mapping
-	mu         sync.RWMutex
+	srcIPConns map[string]io.Writer // 源 IP 字符串到连接的映射
+	mu         sync.RWMutex         // 读写锁
 }
 
 func newServerRouter() *serverRouter {
@@ -331,16 +385,22 @@ func newServerRouter() *serverRouter {
 	}
 }
 
+// findConnBySrc 根据源 IP 查找连接
+// src: 源 IP 地址
+// 返回找到的连接和可能的错误
 func (r *serverRouter) findConnBySrc(src net.IP) (io.Writer, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	conn, exists := r.srcIPConns[src.String()]
 	if !exists {
-		return nil, fmt.Errorf("no route found for source %s", src)
+		return nil, fmt.Errorf("没有找到源 %s 的路由", src)
 	}
 	return conn, nil
 }
 
+// registerSrcIP 注册源 IP 到连接的映射
+// src: 源 IP 地址
+// conn: 关联的连接
 func (r *serverRouter) registerSrcIP(src net.IP, conn io.Writer) {
 	key := src.String()
 
@@ -348,16 +408,16 @@ func (r *serverRouter) registerSrcIP(src net.IP, conn io.Writer) {
 	existingConn, ok := r.srcIPConns[key]
 	r.mu.RUnlock()
 
-	// If the entry exists and the connection is the same, no need to do anything.
+	// 如果条目存在且连接相同，则无需执行任何操作
 	if ok && existingConn == conn {
 		return
 	}
 
-	// Acquire write lock to update the map.
+	// 获取写锁以更新映射
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	// Double-check after acquiring the write lock to handle potential race conditions.
+	// 获取写锁后再次检查，以处理潜在的竞态条件
 	existingConn, ok = r.srcIPConns[key]
 	if ok && existingConn == conn {
 		return
@@ -366,12 +426,13 @@ func (r *serverRouter) registerSrcIP(src net.IP, conn io.Writer) {
 	r.srcIPConns[key] = conn
 }
 
-// cleanupConnIPs removes all IP mappings associated with the specified connection
+// cleanupConnIPs 移除与指定连接关联的所有 IP 映射
+// conn: 要清理的连接
 func (r *serverRouter) cleanupConnIPs(conn io.Writer) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	// Find and delete all IP mappings pointing to this connection
+	// 查找并删除所有指向此连接的 IP 映射
 	for ip, mappedConn := range r.srcIPConns {
 		if mappedConn == conn {
 			delete(r.srcIPConns, ip)
@@ -379,8 +440,9 @@ func (r *serverRouter) cleanupConnIPs(conn io.Writer) {
 	}
 }
 
+// routeElement 路由元素，存储路由名称、IP 网络列表和关联的连接
 type routeElement struct {
-	name   string
-	routes []net.IPNet
-	conn   io.ReadWriteCloser
+	name   string             // 路由名称
+	routes []net.IPNet        // IP 网络列表
+	conn   io.ReadWriteCloser // 关联的连接
 }

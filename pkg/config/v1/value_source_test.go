@@ -21,6 +21,7 @@ import (
 	"testing"
 )
 
+// TestValueSource_Validate 测试 ValueSource 的验证功能
 func TestValueSource_Validate(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -79,6 +80,7 @@ func TestValueSource_Validate(t *testing.T) {
 	}
 }
 
+// TestFileSource_Validate 测试 FileSource 的验证功能
 func TestFileSource_Validate(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -123,8 +125,9 @@ func TestFileSource_Validate(t *testing.T) {
 	}
 }
 
+// TestFileSource_Resolve 测试 FileSource 的解析功能
 func TestFileSource_Resolve(t *testing.T) {
-	// Create a temporary file for testing
+	// 创建临时文件用于测试
 	tmpDir := t.TempDir()
 	testFile := filepath.Join(tmpDir, "test_token")
 	testContent := "test-token-value\n\t "
@@ -181,8 +184,9 @@ func TestFileSource_Resolve(t *testing.T) {
 	}
 }
 
+// TestValueSource_Resolve 测试 ValueSource 的解析功能
 func TestValueSource_Resolve(t *testing.T) {
-	// Create a temporary file for testing
+	// 创建临时文件用于测试
 	tmpDir := t.TempDir()
 	testFile := filepath.Join(tmpDir, "test_token")
 	testContent := "test-token-value"

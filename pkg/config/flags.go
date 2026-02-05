@@ -1,16 +1,16 @@
 // Copyright 2023 The frp Authors
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// Licensed under to Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with License.
+// You may obtain a copy of License at
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
+// distributed under License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// See License for the specific language governing permissions and
+// limitations under License.
 
 package config
 
@@ -27,7 +27,7 @@ import (
 	"github.com/fatedier/frp/pkg/config/v1/validation"
 )
 
-// WordSepNormalizeFunc changes all flags that contain "_" separators
+// WordSepNormalizeFunc 更改所有包含 "_" 分隔符的标志
 func WordSepNormalizeFunc(f *pflag.FlagSet, name string) pflag.NormalizedName {
 	if strings.Contains(name, "_") {
 		return pflag.NormalizedName(strings.ReplaceAll(name, "_", "-"))
@@ -35,34 +35,42 @@ func WordSepNormalizeFunc(f *pflag.FlagSet, name string) pflag.NormalizedName {
 	return pflag.NormalizedName(name)
 }
 
+// RegisterFlagOption 注册标志选项函数类型
 type RegisterFlagOption func(*registerFlagOptions)
 
+// registerFlagOptions 注册标志选项结构体
 type registerFlagOptions struct {
 	sshMode bool
 }
 
+// WithSSHMode 返回设置 SSH 模式的选项
 func WithSSHMode() RegisterFlagOption {
 	return func(o *registerFlagOptions) {
 		o.sshMode = true
 	}
 }
 
+// BandwidthQuantityFlag 带宽数量标志结构体
 type BandwidthQuantityFlag struct {
 	V *types.BandwidthQuantity
 }
 
+// Set 设置带宽数量标志的值
 func (f *BandwidthQuantityFlag) Set(s string) error {
 	return f.V.UnmarshalString(s)
 }
 
+// String 返回带宽数量标志的字符串表示
 func (f *BandwidthQuantityFlag) String() string {
 	return f.V.String()
 }
 
+// Type 返回带宽数量标志的类型
 func (f *BandwidthQuantityFlag) Type() string {
 	return "string"
 }
 
+// RegisterProxyFlags 注册代理标志
 func RegisterProxyFlags(cmd *cobra.Command, c v1.ProxyConfigurer, opts ...RegisterFlagOption) {
 	registerProxyBaseConfigFlags(cmd, c.GetBaseConfig(), opts...)
 
@@ -96,6 +104,7 @@ func RegisterProxyFlags(cmd *cobra.Command, c v1.ProxyConfigurer, opts ...Regist
 	}
 }
 
+// registerProxyBaseConfigFlags 注册代理基础配置标志
 func registerProxyBaseConfigFlags(cmd *cobra.Command, c *v1.ProxyBaseConfig, opts ...RegisterFlagOption) {
 	if c == nil {
 		return
@@ -119,6 +128,7 @@ func registerProxyBaseConfigFlags(cmd *cobra.Command, c *v1.ProxyBaseConfig, opt
 	}
 }
 
+// registerProxyDomainConfigFlags 注册代理域名配置标志
 func registerProxyDomainConfigFlags(cmd *cobra.Command, c *v1.DomainConfig) {
 	if c == nil {
 		return
@@ -127,12 +137,14 @@ func registerProxyDomainConfigFlags(cmd *cobra.Command, c *v1.DomainConfig) {
 	cmd.Flags().StringVarP(&c.SubDomain, "sd", "", "", "sub domain")
 }
 
+// RegisterVisitorFlags 注册访问客标志
 func RegisterVisitorFlags(cmd *cobra.Command, c v1.VisitorConfigurer, opts ...RegisterFlagOption) {
 	registerVisitorBaseConfigFlags(cmd, c.GetBaseConfig(), opts...)
 
-	// add visitor flags if exist
+	// 如果存在访问客标志，则添加
 }
 
+// registerVisitorBaseConfigFlags 注册访问客基础配置标志
 func registerVisitorBaseConfigFlags(cmd *cobra.Command, c *v1.VisitorBaseConfig, _ ...RegisterFlagOption) {
 	if c == nil {
 		return
@@ -147,6 +159,7 @@ func registerVisitorBaseConfigFlags(cmd *cobra.Command, c *v1.VisitorBaseConfig,
 	cmd.Flags().IntVarP(&c.BindPort, "bind_port", "", 0, "bind port")
 }
 
+// RegisterClientCommonConfigFlags 注册客户端通用配置标志
 func RegisterClientCommonConfigFlags(cmd *cobra.Command, c *v1.ClientCommonConfig, opts ...RegisterFlagOption) {
 	options := &registerFlagOptions{}
 	for _, opt := range opts {
@@ -162,7 +175,7 @@ func RegisterClientCommonConfigFlags(cmd *cobra.Command, c *v1.ClientCommonConfi
 		cmd.PersistentFlags().StringVarP(&c.Log.To, "log_file", "", "console", "console or file path")
 		cmd.PersistentFlags().Int64VarP(&c.Log.MaxDays, "log_max_days", "", 3, "log file reversed days")
 		cmd.PersistentFlags().BoolVarP(&c.Log.DisablePrintColor, "disable_log_color", "", false, "disable log color in console")
-		cmd.PersistentFlags().StringVarP(&c.Transport.TLS.ServerName, "tls_server_name", "", "", "specify the custom server name of tls certificate")
+		cmd.PersistentFlags().StringVarP(&c.Transport.TLS.ServerName, "tls_server_name", "", "", "specify is custom server name of tls certificate")
 		cmd.PersistentFlags().StringVarP(&c.DNSServer, "dns_server", "", "", "specify dns server instead of using system default one")
 		c.Transport.TLS.Enable = cmd.PersistentFlags().BoolP("tls_enable", "", true, "enable frpc tls")
 	}
@@ -171,10 +184,12 @@ func RegisterClientCommonConfigFlags(cmd *cobra.Command, c *v1.ClientCommonConfi
 	cmd.PersistentFlags().StringVarP(&c.Auth.Token, "token", "t", "", "auth token")
 }
 
+// PortsRangeSliceFlag 端口范围切片标志结构体
 type PortsRangeSliceFlag struct {
 	V *[]types.PortsRange
 }
 
+// String 返回端口范围切片标志的字符串表示
 func (f *PortsRangeSliceFlag) String() string {
 	if f.V == nil {
 		return ""
@@ -182,6 +197,7 @@ func (f *PortsRangeSliceFlag) String() string {
 	return types.PortsRangeSlice(*f.V).String()
 }
 
+// Set 设置端口范围切片标志的值
 func (f *PortsRangeSliceFlag) Set(s string) error {
 	slice, err := types.NewPortsRangeSliceFromString(s)
 	if err != nil {
@@ -191,10 +207,12 @@ func (f *PortsRangeSliceFlag) Set(s string) error {
 	return nil
 }
 
+// Type 返回端口范围切片标志的类型
 func (f *PortsRangeSliceFlag) Type() string {
 	return "string"
 }
 
+// BoolFuncFlag 布尔函数标志结构体
 type BoolFuncFlag struct {
 	TrueFunc  func()
 	FalseFunc func()
@@ -202,10 +220,12 @@ type BoolFuncFlag struct {
 	v bool
 }
 
+// String 返回布尔函数标志的字符串表示
 func (f *BoolFuncFlag) String() string {
 	return strconv.FormatBool(f.v)
 }
 
+// Set 设置布尔函数标志的值
 func (f *BoolFuncFlag) Set(s string) error {
 	f.v = strconv.FormatBool(f.v) == "true"
 
@@ -222,10 +242,12 @@ func (f *BoolFuncFlag) Set(s string) error {
 	return nil
 }
 
+// Type 返回布尔函数标志的类型
 func (f *BoolFuncFlag) Type() string {
 	return "bool"
 }
 
+// RegisterServerConfigFlags 注册服务器配置标志
 func RegisterServerConfigFlags(cmd *cobra.Command, c *v1.ServerConfig, opts ...RegisterFlagOption) {
 	cmd.PersistentFlags().StringVarP(&c.BindAddr, "bind_addr", "", "0.0.0.0", "bind address")
 	cmd.PersistentFlags().IntVarP(&c.BindPort, "bind_port", "p", 7000, "bind port")

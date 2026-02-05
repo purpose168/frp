@@ -22,75 +22,75 @@ import (
 	"sync/atomic"
 )
 
-// Feature represents a feature gate name
+// Feature 表示特性门控的名称
 type Feature string
 
-// FeatureStage represents the maturity level of a feature
+// FeatureStage 表示特性的成熟度级别
 type FeatureStage string
 
 const (
-	// Alpha means the feature is experimental and disabled by default
+	// Alpha 表示该特性是实验性的，默认禁用
 	Alpha FeatureStage = "ALPHA"
-	// Beta means the feature is more stable but still might change and is disabled by default
+	// Beta 表示该特性更加稳定但仍可能发生变化，默认禁用
 	Beta FeatureStage = "BETA"
-	// GA means the feature is generally available and enabled by default
+	// GA 表示该特性已正式发布，默认启用
 	GA FeatureStage = ""
 )
 
-// FeatureSpec describes a feature and its properties
+// FeatureSpec 描述一个特性及其属性
 type FeatureSpec struct {
-	// Default is the default enablement state for the feature
+	// Default 是该特性的默认启用状态
 	Default bool
-	// LockToDefault indicates the feature cannot be changed from its default
+	// LockToDefault 指示该特性不能从其默认状态更改
 	LockToDefault bool
-	// Stage indicates the maturity level of the feature
+	// Stage 指示该特性的成熟度级别
 	Stage FeatureStage
 }
 
-// Define all available features here
+// 在此处定义所有可用的特性
 var (
 	VirtualNet = Feature("VirtualNet")
 )
 
-// defaultFeatures defines default features with their specifications
+// defaultFeatures 定义默认特性及其规范
 var defaultFeatures = map[Feature]FeatureSpec{
-	// Actual features
+	// 实际特性
 	VirtualNet: {Default: false, Stage: Alpha},
 }
 
-// FeatureGate indicates whether a given feature is enabled or not
+// FeatureGate 指示给定特性是否已启用
 type FeatureGate interface {
-	// Enabled returns true if the key is enabled
+	// Enabled 如果键已启用则返回 true
 	Enabled(key Feature) bool
-	// KnownFeatures returns a slice of strings describing the known features
+	// KnownFeatures 返回描述已知特性的字符串切片
 	KnownFeatures() []string
 }
 
-// MutableFeatureGate allows for dynamic feature gate configuration
+// MutableFeatureGate 允许动态特性门控配置
 type MutableFeatureGate interface {
 	FeatureGate
 
-	// SetFromMap sets feature gate values from a map[string]bool
+	// SetFromMap 从 map[string]bool 设置特性门控值
 	SetFromMap(m map[string]bool) error
-	// Add adds features to the feature gate
+	// Add 将特性添加到特性门控
 	Add(features map[Feature]FeatureSpec) error
-	// String returns a string representing the feature gate configuration
+	// String 返回表示特性门控配置的字符串
 	String() string
 }
 
-// featureGate implements the FeatureGate and MutableFeatureGate interfaces
+// featureGate 实现 FeatureGate 和 MutableFeatureGate 接口
 type featureGate struct {
-	// lock guards writes to known, enabled, and reads/writes of closed
+	// lock 保护对 known、enabled 的写入以及对 closed 的读/写
 	lock sync.Mutex
-	// known holds a map[Feature]FeatureSpec
+	// known 保存 map[Feature]FeatureSpec
 	known atomic.Value
-	// enabled holds a map[Feature]bool
+	// enabled 保存 map[Feature]bool
 	enabled atomic.Value
-	// closed is set to true once the feature gates are considered immutable
+	// closed 一旦特性门控被视为不可变，则设置为 true
 	closed bool
 }
 
-// NewFeatureGate creates a new feature gate with the default features
+// NewFeatureGate 创建一个具有默认特性的新特性门控
 func NewFeatureGate() MutableFeatureGate {
 	known := map[Feature]FeatureSpec{}
 	for k, v := range defaultFeatures {
@@ -103,12 +103,12 @@ func NewFeatureGate() MutableFeatureGate {
 	return f
 }
 
-// SetFromMap sets feature gate values from a map[string]bool
+// SetFromMap 从 map[string]bool 设置特性门控值
 func (f *featureGate) SetFromMap(m map[string]bool) error {
 	f.lock.Lock()
 	defer f.lock.Unlock()
 
-	// Copy existing state
+	// 复制现有状态
 	known := map[Feature]FeatureSpec{}
 	for k, v := range f.known.Load().(map[Feature]FeatureSpec) {
 		known[k] = v
@@ -118,58 +118,58 @@ func (f *featureGate) SetFromMap(m map[string]bool) error {
 		enabled[k] = v
 	}
 
-	// Apply the new settings
+	// 应用新设置
 	for k, v := range m {
 		k := Feature(k)
 		featureSpec, ok := known[k]
 		if !ok {
-			return fmt.Errorf("unrecognized feature gate: %s", k)
+			return fmt.Errorf("无法识别的特性门控：%s", k)
 		}
 		if featureSpec.LockToDefault && featureSpec.Default != v {
-			return fmt.Errorf("cannot set feature gate %v to %v, feature is locked to %v", k, v, featureSpec.Default)
+			return fmt.Errorf("无法将特性门控 %v 设置为 %v，该特性已锁定为 %v", k, v, featureSpec.Default)
 		}
 		enabled[k] = v
 	}
 
-	// Persist the changes
+	// 持久化更改
 	f.known.Store(known)
 	f.enabled.Store(enabled)
 	return nil
 }
 
-// Add adds features to the feature gate
+// Add 将特性添加到特性门控
 func (f *featureGate) Add(features map[Feature]FeatureSpec) error {
 	f.lock.Lock()
 	defer f.lock.Unlock()
 
 	if f.closed {
-		return fmt.Errorf("cannot add feature gates after the feature gate is closed")
+		return fmt.Errorf("特性门控关闭后无法添加特性门控")
 	}
 
-	// Copy existing state
+	// 复制现有状态
 	known := map[Feature]FeatureSpec{}
 	for k, v := range f.known.Load().(map[Feature]FeatureSpec) {
 		known[k] = v
 	}
 
-	// Add new features
+	// 添加新特性
 	for name, spec := range features {
 		if existingSpec, found := known[name]; found {
 			if existingSpec == spec {
 				continue
 			}
-			return fmt.Errorf("feature gate %q with different spec already exists: %v", name, existingSpec)
+			return fmt.Errorf("具有不同规范的特性门控 %q 已存在：%v", name, existingSpec)
 		}
 		known[name] = spec
 	}
 
-	// Persist changes
+	// 持久化更改
 	f.known.Store(known)
 
 	return nil
 }
 
-// String returns a string containing all enabled feature gates, formatted as "key1=value1,key2=value2,..."
+// String 返回包含所有已启用特性门控的字符串，格式为 "key1=value1,key2=value2,..."
 func (f *featureGate) String() string {
 	pairs := []string{}
 	for k, v := range f.enabled.Load().(map[Feature]bool) {
@@ -179,7 +179,7 @@ func (f *featureGate) String() string {
 	return strings.Join(pairs, ",")
 }
 
-// Enabled returns true if the key is enabled
+// Enabled 如果键已启用则返回 true
 func (f *featureGate) Enabled(key Feature) bool {
 	if v, ok := f.enabled.Load().(map[Feature]bool)[key]; ok {
 		return v
@@ -190,8 +190,8 @@ func (f *featureGate) Enabled(key Feature) bool {
 	return false
 }
 
-// KnownFeatures returns a slice of strings describing the FeatureGate's known features
-// GA features are hidden from the list
+// KnownFeatures 返回描述 FeatureGate 已知特性的字符串切片
+// GA 特性从列表中隐藏
 func (f *featureGate) KnownFeatures() []string {
 	knownFeatures := f.known.Load().(map[Feature]FeatureSpec)
 	known := make([]string, 0, len(knownFeatures))
@@ -205,15 +205,15 @@ func (f *featureGate) KnownFeatures() []string {
 	return known
 }
 
-// Default feature gates instance
+// 默认特性门控实例
 var DefaultFeatureGates = NewFeatureGate()
 
-// Enabled checks if a feature is enabled in the default feature gates
+// Enabled 检查默认特性门控中是否启用了某个特性
 func Enabled(name Feature) bool {
 	return DefaultFeatureGates.Enabled(name)
 }
 
-// SetFromMap sets feature gate values from a map in the default feature gates
+// SetFromMap 在默认特性门控中从 map 设置特性门控值
 func SetFromMap(featureMap map[string]bool) error {
 	return DefaultFeatureGates.SetFromMap(featureMap)
 }

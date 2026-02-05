@@ -24,35 +24,42 @@ import (
 )
 
 const (
-	defaultTunName = "utun"
-	defaultMTU     = 1420
+	defaultTunName = "utun" // 默认 TUN 设备名称
+	defaultMTU     = 1420   // 默认 MTU 值
 )
 
+// openTun 在 Darwin/macOS 系统上打开 TUN 设备
+// ctx: 上下文（未使用）
+// addr: 地址字符串，格式为 CIDR
+// 返回创建的 TUN 设备和可能的错误
 func openTun(_ context.Context, addr string) (tun.Device, error) {
+	// 创建 TUN 设备
 	dev, err := tun.CreateTUN(defaultTunName, defaultMTU)
 	if err != nil {
 		return nil, err
 	}
 
+	// 获取设备名称
 	name, err := dev.Name()
 	if err != nil {
 		return nil, err
 	}
 
+	// 解析地址
 	ip, ipNet, err := net.ParseCIDR(addr)
 	if err != nil {
 		return nil, err
 	}
 
-	// Calculate a peer IP for the point-to-point tunnel
+	// 为点对点隧道生成对端 IP
 	peerIP := generatePeerIP(ip)
 
-	// Configure the interface with proper point-to-point addressing
+	// 使用 ifconfig 配置接口，设置为点对点寻址
 	if err = exec.Command("ifconfig", name, "inet", ip.String(), peerIP.String(), "mtu", fmt.Sprint(defaultMTU), "up").Run(); err != nil {
 		return nil, err
 	}
 
-	// Add default route for the tunnel subnet
+	// 添加隧道子网的默认路由
 	routes := []net.IPNet{*ipNet}
 	if err = addRoutes(name, routes); err != nil {
 		return nil, err
@@ -60,23 +67,29 @@ func openTun(_ context.Context, addr string) (tun.Device, error) {
 	return dev, nil
 }
 
-// generatePeerIP creates a peer IP for the point-to-point tunnel
-// by incrementing the last octet of the IP
+// generatePeerIP 为点对点隧道生成对端 IP
+// 通过递增 IP 的最后一个八位组来生成
+// ip: 原始 IP 地址
+// 返回生成的对端 IP 地址
 func generatePeerIP(ip net.IP) net.IP {
-	// Make a copy to avoid modifying the original
+	// 复制以避免修改原始 IP
 	peerIP := make(net.IP, len(ip))
 	copy(peerIP, ip)
 
-	// Increment the last octet
+	// 递增最后一个八位组
 	peerIP[len(peerIP)-1]++
 
 	return peerIP
 }
 
-// addRoutes configures system routes for the TUN interface
+// addRoutes 配置 TUN 接口的系统路由
+// ifName: 接口名称
+// routes: 要添加的路由列表
+// 返回可能的错误
 func addRoutes(ifName string, routes []net.IPNet) error {
 	for _, route := range routes {
 		routeStr := route.String()
+		// 使用 route 命令添加路由
 		if err := exec.Command("route", "add", "-net", routeStr, "-interface", ifName).Run(); err != nil {
 			return err
 		}

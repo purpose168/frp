@@ -14,6 +14,8 @@
 
 package v1
 
+// APIMetadata API 元数据结构体，用于描述 API 的版本信息
 type APIMetadata struct {
+	// Version API 版本号
 	Version string `json:"version"`
 }

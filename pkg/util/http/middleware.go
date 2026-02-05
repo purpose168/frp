@@ -20,21 +20,26 @@ import (
 	"github.com/fatedier/frp/pkg/util/log"
 )
 
+// responseWriter 包装 http.ResponseWriter 以记录响应状态码
 type responseWriter struct {
 	http.ResponseWriter
 	code int
 }
 
+// WriteHeader 写入响应状态码
 func (rw *responseWriter) WriteHeader(code int) {
 	rw.code = code
 	rw.ResponseWriter.WriteHeader(code)
 }
 
+// NewRequestLogger 创建请求日志中间件
+// 参数 next 是下一个处理器
+// 返回 HTTP 处理器
 func NewRequestLogger(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Infof("http request: [%s]", r.URL.Path)
+		log.Infof("http 请求: [%s]", r.URL.Path)
 		rw := &responseWriter{ResponseWriter: w, code: http.StatusOK}
 		next.ServeHTTP(rw, r)
-		log.Infof("http response [%s]: code [%d]", r.URL.Path, rw.code)
+		log.Infof("http 响应 [%s]: 状态码 [%d]", r.URL.Path, rw.code)
 	})
 }

@@ -25,6 +25,10 @@ import (
 	"time"
 )
 
+// newCustomTLSKeyPair 从文件加载自定义 TLS 密钥对
+// 参数 certfile 是证书文件路径
+// 参数 keyfile 是密钥文件路径
+// 返回 TLS 证书和可能的错误
 func newCustomTLSKeyPair(certfile, keyfile string) (*tls.Certificate, error) {
 	tlsCert, err := tls.LoadX509KeyPair(certfile, keyfile)
 	if err != nil {
@@ -33,20 +37,22 @@ func newCustomTLSKeyPair(certfile, keyfile string) (*tls.Certificate, error) {
 	return &tlsCert, nil
 }
 
+// newRandomTLSKeyPair 生成随机的 TLS 密钥对
+// 返回 TLS 证书和可能的错误
 func newRandomTLSKeyPair() (*tls.Certificate, error) {
 	key, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
 		return nil, err
 	}
 
-	// Generate a random positive serial number with 128 bits of entropy.
-	// RFC 5280 requires serial numbers to be positive integers (not zero).
+	// 生成一个具有 128 位熵的随机正序列号。
+	// RFC 5280 要求序列号为正整数（非零）。
 	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), 128)
 	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
 	if err != nil {
 		return nil, err
 	}
-	// Ensure serial number is positive (not zero)
+	// 确保序列号为正数（非零）
 	if serialNumber.Sign() == 0 {
 		serialNumber = big.NewInt(1)
 	}
@@ -76,7 +82,10 @@ func newRandomTLSKeyPair() (*tls.Certificate, error) {
 	return &tlsCert, nil
 }
 
-// Only support one ca file to add
+// newCertPool 创建证书池
+// 仅支持添加一个 CA 文件
+// 参数 caPath 是 CA 证书文件路径
+// 返回证书池和可能的错误
 func newCertPool(caPath string) (*x509.CertPool, error) {
 	pool := x509.NewCertPool()
 
@@ -90,11 +99,16 @@ func newCertPool(caPath string) (*x509.CertPool, error) {
 	return pool, nil
 }
 
+// NewServerTLSConfig 创建服务器 TLS 配置
+// 参数 certPath 是证书文件路径
+// 参数 keyPath 是密钥文件路径
+// 参数 caPath 是 CA 证书文件路径
+// 返回 TLS 配置和可能的错误
 func NewServerTLSConfig(certPath, keyPath, caPath string) (*tls.Config, error) {
 	base := &tls.Config{}
 
 	if certPath == "" || keyPath == "" {
-		// server will generate tls conf by itself
+		// 服务器将自行生成 TLS 配置
 		cert, err := newRandomTLSKeyPair()
 		if err != nil {
 			return nil, err
@@ -122,6 +136,12 @@ func NewServerTLSConfig(certPath, keyPath, caPath string) (*tls.Config, error) {
 	return base, nil
 }
 
+// NewClientTLSConfig 创建客户端 TLS 配置
+// 参数 certPath 是证书文件路径
+// 参数 keyPath 是密钥文件路径
+// 参数 caPath 是 CA 证书文件路径
+// 参数 serverName 是服务器名称
+// 返回 TLS 配置和可能的错误
 func NewClientTLSConfig(certPath, keyPath, caPath, serverName string) (*tls.Config, error) {
 	base := &tls.Config{}
 
@@ -151,6 +171,8 @@ func NewClientTLSConfig(certPath, keyPath, caPath, serverName string) (*tls.Conf
 	return base, nil
 }
 
+// NewRandomPrivateKey 生成随机的私钥
+// 返回 PEM 格式的私钥字节和可能的错误
 func NewRandomPrivateKey() ([]byte, error) {
 	key, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {

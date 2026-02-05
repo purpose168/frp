@@ -1,16 +1,15 @@
-// Copyright 2023 The frp Authors
+// 版权所有 2023 The frp Authors
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// 根据 Apache 许可证 2.0 版本（"许可证"）授权；
+// 除非遵守许可证，否则您不得使用此文件。
+// 您可以在以下位置获取许可证副本：
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// 除非适用法律要求或书面同意，否则根据许可证分发的软件
+// 是按"原样"基础分发的，不附带任何明示或暗示的担保或条件。
+// 有关许可证下特定语言的管理权限和
+// 限制，请参阅许可证。
 
 package client
 
@@ -34,14 +33,14 @@ import (
 	"github.com/fatedier/frp/pkg/util/xlog"
 )
 
-// Connector is an interface for establishing connections to the server.
+// Connector 是用于建立与服务端连接的接口
 type Connector interface {
 	Open() error
 	Connect() (net.Conn, error)
 	Close() error
 }
 
-// defaultConnectorImpl is the default implementation of Connector for normal frpc.
+// defaultConnectorImpl 是 Connector 接口的默认实现，用于普通 frpc 客户端
 type defaultConnectorImpl struct {
 	ctx context.Context
 	cfg *v1.ClientCommonConfig
@@ -51,6 +50,7 @@ type defaultConnectorImpl struct {
 	closeOnce  sync.Once
 }
 
+// NewConnector 创建新的连接器实例
 func NewConnector(ctx context.Context, cfg *v1.ClientCommonConfig) Connector {
 	return &defaultConnectorImpl{
 		ctx: ctx,
@@ -58,14 +58,14 @@ func NewConnector(ctx context.Context, cfg *v1.ClientCommonConfig) Connector {
 	}
 }
 
-// Open opens an underlying connection to the server.
-// The underlying connection is either a TCP connection or a QUIC connection.
-// After the underlying connection is established, you can call Connect() to get a stream.
-// If TCPMux isn't enabled, the underlying connection is nil, you will get a new real TCP connection every time you call Connect().
+// Open 打开与服务端的底层连接
+// 底层连接可以是 TCP 连接或 QUIC 连接
+// 底层连接建立后，可以调用 Connect() 获取数据流
+// 如果未启用 TCPMux，底层连接为 nil，每次调用 Connect() 都会建立新的真实 TCP 连接
 func (c *defaultConnectorImpl) Open() error {
 	xl := xlog.FromContextSafe(c.ctx)
 
-	// special for quic
+	// QUIC 协议特殊处理
 	if strings.EqualFold(c.cfg.Transport.Protocol, "quic") {
 		var tlsConfig *tls.Config
 		var err error
@@ -83,7 +83,7 @@ func (c *defaultConnectorImpl) Open() error {
 			tlsConfig, err = transport.NewClientTLSConfig("", "", "", sn)
 		}
 		if err != nil {
-			xl.Warnf("fail to build tls configuration, err: %v", err)
+			xl.Warnf("构建 TLS 配置失败，错误: %v", err)
 			return err
 		}
 		tlsConfig.NextProtos = []string{"frp"}
@@ -114,7 +114,7 @@ func (c *defaultConnectorImpl) Open() error {
 
 	fmuxCfg := fmux.DefaultConfig()
 	fmuxCfg.KeepAliveInterval = time.Duration(c.cfg.Transport.TCPMuxKeepaliveInterval) * time.Second
-	// Use trace level for yamux logs
+	// 使用 trace 级别记录 yamux 日志
 	fmuxCfg.LogOutput = xlog.NewTraceWriter(xl)
 	fmuxCfg.MaxStreamWindowSize = 6 * 1024 * 1024
 	session, err := fmux.Client(conn, fmuxCfg)
@@ -125,7 +125,7 @@ func (c *defaultConnectorImpl) Open() error {
 	return nil
 }
 
-// Connect returns a stream from the underlying connection, or a new TCP connection if TCPMux isn't enabled.
+// Connect 从底层连接返回一个数据流，如果未启用 TCPMux 则返回一个新的 TCP 连接
 func (c *defaultConnectorImpl) Connect() (net.Conn, error) {
 	if c.quicConn != nil {
 		stream, err := c.quicConn.OpenStreamSync(context.Background())
@@ -144,6 +144,7 @@ func (c *defaultConnectorImpl) Connect() (net.Conn, error) {
 	return c.realConnect()
 }
 
+// realConnect 建立与服务端的真实连接，支持多种协议和代理配置
 func (c *defaultConnectorImpl) realConnect() (net.Conn, error) {
 	xl := xlog.FromContextSafe(c.ctx)
 	var tlsConfig *tls.Config
@@ -164,14 +165,14 @@ func (c *defaultConnectorImpl) realConnect() (net.Conn, error) {
 			c.cfg.Transport.TLS.TrustedCaFile,
 			sn)
 		if err != nil {
-			xl.Warnf("fail to build tls configuration, err: %v", err)
+			xl.Warnf("构建 TLS 配置失败，错误: %v", err)
 			return nil, err
 		}
 	}
 
 	proxyType, addr, auth, err := libnet.ParseProxyURL(c.cfg.Transport.ProxyURL)
 	if err != nil {
-		xl.Errorf("fail to parse proxy url")
+		xl.Errorf("解析代理 URL 失败")
 		return nil, err
 	}
 	dialOptions := []libnet.DialOption{}
@@ -187,7 +188,7 @@ func (c *defaultConnectorImpl) realConnect() (net.Conn, error) {
 	case "wss":
 		protocol = "tcp"
 		dialOptions = append(dialOptions, libnet.WithTLSConfigAndPriority(100, tlsConfig))
-		// Make sure that if it is wss, the websocket hook is executed after the tls hook.
+		// 确保如果是 wss，websocket hook 在 tls hook 之后执行
 		dialOptions = append(dialOptions, libnet.WithAfterHook(libnet.AfterHook{Hook: netpkg.DialHookWebsocket(protocol, tlsConfig.ServerName), Priority: 110}))
 	default:
 		dialOptions = append(dialOptions, libnet.WithAfterHook(libnet.AfterHook{
@@ -214,6 +215,7 @@ func (c *defaultConnectorImpl) realConnect() (net.Conn, error) {
 	return conn, err
 }
 
+// Close 关闭连接器，释放所有相关资源
 func (c *defaultConnectorImpl) Close() error {
 	c.closeOnce.Do(func() {
 		if c.quicConn != nil {

@@ -31,13 +31,18 @@ func init() {
 	Register(v1.PluginStaticFile, NewStaticFilePlugin)
 }
 
+// StaticFilePlugin 静态文件服务插件
 type StaticFilePlugin struct {
+	// opts 插件选项
 	opts *v1.StaticFilePluginOptions
 
+	// l 监听器
 	l *Listener
+	// s HTTP服务器
 	s *http.Server
 }
 
+// NewStaticFilePlugin 创建静态文件服务插件
 func NewStaticFilePlugin(_ PluginContext, options v1.ClientPluginOptions) (Plugin, error) {
 	opts := options.(*v1.StaticFilePluginOptions)
 
@@ -68,15 +73,18 @@ func NewStaticFilePlugin(_ PluginContext, options v1.ClientPluginOptions) (Plugi
 	return sp, nil
 }
 
+// Handle 处理连接
 func (sp *StaticFilePlugin) Handle(_ context.Context, connInfo *ConnectionInfo) {
 	wrapConn := netpkg.WrapReadWriteCloserToConn(connInfo.Conn, connInfo.UnderlyingConn)
 	_ = sp.l.PutConn(wrapConn)
 }
 
+// Name 返回插件名称
 func (sp *StaticFilePlugin) Name() string {
 	return v1.PluginStaticFile
 }
 
+// Close 关闭插件
 func (sp *StaticFilePlugin) Close() error {
 	sp.s.Close()
 	sp.l.Close()

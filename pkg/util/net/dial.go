@@ -9,6 +9,10 @@ import (
 	"golang.org/x/net/websocket"
 )
 
+// DialHookCustomTLSHeadByte 创建自定义 TLS 头字节拨号钩子
+// 参数 enableTLS 是否启用 TLS
+// 参数 disableCustomTLSHeadByte 是否禁用自定义 TLS 头字节
+// 返回拨号钩子函数
 func DialHookCustomTLSHeadByte(enableTLS bool, disableCustomTLSHeadByte bool) libnet.AfterHookFunc {
 	return func(ctx context.Context, c net.Conn, addr string) (context.Context, net.Conn, error) {
 		if enableTLS && !disableCustomTLSHeadByte {
@@ -21,6 +25,10 @@ func DialHookCustomTLSHeadByte(enableTLS bool, disableCustomTLSHeadByte bool) li
 	}
 }
 
+// DialHookWebsocket 创建 WebSocket 拨号钩子
+// 参数 protocol 是协议类型
+// 参数 host 是主机名
+// 返回拨号钩子函数
 func DialHookWebsocket(protocol string, host string) libnet.AfterHookFunc {
 	return func(ctx context.Context, c net.Conn, addr string) (context.Context, net.Conn, error) {
 		if protocol != "wss" {

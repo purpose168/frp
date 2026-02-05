@@ -1,9 +1,19 @@
-// http.ts - Base HTTP client
+// http.ts - 基础HTTP客户端
 
+/**
+ * HTTP错误类
+ * 用于表示HTTP请求失败的错误
+ */
 class HTTPError extends Error {
   status: number
   statusText: string
 
+  /**
+   * 创建HTTP错误实例
+   * @param status HTTP状态码
+   * @param statusText 状态文本
+   * @param message 错误消息
+   */
   constructor(status: number, statusText: string, message?: string) {
     super(message || statusText)
     this.status = status
@@ -11,6 +21,12 @@ class HTTPError extends Error {
   }
 }
 
+/**
+ * 发送HTTP请求
+ * @param url 请求URL
+ * @param options 请求选项
+ * @returns 响应数据
+ */
 async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
   const defaultOptions: RequestInit = {
     credentials: 'include',
@@ -26,7 +42,7 @@ async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
     )
   }
 
-  // Handle empty response (e.g. 204 No Content)
+  // 处理空响应（例如204 No Content）
   if (response.status === 204) {
     return {} as T
   }
@@ -39,8 +55,21 @@ async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
 }
 
 export const http = {
+  /**
+   * 发送GET请求
+   * @param url 请求URL
+   * @param options 请求选项
+   * @returns 响应数据
+   */
   get: <T>(url: string, options?: RequestInit) =>
     request<T>(url, { ...options, method: 'GET' }),
+  /**
+   * 发送POST请求
+   * @param url 请求URL
+   * @param body 请求体
+   * @param options 请求选项
+   * @returns 响应数据
+   */
   post: <T>(url: string, body?: any, options?: RequestInit) => {
     const headers: HeadersInit = { ...options?.headers }
     let requestBody = body
@@ -64,6 +93,13 @@ export const http = {
       body: requestBody,
     })
   },
+  /**
+   * 发送PUT请求
+   * @param url 请求URL
+   * @param body 请求体
+   * @param options 请求选项
+   * @returns 响应数据
+   */
   put: <T>(url: string, body?: any, options?: RequestInit) => {
     const headers: HeadersInit = { ...options?.headers }
     let requestBody = body
@@ -87,6 +123,12 @@ export const http = {
       body: requestBody,
     })
   },
+  /**
+   * 发送DELETE请求
+   * @param url 请求URL
+   * @param options 请求选项
+   * @returns 响应数据
+   */
   delete: <T>(url: string, options?: RequestInit) =>
     request<T>(url, { ...options, method: 'DELETE' }),
 }

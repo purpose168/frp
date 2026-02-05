@@ -30,10 +30,13 @@ func init() {
 	Register(v1.PluginUnixDomainSocket, NewUnixDomainSocketPlugin)
 }
 
+// UnixDomainSocketPlugin Unix域套接字插件
 type UnixDomainSocketPlugin struct {
+	// UnixAddr Unix地址
 	UnixAddr *net.UnixAddr
 }
 
+// NewUnixDomainSocketPlugin 创建Unix域套接字插件
 func NewUnixDomainSocketPlugin(_ PluginContext, options v1.ClientPluginOptions) (p Plugin, err error) {
 	opts := options.(*v1.UnixDomainSocketPluginOptions)
 
@@ -49,11 +52,12 @@ func NewUnixDomainSocketPlugin(_ PluginContext, options v1.ClientPluginOptions) 
 	return
 }
 
+// Handle 处理连接
 func (uds *UnixDomainSocketPlugin) Handle(ctx context.Context, connInfo *ConnectionInfo) {
 	xl := xlog.FromContextSafe(ctx)
 	localConn, err := net.DialUnix("unix", nil, uds.UnixAddr)
 	if err != nil {
-		xl.Warnf("dial to uds %s error: %v", uds.UnixAddr, err)
+		xl.Warnf("连接到Unix域套接字 %s 错误: %v", uds.UnixAddr, err)
 		return
 	}
 	if connInfo.ProxyProtocolHeader != nil {
@@ -65,10 +69,12 @@ func (uds *UnixDomainSocketPlugin) Handle(ctx context.Context, connInfo *Connect
 	libio.Join(localConn, connInfo.Conn)
 }
 
+// Name 返回插件名称
 func (uds *UnixDomainSocketPlugin) Name() string {
 	return v1.PluginUnixDomainSocket
 }
 
+// Close 关闭插件
 func (uds *UnixDomainSocketPlugin) Close() error {
 	return nil
 }

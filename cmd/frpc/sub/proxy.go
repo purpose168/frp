@@ -1,16 +1,15 @@
-// Copyright 2023 The frp Authors
+// 版权所有 2023 frp 作者
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// 根据 Apache 许可证 2.0 版本（"许可证"）授权；
+// 除非遵守许可证，否则您不得使用此文件。
+// 您可以在以下位置获取许可证副本：
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// 除非适用法律要求或书面同意，否则根据许可证分发的软件
+// 是按"原样"分发的，不附带任何明示或暗示的担保或条件。
+// 有关许可证下特定语言的管理权限和
+// 限制，请参阅许可证。
 
 package sub
 
@@ -44,22 +43,23 @@ var visitorTypes = []v1.VisitorType{
 	v1.VisitorTypeXTCP,
 }
 
+// init 初始化代理命令
 func init() {
 	for _, typ := range proxyTypes {
 		c := v1.NewProxyConfigurerByType(typ)
 		if c == nil {
-			panic("proxy type: " + typ + " not support")
+			panic("代理类型: " + typ + " 不支持")
 		}
 		clientCfg := v1.ClientCommonConfig{}
 		cmd := NewProxyCommand(string(typ), c, &clientCfg)
 		config.RegisterClientCommonConfigFlags(cmd, &clientCfg)
 		config.RegisterProxyFlags(cmd, c)
 
-		// add sub command for visitor
+		// 为访问者添加子命令
 		if slices.Contains(visitorTypes, v1.VisitorType(typ)) {
 			vc := v1.NewVisitorConfigurerByType(v1.VisitorType(typ))
 			if vc == nil {
-				panic("visitor type: " + typ + " not support")
+				panic("访问者类型: " + typ + " 不支持")
 			}
 			visitorCmd := NewVisitorCommand(string(typ), vc, &clientCfg)
 			config.RegisterVisitorFlags(visitorCmd, vc)
@@ -69,10 +69,11 @@ func init() {
 	}
 }
 
+// NewProxyCommand 创建新的代理命令
 func NewProxyCommand(name string, c v1.ProxyConfigurer, clientCfg *v1.ClientCommonConfig) *cobra.Command {
 	return &cobra.Command{
 		Use:   name,
-		Short: fmt.Sprintf("Run frpc with a single %s proxy", name),
+		Short: fmt.Sprintf("使用单个 %s 代理运行 frpc", name),
 		Run: func(cmd *cobra.Command, args []string) {
 			if err := clientCfg.Complete(); err != nil {
 				fmt.Println(err)
@@ -101,10 +102,11 @@ func NewProxyCommand(name string, c v1.ProxyConfigurer, clientCfg *v1.ClientComm
 	}
 }
 
+// NewVisitorCommand 创建新的访问者命令
 func NewVisitorCommand(name string, c v1.VisitorConfigurer, clientCfg *v1.ClientCommonConfig) *cobra.Command {
 	return &cobra.Command{
 		Use:   "visitor",
-		Short: fmt.Sprintf("Run frpc with a single %s visitor", name),
+		Short: fmt.Sprintf("使用单个 %s 访问者运行 frpc", name),
 		Run: func(cmd *cobra.Command, args []string) {
 			if err := clientCfg.Complete(); err != nil {
 				fmt.Println(err)

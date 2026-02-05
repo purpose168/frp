@@ -24,11 +24,13 @@ import (
 	"github.com/fatedier/frp/pkg/util/util"
 )
 
+// TokenAuthSetterVerifier 定义令牌认证设置器和验证器结构
 type TokenAuthSetterVerifier struct {
 	additionalAuthScopes []v1.AuthScope
 	token                string
 }
 
+// NewTokenAuth 创建令牌认证设置器和验证器
 func NewTokenAuth(additionalAuthScopes []v1.AuthScope, token string) *TokenAuthSetterVerifier {
 	return &TokenAuthSetterVerifier{
 		additionalAuthScopes: additionalAuthScopes,
@@ -36,11 +38,13 @@ func NewTokenAuth(additionalAuthScopes []v1.AuthScope, token string) *TokenAuthS
 	}
 }
 
+// SetLogin 设置登录消息的认证令牌
 func (auth *TokenAuthSetterVerifier) SetLogin(loginMsg *msg.Login) error {
 	loginMsg.PrivilegeKey = util.GetAuthKey(auth.token, loginMsg.Timestamp)
 	return nil
 }
 
+// SetPing 设置心跳消息的认证令牌
 func (auth *TokenAuthSetterVerifier) SetPing(pingMsg *msg.Ping) error {
 	if !slices.Contains(auth.additionalAuthScopes, v1.AuthScopeHeartBeats) {
 		return nil
@@ -51,6 +55,7 @@ func (auth *TokenAuthSetterVerifier) SetPing(pingMsg *msg.Ping) error {
 	return nil
 }
 
+// SetNewWorkConn 设置新工作连接消息的认证令牌
 func (auth *TokenAuthSetterVerifier) SetNewWorkConn(newWorkConnMsg *msg.NewWorkConn) error {
 	if !slices.Contains(auth.additionalAuthScopes, v1.AuthScopeNewWorkConns) {
 		return nil
@@ -61,31 +66,34 @@ func (auth *TokenAuthSetterVerifier) SetNewWorkConn(newWorkConnMsg *msg.NewWorkC
 	return nil
 }
 
+// VerifyLogin 验证登录消息
 func (auth *TokenAuthSetterVerifier) VerifyLogin(m *msg.Login) error {
 	if !util.ConstantTimeEqString(util.GetAuthKey(auth.token, m.Timestamp), m.PrivilegeKey) {
-		return fmt.Errorf("token in login doesn't match token from configuration")
+		return fmt.Errorf("登录中的令牌与配置中的令牌不匹配")
 	}
 	return nil
 }
 
+// VerifyPing 验证心跳消息
 func (auth *TokenAuthSetterVerifier) VerifyPing(m *msg.Ping) error {
 	if !slices.Contains(auth.additionalAuthScopes, v1.AuthScopeHeartBeats) {
 		return nil
 	}
 
 	if !util.ConstantTimeEqString(util.GetAuthKey(auth.token, m.Timestamp), m.PrivilegeKey) {
-		return fmt.Errorf("token in heartbeat doesn't match token from configuration")
+		return fmt.Errorf("心跳中的令牌与配置中的令牌不匹配")
 	}
 	return nil
 }
 
+// VerifyNewWorkConn 验证新工作连接消息
 func (auth *TokenAuthSetterVerifier) VerifyNewWorkConn(m *msg.NewWorkConn) error {
 	if !slices.Contains(auth.additionalAuthScopes, v1.AuthScopeNewWorkConns) {
 		return nil
 	}
 
 	if !util.ConstantTimeEqString(util.GetAuthKey(auth.token, m.Timestamp), m.PrivilegeKey) {
-		return fmt.Errorf("token in NewWorkConn doesn't match token from configuration")
+		return fmt.Errorf("NewWorkConn 中的令牌与配置中的令牌不匹配")
 	}
 	return nil
 }

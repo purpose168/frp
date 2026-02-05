@@ -1,14 +1,14 @@
-### SSH Tunnel Gateway
+### SSH 隧道网关
 
-*Added in v0.53.0*
+*添加于 v0.53.0*
 
-### Concept
+### 概念
 
-SSH supports reverse proxy capabilities [rfc](https://www.rfc-editor.org/rfc/rfc4254#page-16).
+SSH 支持反向代理功能 [rfc](https://www.rfc-editor.org/rfc/rfc4254#page-16)。
 
-frp supports listening on an SSH port on the frps side to achieve TCP protocol proxying using the SSH -R protocol. This mode does not rely on frpc.
+frp 支持在 frps 端监听 SSH 端口，以使用 SSH -R 协议实现 TCP 协议代理。此模式不依赖 frpc。
 
-SSH reverse tunneling proxying and proxying SSH ports through frp are two different concepts. SSH reverse tunneling proxying is essentially a basic reverse proxying accomplished by connecting to frps via an SSH client when you don't want to use frpc.
+SSH 反向隧道代理和通过 frp 代理 SSH 端口是两个不同的概念。SSH 反向隧道代理本质上是一种基本的反向代理，当您不想使用 frpc 时，可以通过 SSH 客户端连接到 frps 来实现。
 
 ```toml
 # frps.toml
@@ -18,98 +18,98 @@ sshTunnelGateway.autoGenPrivateKeyPath = ""
 sshTunnelGateway.authorizedKeysFile = ""
 ```
 
-| Field | Type | Description | Required |
+| 字段 | 类型 | 描述 | 必需 |
 | :--- | :--- | :--- | :--- |
-| bindPort| int | The ssh server port that frps listens on.| Yes |
-| privateKeyFile | string | Default value is empty. The private key file used by the ssh server. If it is empty, frps will read the private key file under the autoGenPrivateKeyPath path. It can reuse the /home/user/.ssh/id_rsa file on the local machine, or a custom path can be specified.| No |
-| autoGenPrivateKeyPath  | string |Default value is ./.autogen_ssh_key. If the file does not exist or its content is empty, frps will automatically generate RSA private key file content and store it in this file.|No|
-| authorizedKeysFile  | string |Default value is empty. If it is empty, ssh client authentication is not authenticated. If it is not empty, it can implement ssh password-free login authentication. It can reuse the local /home/user/.ssh/authorized_keys file or a custom path can be specified.| No |
+| bindPort| int | frps 监听的 ssh 服务器端口。| 是 |
+| privateKeyFile | string | 默认值为空。ssh 服务器使用的私钥文件。如果为空，frps 将读取 autoGenPrivateKeyPath 路径下的私钥文件。可以重用本地计算机上的 /home/user/.ssh/id_rsa 文件，或者指定自定义路径。| 否 |
+| autoGenPrivateKeyPath  | string |默认值为 ./.autogen_ssh_key。如果文件不存在或其内容为空，frps 将自动生成 RSA 私钥文件内容并将其存储在此文件中。|否|
+| authorizedKeysFile  | string |默认值为空。如果为空，则不进行 ssh 客户端身份验证。如果不为空，则可以实现 ssh 免密码登录身份验证。可以重用本地的 /home/user/.ssh/authorized_keys 文件，或者指定自定义路径。| 否 |
 
-### Basic Usage
+### 基本用法
 
-#### Server-side frps
+#### 服务端 frps
 
-Minimal configuration:
+最小配置：
 
 ```toml
 sshTunnelGateway.bindPort = 2200
 ```
 
-Place the above configuration in frps.toml and run `./frps -c frps.toml`. It will listen on port 2200 and accept SSH reverse proxy requests.
+将上述配置放在 frps.toml 中并运行 `./frps -c frps.toml`。它将在端口 2200 上监听并接受 SSH 反向代理请求。
 
-Note:
+注意：
 
-1. When using the minimal configuration, a `.autogen_ssh_key` private key file will be automatically created in the current working directory. The SSH server of frps will use this private key file for encryption and decryption. Alternatively, you can reuse an existing private key file on your local machine, such as `/home/user/.ssh/id_rsa`.
+1. 使用最小配置时，将在当前工作目录中自动创建一个 `.autogen_ssh_key` 私钥文件。frps 的 SSH 服务器将使用此私钥文件进行加密和解密。或者，您可以重用本地计算机上现有的私钥文件，例如 `/home/user/.ssh/id_rsa`。
 
-2. When running frps in the minimal configuration mode, connecting to frps via SSH does not require authentication. It is strongly recommended to configure a token in frps and specify the token in the SSH command line.
+2. 在最小配置模式下运行 frps 时，通过 SSH 连接到 frps 不需要身份验证。强烈建议在 frps 中配置 token 并在 SSH 命令行中指定 token。
 
-#### Client-side SSH
+#### 客户端 SSH
 
-The command format is:
+命令格式为：
 
 ```bash
 ssh -R :80:{local_ip:port} v0@{frps_address} -p {frps_ssh_listen_port} {tcp|http|https|stcp|tcpmux} --remote_port {real_remote_port} --proxy_name {proxy_name} --token {frp_token}
 ```
 
-1. `--proxy_name` is optional, and if left empty, a random one will be generated.
-2. The username for logging in to frps is always "v0" and currently has no significance, i.e., `v0@{frps_address}`.
-3. The server-side proxy listens on the port determined by `--remote_port`.
-4. `{tcp|http|https|stcp|tcpmux}` supports the complete command parameters, which can be obtained by using `--help`. For example: `ssh -R :80::8080 v0@127.0.0.1 -p 2200 http --help`.
-5. The token is optional, but for security reasons, it is strongly recommended to configure the token in frps.
+1. `--proxy_name` 是可选的，如果留空，将随机生成一个。
+2. 登录到 frps 的用户名始终为 "v0"，目前没有特殊意义，即 `v0@{frps_address}`。
+3. 服务端代理监听由 `--remote_port` 确定的端口。
+4. `{tcp|http|https|stcp|tcpmux}` 支持完整的命令参数，可以使用 `--help` 获取。例如：`ssh -R :80::8080 v0@127.0.0.1 -p 2200 http --help`。
+5. token 是可选的，但出于安全考虑，强烈建议在 frps 中配置 token。
 
-#### TCP Proxy
+#### TCP 代理
 
 ```bash
 ssh -R :80:127.0.0.1:8080 v0@{frp_address} -p 2200 tcp --proxy_name "test-tcp" --remote_port 9090
 ```
 
-This sets up a proxy on frps that listens on port 9090 and proxies local service on port 8080.
+这将在 frps 上设置一个代理，监听端口 9090 并代理端口 8080 上的本地服务。
 
 ```bash
 frp (via SSH) (Ctrl+C to quit)
 
-User: 
+User:
 ProxyName: test-tcp
 Type: tcp
 RemoteAddress: :9090
 ```
 
-Equivalent to:
+等效于：
 
 ```bash
 frpc tcp --proxy_name "test-tcp" --local_ip 127.0.0.1 --local_port 8080 --remote_port 9090
 ```
 
-More parameters can be obtained by executing `--help`.
+可以通过执行 `--help` 获取更多参数。
 
-#### HTTP Proxy
+#### HTTP 代理
 
 ```bash
 ssh -R :80:127.0.0.1:8080 v0@{frp address} -p 2200 http --proxy_name "test-http"  --custom_domain test-http.frps.com
 ```
 
-Equivalent to:
+等效于：
 ```bash
 frpc http --proxy_name "test-http" --custom_domain test-http.frps.com
 ```
 
-You can access the HTTP service using the following command:
+您可以使用以下命令访问 HTTP 服务：
 
 curl 'http://test-http.frps.com'
 
-More parameters can be obtained by executing --help.
+可以通过执行 --help 获取更多参数。
 
-#### HTTPS/STCP/TCPMUX Proxy
+#### HTTPS/STCP/TCPMUX 代理
 
-To obtain the usage instructions, use the following command:
+要获取使用说明，请使用以下命令：
 
 ```bash
 ssh -R :80:127.0.0.1:8080 v0@{frp address} -p 2200 {https|stcp|tcpmux} --help
 ```
 
-### Advanced Usage
+### 高级用法
 
-#### Reusing the id_rsa File on the Local Machine
+#### 重用本地计算机上的 id_rsa 文件
 
 ```toml
 # frps.toml
@@ -117,9 +117,9 @@ sshTunnelGateway.bindPort = 2200
 sshTunnelGateway.privateKeyFile = "/home/user/.ssh/id_rsa"
 ```
 
-During the SSH protocol handshake, public keys are exchanged for data encryption. Therefore, the SSH server on the frps side needs to specify a private key file, which can be reused from an existing file on the local machine. If the privateKeyFile field is empty, frps will automatically create an RSA private key file.
+在 SSH 协议握手期间，交换公钥以进行数据加密。因此，frps 端的 SSH 服务器需要指定一个私钥文件，该文件可以从本地计算机上的现有文件重用。如果 privateKeyFile 字段为空，frps 将自动创建一个 RSA 私钥文件。
 
-#### Specifying the Auto-Generated Private Key File Path
+#### 指定自动生成的私钥文件路径
 
 ```toml
 # frps.toml
@@ -127,11 +127,11 @@ sshTunnelGateway.bindPort = 2200
 sshTunnelGateway.autoGenPrivateKeyPath = "/var/frp/ssh-private-key-file"
 ```
 
-frps will automatically create a private key file and store it at the specified path.
+frps 将自动创建一个私钥文件并将其存储在指定路径。
 
-Note: Changing the private key file in frps can cause SSH client login failures. If you need to log in successfully, you can delete the old records from the `/home/user/.ssh/known_hosts` file.
+注意：更改 frps 中的私钥文件可能会导致 SSH 客户端登录失败。如果您需要成功登录，可以从 `/home/user/.ssh/known_hosts` 文件中删除旧记录。
 
-#### Using an Existing authorized_keys File for SSH Public Key Authentication
+#### 使用现有的 authorized_keys 文件进行 SSH 公钥身份验证
 
 ```toml
 # frps.toml
@@ -139,15 +139,15 @@ sshTunnelGateway.bindPort = 2200
 sshTunnelGateway.authorizedKeysFile = "/home/user/.ssh/authorized_keys"
 ```
 
-The authorizedKeysFile is the file used for SSH public key authentication, which contains the public key information for users, with one key per line.
+authorizedKeysFile 是用于 SSH 公钥身份验证的文件，其中包含用户的公钥信息，每行一个密钥。
 
-If authorizedKeysFile is empty, frps won't perform any authentication for SSH clients. Frps does not support SSH username and password authentication.
+如果 authorizedKeysFile 为空，frps 将不会对 SSH 客户端进行任何身份验证。Frps 不支持 SSH 用户名和密码身份验证。
 
-You can reuse an existing `authorized_keys` file on your local machine for client authentication.
+您可以重用本地计算机上现有的 `authorized_keys` 文件进行客户端身份验证。
 
-Note: authorizedKeysFile is for user authentication during the SSH login phase, while the token is for frps authentication. These two authentication methods are independent. SSH authentication comes first, followed by frps token authentication. It is strongly recommended to enable at least one of them. If authorizedKeysFile is empty, it is highly recommended to enable token authentication in frps to avoid security risks.
+注意：authorizedKeysFile 用于 SSH 登录阶段的用户身份验证，而 token 用于 frps 身份验证。这两种身份验证方法是独立的。SSH 身份验证在前，然后是 frps token 身份验证。强烈建议至少启用其中一种。如果 authorizedKeysFile 为空，强烈建议在 frps 中启用 token 身份验证以避免安全风险。
 
-#### Using a Custom authorized_keys File for SSH Public Key Authentication
+#### 使用自定义的 authorized_keys 文件进行 SSH 公钥身份验证
 
 ```toml
 # frps.toml
@@ -155,6 +155,6 @@ sshTunnelGateway.bindPort = 2200
 sshTunnelGateway.authorizedKeysFile = "/var/frps/custom_authorized_keys_file"
 ```
 
-Specify the path to a custom `authorized_keys` file.
+指定自定义 `authorized_keys` 文件的路径。
 
-Note that changes to the authorizedKeysFile file may result in SSH authentication failures. You may need to re-add the public key information to the authorizedKeysFile.
+请注意，对 authorizedKeysFile 文件的更改可能会导致 SSH 身份验证失败。您可能需要将公钥信息重新添加到 authorizedKeysFile。

@@ -16,15 +16,23 @@ package http
 
 import "fmt"
 
+// Error 是 HTTP 错误
 type Error struct {
+	// Code 是 HTTP 状态码
 	Code int
-	Err  error
+	// Err 是错误信息
+	Err error
 }
 
+// Error 返回错误字符串
 func (e *Error) Error() string {
 	return e.Err.Error()
 }
 
+// NewError 创建一个新的 HTTP 错误
+// 参数 code 是 HTTP 状态码
+// 参数 msg 是错误消息
+// 返回错误实例
 func NewError(code int, msg string) *Error {
 	return &Error{
 		Code: code,
