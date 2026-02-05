@@ -1,13 +1,21 @@
+# 将Go模块的bin目录添加到系统路径中
 export PATH := $(PATH):`go env GOPATH`/bin
+# 启用Go模块支持
 export GO111MODULE=on
+# 编译时的链接器参数：-s 去掉符号表，-w 去掉DWARF调试信息，减小二进制文件大小
 LDFLAGS := -s -w
 
+# 定义需要交叉编译的操作系统和架构列表，格式为os:arch[:extra]
+# extra字段用于指定特殊参数，如ARM版本或MIPS浮点模式
 os-archs=darwin:amd64 darwin:arm64 freebsd:amd64 openbsd:amd64 linux:amd64 linux:arm:7 linux:arm:5 linux:arm64 windows:amd64 windows:arm64 linux:mips64 linux:mips64le linux:mips:softfloat linux:mipsle:softfloat linux:riscv64 linux:loong64 android:arm64
 
+# 默认目标：执行交叉编译
 all: build
 
+# 构建目标：执行app目标进行交叉编译
 build: app
 
+# 交叉编译主目标：遍历所有os-arch组合进行编译
 app:
 	@$(foreach n, $(os-archs), \
 		os=$(shell echo "$(n)" | cut -d : -f 1); \
@@ -24,13 +32,14 @@ app:
 				target_suffix=$${os}_arm; \
 			fi; \
 		elif [ "$${os}" = "linux" ] && ([ "$${arch}" = "mips" ] || [ "$${arch}" = "mipsle" ]) && [ "$${extra}" != "" ] ; then \
-		    flags=GOMIPS=$${extra}; \
+			flags=GOMIPS=$${extra}; \
 		fi; \
 		echo "Build $${os}-$${arch}$${extra:+ ($${extra})}..."; \
 		env CGO_ENABLED=0 GOOS=$${os} GOARCH=$${arch} $${flags} go build -trimpath -ldflags "$(LDFLAGS)" -tags frpc -o ./release/frpc_$${target_suffix} ./cmd/frpc; \
 		env CGO_ENABLED=0 GOOS=$${os} GOARCH=$${arch} $${flags} go build -trimpath -ldflags "$(LDFLAGS)" -tags frps -o ./release/frps_$${target_suffix} ./cmd/frps; \
 		echo "Build $${os}-$${arch}$${extra:+ ($${extra})} done"; \
 	)
+	# 为Windows平台的二进制文件添加.exe后缀
 	@mv ./release/frpc_windows_amd64 ./release/frpc_windows_amd64.exe
 	@mv ./release/frps_windows_amd64 ./release/frps_windows_amd64.exe
 	@mv ./release/frpc_windows_arm64 ./release/frpc_windows_arm64.exe
