@@ -462,7 +462,6 @@ func (c *TCPMuxProxyConfig) UnmarshalFromMsg(m *msg.NewProxy) {
 	c.CustomDomains = m.CustomDomains
 	c.SubDomain = m.SubDomain
 	c.Multiplexer = m.Multiplexer
-	m.HTTPUser = m.HTTPUser
 	c.HTTPPassword = m.HTTPPwd
 	c.RouteByHTTPUser = m.RouteByHTTPUser
 }
