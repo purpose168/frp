@@ -18,7 +18,7 @@ import (
 	"math/rand/v2"
 	"time"
 
-	"github.com/fatedier/frp/pkg/util/util"
+	"github.com/purpose168/frp/pkg/util/util"
 )
 
 // BackoffFunc 退避函数类型，根据前一次持续时间和条件错误状态计算新的退避时间

@@ -24,8 +24,8 @@ import (
 
 	libnet "github.com/fatedier/golib/net"
 
-	httppkg "github.com/fatedier/frp/pkg/util/http"
-	"github.com/fatedier/frp/pkg/util/vhost"
+	httppkg "github.com/purpose168/frp/pkg/util/http"
+	"github.com/purpose168/frp/pkg/util/vhost"
 )
 
 // HTTPConnectTCPMuxer HTTP CONNECT 方法 TCP 多路复用器

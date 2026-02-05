@@ -39,7 +39,7 @@ fmt-more:
 
 # 使用gci工具整理Go代码的import顺序
 gci:
-	gci write -s standard -s default -s "prefix(github.com/fatedier/frp/)" ./  # 按照标准库、默认库、本项目库的顺序整理import
+	gci write -s standard -s default -s "prefix(github.com/purpose168/frp/)" ./  # 按照标准库、默认库、本项目库的顺序整理import
 
 # 静态代码检查：先构建Web界面，再运行go vet检查代码
 vet: web

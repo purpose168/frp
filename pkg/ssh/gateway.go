@@ -23,10 +23,10 @@ import (
 
 	"golang.org/x/crypto/ssh"
 
-	v1 "github.com/fatedier/frp/pkg/config/v1"
-	"github.com/fatedier/frp/pkg/transport"
-	"github.com/fatedier/frp/pkg/util/log"
-	netpkg "github.com/fatedier/frp/pkg/util/net"
+	v1 "github.com/purpose168/frp/pkg/config/v1"
+	"github.com/purpose168/frp/pkg/transport"
+	"github.com/purpose168/frp/pkg/util/log"
+	netpkg "github.com/purpose168/frp/pkg/util/net"
 )
 
 // Gateway 是 SSH 网关，用于管理 SSH 隧道连接

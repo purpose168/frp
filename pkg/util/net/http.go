@@ -21,7 +21,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/fatedier/frp/pkg/util/util"
+	"github.com/purpose168/frp/pkg/util/util"
 )
 
 // HTTPAuthMiddleware 是 HTTP 认证中间件

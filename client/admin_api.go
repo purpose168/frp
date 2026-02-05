@@ -16,10 +16,10 @@ package client
 import (
 	"net/http"
 
-	"github.com/fatedier/frp/client/api"
-	"github.com/fatedier/frp/client/proxy"
-	httppkg "github.com/fatedier/frp/pkg/util/http"
-	netpkg "github.com/fatedier/frp/pkg/util/net"
+	"github.com/purpose168/frp/client/api"
+	"github.com/purpose168/frp/client/proxy"
+	httppkg "github.com/purpose168/frp/pkg/util/http"
+	netpkg "github.com/purpose168/frp/pkg/util/net"
 )
 
 // registerRouteHandlers 注册路由处理器，用于处理管理API请求

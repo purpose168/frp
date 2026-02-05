@@ -31,7 +31,7 @@ import (
 
 	"gopkg.in/ini.v1"
 
-	legacyauth "github.com/fatedier/frp/pkg/auth/legacy"
+	legacyauth "github.com/purpose168/frp/pkg/auth/legacy"
 )
 
 // HTTPPluginOptions 指定支持 HTTP 协议的服务器插件的配置选项。

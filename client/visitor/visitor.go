@@ -18,12 +18,12 @@ import (
 	"net"
 	"sync"
 
-	v1 "github.com/fatedier/frp/pkg/config/v1"
-	plugin "github.com/fatedier/frp/pkg/plugin/visitor"
-	"github.com/fatedier/frp/pkg/transport"
-	netpkg "github.com/fatedier/frp/pkg/util/net"
-	"github.com/fatedier/frp/pkg/util/xlog"
-	"github.com/fatedier/frp/pkg/vnet"
+	v1 "github.com/purpose168/frp/pkg/config/v1"
+	plugin "github.com/purpose168/frp/pkg/plugin/visitor"
+	"github.com/purpose168/frp/pkg/transport"
+	netpkg "github.com/purpose168/frp/pkg/util/net"
+	"github.com/purpose168/frp/pkg/util/xlog"
+	"github.com/purpose168/frp/pkg/vnet"
 )
 
 // Helper 封装了一些供访问者使用的函数

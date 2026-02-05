@@ -8,9 +8,9 @@ import (
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/stretchr/testify/require"
 
-	"github.com/fatedier/frp/pkg/auth"
-	v1 "github.com/fatedier/frp/pkg/config/v1"
-	"github.com/fatedier/frp/pkg/msg"
+	"github.com/purpose168/frp/pkg/auth"
+	v1 "github.com/purpose168/frp/pkg/config/v1"
+	"github.com/purpose168/frp/pkg/msg"
 )
 
 // mockTokenVerifier 模拟令牌验证器

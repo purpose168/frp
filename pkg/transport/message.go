@@ -21,7 +21,7 @@ import (
 
 	"github.com/fatedier/golib/errors"
 
-	"github.com/fatedier/frp/pkg/msg"
+	"github.com/purpose168/frp/pkg/msg"
 )
 
 // MessageTransporter 是消息传输器接口

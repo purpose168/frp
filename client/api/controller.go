@@ -23,13 +23,13 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/fatedier/frp/client/proxy"
-	"github.com/fatedier/frp/pkg/config"
-	v1 "github.com/fatedier/frp/pkg/config/v1"
-	"github.com/fatedier/frp/pkg/config/v1/validation"
-	"github.com/fatedier/frp/pkg/policy/security"
-	httppkg "github.com/fatedier/frp/pkg/util/http"
-	"github.com/fatedier/frp/pkg/util/log"
+	"github.com/purpose168/frp/client/proxy"
+	"github.com/purpose168/frp/pkg/config"
+	v1 "github.com/purpose168/frp/pkg/config/v1"
+	"github.com/purpose168/frp/pkg/config/v1/validation"
+	"github.com/purpose168/frp/pkg/policy/security"
+	httppkg "github.com/purpose168/frp/pkg/util/http"
+	"github.com/purpose168/frp/pkg/util/log"
 )
 
 // Controller 处理 frpc 的 HTTP API 请求

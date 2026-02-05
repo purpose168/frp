@@ -26,12 +26,12 @@ import (
 	"github.com/fatedier/golib/errors"
 	libio "github.com/fatedier/golib/io"
 
-	v1 "github.com/fatedier/frp/pkg/config/v1"
-	"github.com/fatedier/frp/pkg/msg"
-	"github.com/fatedier/frp/pkg/proto/udp"
-	"github.com/fatedier/frp/pkg/util/limit"
-	netpkg "github.com/fatedier/frp/pkg/util/net"
-	"github.com/fatedier/frp/server/metrics"
+	v1 "github.com/purpose168/frp/pkg/config/v1"
+	"github.com/purpose168/frp/pkg/msg"
+	"github.com/purpose168/frp/pkg/proto/udp"
+	"github.com/purpose168/frp/pkg/util/limit"
+	netpkg "github.com/purpose168/frp/pkg/util/net"
+	"github.com/purpose168/frp/server/metrics"
 )
 
 // init 注册UDP代理工厂

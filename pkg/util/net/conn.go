@@ -25,7 +25,7 @@ import (
 	"github.com/fatedier/golib/crypto"
 	quic "github.com/quic-go/quic-go"
 
-	"github.com/fatedier/frp/pkg/util/xlog"
+	"github.com/purpose168/frp/pkg/util/xlog"
 )
 
 // ContextGetter 是上下文获取器接口

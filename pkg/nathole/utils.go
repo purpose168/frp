@@ -23,7 +23,7 @@ import (
 	"github.com/fatedier/golib/crypto"
 	"github.com/pion/stun/v2"
 
-	"github.com/fatedier/frp/pkg/msg"
+	"github.com/purpose168/frp/pkg/msg"
 )
 
 // EncodeMessage 编码消息

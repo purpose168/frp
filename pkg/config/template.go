@@ -17,7 +17,7 @@ package config
 import (
 	"fmt"
 
-	"github.com/fatedier/frp/pkg/util/util"
+	"github.com/purpose168/frp/pkg/util/util"
 )
 
 // NumberPair 数字对结构体

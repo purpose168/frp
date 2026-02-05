@@ -19,8 +19,8 @@ import (
 	"reflect"
 	"sync"
 
-	v1 "github.com/fatedier/frp/pkg/config/v1"
-	"github.com/fatedier/frp/pkg/msg"
+	v1 "github.com/purpose168/frp/pkg/config/v1"
+	"github.com/purpose168/frp/pkg/msg"
 )
 
 // init 注册XTCP代理工厂

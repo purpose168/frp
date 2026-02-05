@@ -18,8 +18,8 @@ import (
 	"context"
 	"fmt"
 
-	v1 "github.com/fatedier/frp/pkg/config/v1"
-	"github.com/fatedier/frp/pkg/msg"
+	v1 "github.com/purpose168/frp/pkg/config/v1"
+	"github.com/purpose168/frp/pkg/msg"
 )
 
 // Setter 定义设置认证信息的接口

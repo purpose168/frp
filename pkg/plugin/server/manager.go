@@ -20,8 +20,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/fatedier/frp/pkg/util/util"
-	"github.com/fatedier/frp/pkg/util/xlog"
+	"github.com/purpose168/frp/pkg/util/util"
+	"github.com/purpose168/frp/pkg/util/xlog"
 )
 
 // Manager 插件管理器

@@ -27,10 +27,10 @@ import (
 	quic "github.com/quic-go/quic-go"
 	"github.com/samber/lo"
 
-	v1 "github.com/fatedier/frp/pkg/config/v1"
-	"github.com/fatedier/frp/pkg/transport"
-	netpkg "github.com/fatedier/frp/pkg/util/net"
-	"github.com/fatedier/frp/pkg/util/xlog"
+	v1 "github.com/purpose168/frp/pkg/config/v1"
+	"github.com/purpose168/frp/pkg/transport"
+	netpkg "github.com/purpose168/frp/pkg/util/net"
+	"github.com/purpose168/frp/pkg/util/xlog"
 )
 
 // Connector 是用于建立与服务端连接的接口

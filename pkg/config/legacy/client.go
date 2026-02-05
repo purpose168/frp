@@ -35,8 +35,8 @@ import (
 
 	"gopkg.in/ini.v1"
 
-	legacyauth "github.com/fatedier/frp/pkg/auth/legacy"
-	"github.com/fatedier/frp/pkg/util/util"
+	legacyauth "github.com/purpose168/frp/pkg/auth/legacy"
+	"github.com/purpose168/frp/pkg/util/util"
 )
 
 // ClientCommonConf 是从 ini 解析的配置。

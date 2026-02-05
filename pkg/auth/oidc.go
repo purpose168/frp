@@ -28,8 +28,8 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/clientcredentials"
 
-	v1 "github.com/fatedier/frp/pkg/config/v1"
-	"github.com/fatedier/frp/pkg/msg"
+	v1 "github.com/purpose168/frp/pkg/config/v1"
+	"github.com/purpose168/frp/pkg/msg"
 )
 
 // createOIDCHTTPClient 为 OIDC 令牌请求创建具有自定义 TLS 和代理配置的 HTTP 客户端

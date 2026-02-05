@@ -17,7 +17,7 @@ package v1
 import (
 	"sync"
 
-	"github.com/fatedier/frp/pkg/util/util"
+	"github.com/purpose168/frp/pkg/util/util"
 )
 
 // TODO(fatedier): 由于当前 Go JSON 库的实现问题，自定义结构体的 UnmarshalJSON 方法

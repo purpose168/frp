@@ -99,7 +99,7 @@ formatters:
       sections:
       - standard
       - default
-      - prefix(github.com/fatedier/frp/)
+      - prefix(github.com/purpose168/frp/)
   exclusions:
     generated: lax
     paths:

@@ -23,9 +23,9 @@ import (
 
 	"github.com/samber/lo"
 
-	"github.com/fatedier/frp/pkg/config/types"
-	"github.com/fatedier/frp/pkg/msg"
-	"github.com/fatedier/frp/pkg/util/util"
+	"github.com/purpose168/frp/pkg/config/types"
+	"github.com/purpose168/frp/pkg/msg"
+	"github.com/purpose168/frp/pkg/util/util"
 )
 
 // ProxyTransport 代理传输配置结构体

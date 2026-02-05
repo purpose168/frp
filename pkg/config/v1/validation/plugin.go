@@ -17,7 +17,7 @@ package validation
 import (
 	"errors"
 
-	v1 "github.com/fatedier/frp/pkg/config/v1"
+	v1 "github.com/purpose168/frp/pkg/config/v1"
 )
 
 // ValidateClientPluginOptions 验证客户端插件选项的有效性

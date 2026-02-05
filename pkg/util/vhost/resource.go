@@ -20,8 +20,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/fatedier/frp/pkg/util/log"
-	"github.com/fatedier/frp/pkg/util/version"
+	"github.com/purpose168/frp/pkg/util/log"
+	"github.com/purpose168/frp/pkg/util/version"
 )
 
 // NotFoundPagePath 自定义 404 页面路径

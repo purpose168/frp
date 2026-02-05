@@ -24,12 +24,12 @@ import (
 	"github.com/fatedier/golib/errors"
 	libio "github.com/fatedier/golib/io"
 
-	v1 "github.com/fatedier/frp/pkg/config/v1"
-	"github.com/fatedier/frp/pkg/msg"
-	"github.com/fatedier/frp/pkg/proto/udp"
-	netpkg "github.com/fatedier/frp/pkg/util/net"
-	"github.com/fatedier/frp/pkg/util/util"
-	"github.com/fatedier/frp/pkg/util/xlog"
+	v1 "github.com/purpose168/frp/pkg/config/v1"
+	"github.com/purpose168/frp/pkg/msg"
+	"github.com/purpose168/frp/pkg/proto/udp"
+	netpkg "github.com/purpose168/frp/pkg/util/net"
+	"github.com/purpose168/frp/pkg/util/util"
+	"github.com/purpose168/frp/pkg/util/xlog"
 )
 
 // SUDPVisitor SUDP 访问者结构

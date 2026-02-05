@@ -15,7 +15,7 @@
 package auth
 
 import (
-	"github.com/fatedier/frp/pkg/msg"
+	"github.com/purpose168/frp/pkg/msg"
 )
 
 // AlwaysPassVerifier 总是通过验证器

@@ -13,9 +13,9 @@
 package main
 
 import (
-	"github.com/fatedier/frp/cmd/frpc/sub"
-	"github.com/fatedier/frp/pkg/util/system"
-	_ "github.com/fatedier/frp/web/frpc"
+	"github.com/purpose168/frp/cmd/frpc/sub"
+	"github.com/purpose168/frp/pkg/util/system"
+	_ "github.com/purpose168/frp/web/frpc"
 )
 
 // main 是 frpc 程序的入口函数

@@ -32,8 +32,8 @@ import (
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 
-	httppkg "github.com/fatedier/frp/pkg/util/http"
-	"github.com/fatedier/frp/pkg/util/log"
+	httppkg "github.com/purpose168/frp/pkg/util/http"
+	"github.com/purpose168/frp/pkg/util/log"
 )
 
 // ErrNoRouteFound 未找到路由错误

@@ -23,8 +23,8 @@ import (
 	"strings"
 	"time"
 
-	v1 "github.com/fatedier/frp/pkg/config/v1"
-	"github.com/fatedier/frp/pkg/util/xlog"
+	v1 "github.com/purpose168/frp/pkg/config/v1"
+	"github.com/purpose168/frp/pkg/util/xlog"
 )
 
 // ErrHealthCheckType 健康检查类型错误

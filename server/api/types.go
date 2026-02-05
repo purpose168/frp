@@ -13,7 +13,7 @@
 package api
 
 import (
-	v1 "github.com/fatedier/frp/pkg/config/v1"
+	v1 "github.com/purpose168/frp/pkg/config/v1"
 )
 
 type ServerInfoResp struct {

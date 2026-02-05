@@ -6,9 +6,9 @@ import (
 
 	"github.com/onsi/ginkgo/v2"
 
-	"github.com/fatedier/frp/test/e2e/framework"
-	"github.com/fatedier/frp/test/e2e/framework/consts"
-	"github.com/fatedier/frp/test/e2e/pkg/port"
+	"github.com/purpose168/frp/test/e2e/framework"
+	"github.com/purpose168/frp/test/e2e/framework/consts"
+	"github.com/purpose168/frp/test/e2e/pkg/port"
 )
 
 var _ = ginkgo.Describe("[Feature: Config]", func() {

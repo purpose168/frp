@@ -3,7 +3,7 @@ package event
 import (
 	"errors"
 
-	"github.com/fatedier/frp/pkg/msg"
+	"github.com/purpose168/frp/pkg/msg"
 )
 
 // ErrPayloadType 负载类型错误

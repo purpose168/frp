@@ -24,8 +24,8 @@ import (
 	"github.com/fatedier/golib/errors"
 	pp "github.com/pires/go-proxyproto"
 
-	v1 "github.com/fatedier/frp/pkg/config/v1"
-	"github.com/fatedier/frp/pkg/vnet"
+	v1 "github.com/purpose168/frp/pkg/config/v1"
+	"github.com/purpose168/frp/pkg/vnet"
 )
 
 // PluginContext 插件上下文

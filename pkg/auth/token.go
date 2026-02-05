@@ -19,9 +19,9 @@ import (
 	"slices"
 	"time"
 
-	v1 "github.com/fatedier/frp/pkg/config/v1"
-	"github.com/fatedier/frp/pkg/msg"
-	"github.com/fatedier/frp/pkg/util/util"
+	v1 "github.com/purpose168/frp/pkg/config/v1"
+	"github.com/purpose168/frp/pkg/msg"
+	"github.com/purpose168/frp/pkg/util/util"
 )
 
 // TokenAuthSetterVerifier 定义令牌认证设置器和验证器结构

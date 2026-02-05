@@ -22,7 +22,7 @@ import (
 
 	"k8s.io/apimachinery/pkg/util/validation"
 
-	v1 "github.com/fatedier/frp/pkg/config/v1"
+	v1 "github.com/purpose168/frp/pkg/config/v1"
 )
 
 // validateProxyBaseConfigForClient 验证客户端代理基础配置的有效性

@@ -15,7 +15,7 @@
 package server
 
 import (
-	"github.com/fatedier/frp/pkg/msg"
+	"github.com/purpose168/frp/pkg/msg"
 )
 
 // Request 请求结构

@@ -13,9 +13,9 @@
 package main
 
 import (
-	_ "github.com/fatedier/frp/pkg/metrics"
-	"github.com/fatedier/frp/pkg/util/system"
-	_ "github.com/fatedier/frp/web/frps"
+	_ "github.com/purpose168/frp/pkg/metrics"
+	"github.com/purpose168/frp/pkg/util/system"
+	_ "github.com/purpose168/frp/web/frps"
 )
 
 // main 是 frps 程序的入口函数

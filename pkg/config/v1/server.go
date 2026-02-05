@@ -17,8 +17,8 @@ package v1
 import (
 	"github.com/samber/lo"
 
-	"github.com/fatedier/frp/pkg/config/types"
-	"github.com/fatedier/frp/pkg/util/util"
+	"github.com/purpose168/frp/pkg/config/types"
+	"github.com/purpose168/frp/pkg/util/util"
 )
 
 // ServerConfig 服务器配置结构体

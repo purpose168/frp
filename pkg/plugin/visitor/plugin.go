@@ -19,8 +19,8 @@ import (
 	"fmt"
 	"net"
 
-	v1 "github.com/fatedier/frp/pkg/config/v1"
-	"github.com/fatedier/frp/pkg/vnet"
+	v1 "github.com/purpose168/frp/pkg/config/v1"
+	"github.com/purpose168/frp/pkg/vnet"
 )
 
 // PluginContext 插件上下文，为访问者插件提供必要的上下文和回调

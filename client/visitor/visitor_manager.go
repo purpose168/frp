@@ -23,10 +23,10 @@ import (
 
 	"github.com/samber/lo"
 
-	v1 "github.com/fatedier/frp/pkg/config/v1"
-	"github.com/fatedier/frp/pkg/transport"
-	"github.com/fatedier/frp/pkg/util/xlog"
-	"github.com/fatedier/frp/pkg/vnet"
+	v1 "github.com/purpose168/frp/pkg/config/v1"
+	"github.com/purpose168/frp/pkg/transport"
+	"github.com/purpose168/frp/pkg/util/xlog"
+	"github.com/purpose168/frp/pkg/vnet"
 )
 
 // Manager 访问者管理器结构

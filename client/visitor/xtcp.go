@@ -28,13 +28,13 @@ import (
 	quic "github.com/quic-go/quic-go"
 	"golang.org/x/time/rate"
 
-	v1 "github.com/fatedier/frp/pkg/config/v1"
-	"github.com/fatedier/frp/pkg/msg"
-	"github.com/fatedier/frp/pkg/nathole"
-	"github.com/fatedier/frp/pkg/transport"
-	netpkg "github.com/fatedier/frp/pkg/util/net"
-	"github.com/fatedier/frp/pkg/util/util"
-	"github.com/fatedier/frp/pkg/util/xlog"
+	v1 "github.com/purpose168/frp/pkg/config/v1"
+	"github.com/purpose168/frp/pkg/msg"
+	"github.com/purpose168/frp/pkg/nathole"
+	"github.com/purpose168/frp/pkg/transport"
+	netpkg "github.com/purpose168/frp/pkg/util/net"
+	"github.com/purpose168/frp/pkg/util/util"
+	"github.com/purpose168/frp/pkg/util/xlog"
 )
 
 var ErrNoTunnelSession = errors.New("无隧道会话")

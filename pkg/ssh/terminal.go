@@ -15,8 +15,8 @@
 package ssh
 
 import (
-	"github.com/fatedier/frp/client/proxy"
-	v1 "github.com/fatedier/frp/pkg/config/v1"
+	"github.com/purpose168/frp/client/proxy"
+	v1 "github.com/purpose168/frp/pkg/config/v1"
 )
 
 // createSuccessInfo 创建成功信息字符串

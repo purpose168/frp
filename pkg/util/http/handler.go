@@ -18,7 +18,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/fatedier/frp/pkg/util/log"
+	"github.com/purpose168/frp/pkg/util/log"
 )
 
 // GeneralResponse 是通用响应结构

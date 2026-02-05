@@ -12,7 +12,7 @@ fi
 
 # 通过版本号确定最新版本，忽略 alpha、beta 和 rc 版本。
 if [ "${FRP_VERSION}" = "" ] ; then
-  FRP_VERSION="$(curl -sL https://github.com/fatedier/frp/releases | \
+  FRP_VERSION="$(curl -sL https://github.com/purpose168/frp/releases | \
                   grep -o 'releases/tag/v[0-9]*.[0-9]*.[0-9]*"' | sort -V | \
                   tail -1 | awk -F'/' '{ print $3}')"
   FRP_VERSION="${FRP_VERSION%?}"
@@ -30,7 +30,7 @@ if [ "${OS}" = "windows" ] ; then
 fi
 NAME="frp_${FRP_VERSION}_${OS}_${ARCH}${SUFFIX}"
 DIR_NAME="frp_${FRP_VERSION}_${OS}_${ARCH}"
-URL="https://github.com/fatedier/frp/releases/download/v${FRP_VERSION}/${NAME}"
+URL="https://github.com/purpose168/frp/releases/download/v${FRP_VERSION}/${NAME}"
 
 download_and_extract() {
   printf "正在从 %s 下载 %s ...\n" "${URL}" "$NAME"

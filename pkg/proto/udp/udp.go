@@ -23,8 +23,8 @@ import (
 	"github.com/fatedier/golib/errors"
 	"github.com/fatedier/golib/pool"
 
-	"github.com/fatedier/frp/pkg/msg"
-	netpkg "github.com/fatedier/frp/pkg/util/net"
+	"github.com/purpose168/frp/pkg/msg"
+	netpkg "github.com/purpose168/frp/pkg/util/net"
 )
 
 // NewUDPPacket 创建一个新的 UDP 数据包

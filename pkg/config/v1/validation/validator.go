@@ -3,7 +3,7 @@ package validation
 import (
 	"fmt"
 
-	"github.com/fatedier/frp/pkg/policy/security"
+	"github.com/purpose168/frp/pkg/policy/security"
 )
 
 // ConfigValidator 保存配置验证的上下文依赖

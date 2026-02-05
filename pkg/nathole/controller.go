@@ -29,10 +29,10 @@ import (
 	"github.com/samber/lo"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/fatedier/frp/pkg/msg"
-	"github.com/fatedier/frp/pkg/transport"
-	"github.com/fatedier/frp/pkg/util/log"
-	"github.com/fatedier/frp/pkg/util/util"
+	"github.com/purpose168/frp/pkg/msg"
+	"github.com/purpose168/frp/pkg/transport"
+	"github.com/purpose168/frp/pkg/util/log"
+	"github.com/purpose168/frp/pkg/util/util"
 )
 
 // NatHoleTimeout NAT 穿透超时时间（秒）

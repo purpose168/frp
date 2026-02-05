@@ -23,8 +23,8 @@ import (
 
 	libio "github.com/fatedier/golib/io"
 
-	netpkg "github.com/fatedier/frp/pkg/util/net"
-	"github.com/fatedier/frp/pkg/util/util"
+	netpkg "github.com/purpose168/frp/pkg/util/net"
+	"github.com/purpose168/frp/pkg/util/util"
 )
 
 // listenerBundle 监听器捆绑包

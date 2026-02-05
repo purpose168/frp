@@ -31,8 +31,8 @@ import (
 
 	"github.com/samber/lo"
 
-	"github.com/fatedier/frp/pkg/config/types"
-	v1 "github.com/fatedier/frp/pkg/config/v1"
+	"github.com/purpose168/frp/pkg/config/types"
+	v1 "github.com/purpose168/frp/pkg/config/v1"
 )
 
 // Convert_ClientCommonConf_To_v1 将旧的客户端配置转换为 v1 版本的客户端配置

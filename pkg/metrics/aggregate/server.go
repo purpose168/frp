@@ -15,9 +15,9 @@
 package aggregate
 
 import (
-	"github.com/fatedier/frp/pkg/metrics/mem"
-	"github.com/fatedier/frp/pkg/metrics/prometheus"
-	"github.com/fatedier/frp/server/metrics"
+	"github.com/purpose168/frp/pkg/metrics/mem"
+	"github.com/purpose168/frp/pkg/metrics/prometheus"
+	"github.com/purpose168/frp/server/metrics"
 )
 
 // EnableMem 启用以标记指标到内存监控系统

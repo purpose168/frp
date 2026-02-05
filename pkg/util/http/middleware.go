@@ -17,7 +17,7 @@ package http
 import (
 	"net/http"
 
-	"github.com/fatedier/frp/pkg/util/log"
+	"github.com/purpose168/frp/pkg/util/log"
 )
 
 // responseWriter 包装 http.ResponseWriter 以记录响应状态码

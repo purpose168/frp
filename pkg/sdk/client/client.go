@@ -11,8 +11,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/fatedier/frp/client/api"
-	httppkg "github.com/fatedier/frp/pkg/util/http"
+	"github.com/purpose168/frp/client/api"
+	httppkg "github.com/purpose168/frp/pkg/util/http"
 )
 
 // Client 是 frp 服务端的 HTTP API 客户端
