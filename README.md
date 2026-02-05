@@ -1,25 +1,16 @@
 # frp
 
-[![Build Status](https://circleci.com/gh/fatedier/frp.svg?style=shield)](https://circleci.com/gh/fatedier/frp)
-[![GitHub release](https://img.shields.io/github/tag/fatedier/frp.svg?label=release)](https://github.com/purpose168/frp/releases)
-[![Go Report Card](https://goreportcard.com/badge/github.com/fatedier/frp)](https://goreportcard.com/report/github.com/fatedier/frp)
-[![GitHub Releases Stats](https://img.shields.io/github/downloads/purpose168/frp/total.svg?logo=github)](https://somsubhra.github.io/github-release-stats/?username=fatedier&repository=frp)
+frp是一个开源项目，其持续开发完全依赖于我们优秀赞助商的支持。如果您想加入他们，请考虑[赞助frp的开发](https://github.com/sponsors/fatedier)。
 
-[README](README.md) | [中文文档](README_zh.md)
-
-## Sponsors
-
-frp is an open source project with its ongoing development made possible entirely by the support of our awesome sponsors. If you'd like to join them, please consider [sponsoring frp's development](https://github.com/sponsors/fatedier).
-
-<h3 align="center">Gold Sponsors</h3>
+<h3 align="center">金牌赞助商</h3>
 <!--gold sponsors start-->
 <p align="center">
   <a href="https://requestly.com/?utm_source=github&utm_medium=partnered&utm_campaign=frp" target="_blank">
     <img width="480px" src="https://github.com/user-attachments/assets/24670320-997d-4d62-9bca-955c59fe883d">
     <br>
-    <b>Requestly - Free & Open-Source alternative to Postman</b>
+    <b>Requestly - Postman的免费开源替代方案</b>
     <br>
-    <sub>All-in-one platform to Test, Mock and Intercept APIs.</sub>
+    <sub>一站式API测试、模拟和拦截平台。</sub>
   </a>
 </p>
 
@@ -27,7 +18,7 @@ frp is an open source project with its ongoing development made possible entirel
   <a href="https://jb.gg/frp" target="_blank">
     <img width="420px" src="https://raw.githubusercontent.com/purpose168/frp/dev/doc/pic/sponsor_jetbrains.jpg">
 	<br>
-	<b>The complete IDE crafted for professional Go developers</b>
+	<b>专为专业Go开发者打造的完整IDE</b>
   </a>
 </p>
 
@@ -35,145 +26,145 @@ frp is an open source project with its ongoing development made possible entirel
   <a href="https://github.com/beclab/Olares" target="_blank">
     <img width="420px" src="https://raw.githubusercontent.com/purpose168/frp/dev/doc/pic/sponsor_olares.jpeg">
 	<br>
-	<b>The sovereign cloud that puts you in control</b>
+	<b>由您掌控的主权云</b>
 	<br>
-	<sub>An open source, self-hosted alternative to public clouds, built for data ownership and privacy</sub>
+	<sub>开源、自托管的公共云替代方案，为数据所有权和隐私而构建</sub>
   </a>
 </p>
 <div align="center">
 
-## Recall.ai - API for meeting recordings
+## Recall.ai - 会议录制API
 
-If you're looking for a meeting recording API, consider checking out [Recall.ai](https://www.recall.ai/?utm_source=github&utm_medium=sponsorship&utm_campaign=fatedier-frp),
+如果您正在寻找会议录制API，请考虑查看[Recall.ai](https://www.recall.ai/?utm_source=github&utm_medium=sponsorship&utm_campaign=fatedier-frp)，
 
-an API that records Zoom, Google Meet, Microsoft Teams, in-person meetings, and more.
+一个可以录制Zoom、Google Meet、Microsoft Teams、面对面会议等的API。
 
 </div>
 <!--gold sponsors end-->
 
-## What is frp?
+## 什么是frp？
 
-frp is a fast reverse proxy that allows you to expose a local server located behind a NAT or firewall to the Internet. It currently supports **TCP** and **UDP**, as well as **HTTP** and **HTTPS** protocols, enabling requests to be forwarded to internal services via domain name.
+frp是一个快速的反向代理，允许您将位于NAT或防火墙后面的本地服务器暴露到互联网。它目前支持**TCP**和**UDP**，以及**HTTP**和**HTTPS**协议，允许通过域名将请求转发到内部服务。
 
-frp also offers a P2P connect mode.
+frp还提供P2P连接模式。
 
-## Table of Contents
+## 目录
 
 <!-- vim-markdown-toc GFM -->
 
-* [Development Status](#development-status)
-    * [About V2](#about-v2)
-* [Architecture](#architecture)
-* [Example Usage](#example-usage)
-    * [Access your computer in a LAN network via SSH](#access-your-computer-in-a-lan-network-via-ssh)
-    * [Multiple SSH services sharing the same port](#multiple-ssh-services-sharing-the-same-port)
-    * [Accessing Internal Web Services with Custom Domains in LAN](#accessing-internal-web-services-with-custom-domains-in-lan)
-    * [Forward DNS query requests](#forward-dns-query-requests)
-    * [Forward Unix Domain Socket](#forward-unix-domain-socket)
-    * [Expose a simple HTTP file server](#expose-a-simple-http-file-server)
-    * [Enable HTTPS for a local HTTP(S) service](#enable-https-for-a-local-https-service)
-    * [Expose your service privately](#expose-your-service-privately)
-    * [P2P Mode](#p2p-mode)
-* [Features](#features)
-    * [Configuration Files](#configuration-files)
-    * [Using Environment Variables](#using-environment-variables)
-    * [Split Configures Into Different Files](#split-configures-into-different-files)
-    * [Server Dashboard](#server-dashboard)
-    * [Client Admin UI](#client-admin-ui)
-    * [Monitor](#monitor)
+* [开发状态](#development-status)
+    * [关于V2版本](#about-v2)
+* [架构](#architecture)
+* [使用示例](#example-usage)
+    * [通过SSH访问局域网中的计算机](#access-your-computer-in-a-lan-network-via-ssh)
+    * [多个SSH服务共享同一个端口](#multiple-ssh-services-sharing-the-same-port)
+    * [使用自定义域名访问局域网内的Web服务](#accessing-internal-web-services-with-custom-domains-in-lan)
+    * [转发DNS查询请求](#forward-dns-query-requests)
+    * [转发Unix域套接字](#forward-unix-domain-socket)
+    * [暴露简单的HTTP文件服务器](#expose-a-simple-http-file-server)
+    * [为本地HTTP(S)服务启用HTTPS](#enable-https-for-a-local-https-service)
+    * [私密暴露您的服务](#expose-your-service-privately)
+    * [P2P模式](#p2p-mode)
+* [特性](#features)
+    * [配置文件](#configuration-files)
+    * [使用环境变量](#using-environment-variables)
+    * [将配置拆分到不同文件](#split-configures-into-different-files)
+    * [服务器仪表盘](#server-dashboard)
+    * [客户端管理界面](#client-admin-ui)
+    * [监控](#monitor)
         * [Prometheus](#prometheus)
-    * [Authenticating the Client](#authenticating-the-client)
-        * [Token Authentication](#token-authentication)
-        * [OIDC Authentication](#oidc-authentication)
-    * [Encryption and Compression](#encryption-and-compression)
+    * [客户端认证](#authenticating-the-client)
+        * [Token认证](#token-authentication)
+        * [OIDC认证](#oidc-authentication)
+    * [加密和压缩](#encryption-and-compression)
         * [TLS](#tls)
-    * [Hot-Reloading frpc configuration](#hot-reloading-frpc-configuration)
-    * [Get proxy status from client](#get-proxy-status-from-client)
-    * [Only allowing certain ports on the server](#only-allowing-certain-ports-on-the-server)
-    * [Port Reuse](#port-reuse)
-    * [Bandwidth Limit](#bandwidth-limit)
-        * [For Each Proxy](#for-each-proxy)
-    * [TCP Stream Multiplexing](#tcp-stream-multiplexing)
-    * [Support KCP Protocol](#support-kcp-protocol)
-    * [Support QUIC Protocol](#support-quic-protocol)
-    * [Connection Pooling](#connection-pooling)
-    * [Load balancing](#load-balancing)
-    * [Service Health Check](#service-health-check)
-    * [Rewriting the HTTP Host Header](#rewriting-the-http-host-header)
-    * [Setting other HTTP Headers](#setting-other-http-headers)
-    * [Get Real IP](#get-real-ip)
+    * [热重载frpc配置](#hot-reloading-frpc-configuration)
+    * [从客户端获取代理状态](#get-proxy-status-from-client)
+    * [仅允许服务器上的特定端口](#only-allowing-certain-ports-on-the-server)
+    * [端口复用](#port-reuse)
+    * [带宽限制](#bandwidth-limit)
+        * [每个代理](#for-each-proxy)
+    * [TCP流多路复用](#tcp-stream-multiplexing)
+    * [支持KCP协议](#support-kcp-protocol)
+    * [支持QUIC协议](#support-quic-protocol)
+    * [连接池](#connection-pooling)
+    * [负载均衡](#load-balancing)
+    * [服务健康检查](#service-health-check)
+    * [重写HTTP Host头](#rewriting-the-http-host-header)
+    * [设置其他HTTP头](#setting-other-http-headers)
+    * [获取真实IP](#get-real-ip)
         * [HTTP X-Forwarded-For](#http-x-forwarded-for)
         * [Proxy Protocol](#proxy-protocol)
-    * [Require HTTP Basic Auth (Password) for Web Services](#require-http-basic-auth-password-for-web-services)
-    * [Custom Subdomain Names](#custom-subdomain-names)
-    * [URL Routing](#url-routing)
-    * [TCP Port Multiplexing](#tcp-port-multiplexing)
-    * [Connecting to frps via PROXY](#connecting-to-frps-via-proxy)
-    * [Port range mapping](#port-range-mapping)
-    * [Client Plugins](#client-plugins)
-    * [Server Manage Plugins](#server-manage-plugins)
-    * [SSH Tunnel Gateway](#ssh-tunnel-gateway)
-    * [Virtual Network (VirtualNet)](#virtual-network-virtualnet)
-* [Feature Gates](#feature-gates)
-    * [Available Feature Gates](#available-feature-gates)
-    * [Enabling Feature Gates](#enabling-feature-gates)
-    * [Feature Lifecycle](#feature-lifecycle)
-* [Related Projects](#related-projects)
-* [Contributing](#contributing)
-* [Donation](#donation)
-    * [GitHub Sponsors](#github-sponsors)
+    * [为Web服务要求HTTP基本认证（密码）](#require-http-basic-auth-password-for-web-services)
+    * [自定义子域名](#custom-subdomain-names)
+    * [URL路由](#url-routing)
+    * [TCP端口多路复用](#tcp-port-multiplexing)
+    * [通过PROXY连接到frps](#connecting-to-frps-via-proxy)
+    * [端口范围映射](#port-range-mapping)
+    * [客户端插件](#client-plugins)
+    * [服务器管理插件](#server-manage-plugins)
+    * [SSH隧道网关](#ssh-tunnel-gateway)
+    * [虚拟网络（VirtualNet）](#virtual-network-virtualnet)
+* [特性开关](#feature-gates)
+    * [可用的特性开关](#available-feature-gates)
+    * [启用特性开关](#enabling-feature-gates)
+    * [特性生命周期](#feature-lifecycle)
+* [相关项目](#related-projects)
+* [贡献](#contributing)
+* [捐赠](#donation)
+    * [GitHub赞助商](#github-sponsors)
     * [PayPal](#paypal)
 
 <!-- vim-markdown-toc -->
 
-## Development Status
+## 开发状态
 
-frp is currently under development. You can try the latest release version in the `master` branch, or use the `dev` branch to access the version currently in development.
+frp目前正在开发中。您可以在`master`分支中尝试最新的发布版本，或使用`dev`分支访问当前正在开发的版本。
 
-We are currently working on version 2 and attempting to perform some code refactoring and improvements. However, please note that it will not be compatible with version 1.
+我们目前正在开发版本2，并尝试进行一些代码重构和改进。但请注意，它将与版本1不兼容。
 
-We will transition from version 0 to version 1 at the appropriate time and will only accept bug fixes and improvements, rather than big feature requests.
+我们会在适当的时候从版本0过渡到版本1，并且只接受错误修复和改进，而不是大型功能请求。
 
-### About V2
+### 关于V2版本
 
-The complexity and difficulty of the v2 version are much higher than anticipated. I can only work on its development during fragmented time periods, and the constant interruptions disrupt productivity significantly. Given this situation, we will continue to optimize and iterate on the current version until we have more free time to proceed with the major version overhaul.
+v2版本的复杂性和难度远远超出预期。我只能在碎片时间里进行开发，频繁的中断严重影响了生产力。鉴于这种情况，我们将继续优化和迭代当前版本，直到有更多空闲时间来进行重大版本的彻底改造。
 
-The concept behind v2 is based on my years of experience and reflection in the cloud-native domain, particularly in K8s and ServiceMesh. Its core is a modernized four-layer and seven-layer proxy, similar to envoy. This proxy itself is highly scalable, not only capable of implementing the functionality of intranet penetration but also applicable to various other domains. Building upon this highly scalable core, we aim to implement all the capabilities of frp v1 while also addressing the functionalities that were previously unachievable or difficult to implement in an elegant manner. Furthermore, we will maintain efficient development and iteration capabilities.
+v2的概念基于我多年在云原生领域的经验和思考，特别是在K8s和ServiceMesh方面。其核心是一个现代化的四层和七层代理，类似于envoy。这个代理本身具有高度可扩展性，不仅能够实现内网穿透的功能，还适用于各种其他领域。基于这个高度可扩展的核心，我们的目标是实现frp v1的所有功能，同时解决以前无法实现或难以以优雅方式实现的功能。此外，我们将保持高效的开发和迭代能力。
 
-In addition, I envision frp itself becoming a highly extensible system and platform, similar to how we can provide a range of extension capabilities based on K8s. In K8s, we can customize development according to enterprise needs, utilizing features such as CRD, controller mode, webhook, CSI, and CNI. In frp v1, we introduced the concept of server plugins, which implemented some basic extensibility. However, it relies on a simple HTTP protocol and requires users to start independent processes and manage them on their own. This approach is far from flexible and convenient, and real-world demands vary greatly. It is unrealistic to expect a non-profit open-source project maintained by a few individuals to meet everyone's needs.
+另外，我设想frp本身成为一个高度可扩展的系统和平台，类似于我们可以基于K8s提供一系列扩展能力。在K8s中，我们可以根据企业需求进行自定义开发，利用CRD、控制器模式、webhook、CSI和CNI等特性。在frp v1中，我们引入了服务器插件的概念，实现了一些基本的可扩展性。但它依赖于简单的HTTP协议，要求用户启动独立的进程并自行管理。这种方法远非灵活和方便，现实世界的需求差异很大。期望一个由少数人维护的非营利开源项目满足每个人的需求是不现实的。
 
-Finally, we acknowledge that the current design of modules such as configuration management, permission verification, certificate management, and API management is not modern enough. While we may carry out some optimizations in the v1 version, ensuring compatibility remains a challenging issue that requires a considerable amount of effort to address.
+最后，我们承认当前配置管理、权限验证、证书管理和API管理等模块的设计不够现代化。虽然我们可能会在v1版本中进行一些优化，但确保兼容性仍然是一个具有挑战性的问题，需要大量的努力来解决。
 
-We sincerely appreciate your support for frp.
+我们真诚地感谢您对frp的支持。
 
-## Architecture
+## 架构
 
 ![architecture](/doc/pic/architecture.png)
 
-## Example Usage
+## 使用示例
 
-To begin, download the latest program for your operating system and architecture from the [Release](https://github.com/purpose168/frp/releases) page.
+首先，从[Release](https://github.com/purpose168/frp/releases)页面下载适合您操作系统和架构的最新程序。
 
-Next, place the `frps` binary and server configuration file on Server A, which has a public IP address.
+接下来，将`frps`二进制文件和服务器配置文件放在具有公网IP地址的服务器A上。
 
-Finally, place the `frpc` binary and client configuration file on Server B, which is located on a LAN that cannot be directly accessed from the public internet.
+最后，将`frpc`二进制文件和客户端配置文件放在位于无法从公共互联网直接访问的局域网中的服务器B上。
 
-Some antiviruses improperly mark frpc as malware and delete it. This is due to frp being a networking tool capable of creating reverse proxies. Antiviruses sometimes flag reverse proxies due to their ability to bypass firewall port restrictions. If you are using antivirus, then you may need to whitelist/exclude frpc in your antivirus settings to avoid accidental quarantine/deletion. See [issue 3637](https://github.com/purpose168/frp/issues/3637) for more details.
+一些防病毒软件会错误地将frpc标记为恶意软件并删除它。这是因为frp是一个能够创建反向代理的网络工具。防病毒软件有时会标记反向代理，因为它们能够绕过防火墙端口限制。如果您使用防病毒软件，则可能需要在防病毒设置中将frpc添加到白名单/排除项中，以避免意外隔离/删除。有关更多详细信息，请参阅[issue 3637](https://github.com/purpose168/frp/issues/3637)。
 
-### Access your computer in a LAN network via SSH
+### 通过SSH访问局域网中的计算机
 
-1. Modify `frps.toml` on server A by setting the `bindPort` for frp clients to connect to:
+1. 修改服务器A上的`frps.toml`，设置frp客户端连接的`bindPort`：
 
   ```toml
   # frps.toml
   bindPort = 7000
   ```
 
-2. Start `frps` on server A:
+2. 在服务器A上启动`frps`：
 
   `./frps -c ./frps.toml`
 
-3. Modify `frpc.toml` on server B and set the `serverAddr` field to the public IP address of your frps server:
+3. 修改服务器B上的`frpc.toml`，将`serverAddr`字段设置为frps服务器的公网IP地址：
 
   ```toml
   # frpc.toml
@@ -188,28 +179,28 @@ Some antiviruses improperly mark frpc as malware and delete it. This is due to f
   remotePort = 6000
   ```
 
-Note that the `localPort` (listened on the client) and `remotePort` (exposed on the server) are used for traffic going in and out of the frp system, while the `serverPort` is used for communication between frps and frpc.
+请注意，`localPort`（在客户端上监听）和`remotePort`（在服务器上暴露）用于frp系统的流量进出，而`serverPort`用于frps和frpc之间的通信。
 
-4. Start `frpc` on server B:
+4. 在服务器B上启动`frpc`：
 
   `./frpc -c ./frpc.toml`
 
-5. To access server B from another machine through server A via SSH (assuming the username is `test`), use the following command:
+5. 要通过服务器A从另一台机器访问服务器B（假设用户名为`test`），使用以下命令：
 
   `ssh -oPort=6000 test@x.x.x.x`
 
-### Multiple SSH services sharing the same port
+### 多个SSH服务共享同一个端口
 
-This example implements multiple SSH services exposed through the same port using a proxy of type tcpmux. Similarly, as long as the client supports the HTTP Connect proxy connection method, port reuse can be achieved in this way.
+此示例实现了使用tcpmux类型的代理通过同一端口暴露多个SSH服务。同样，只要客户端支持HTTP Connect代理连接方法，就可以通过这种方式实现端口复用。
 
-1. Deploy frps on a machine with a public IP and modify the frps.toml file. Here is a simplified configuration:
+1. 在具有公网IP的机器上部署frps并修改frps.toml文件。以下是简化配置：
 
   ```toml
   bindPort = 7000
   tcpmuxHTTPConnectPort = 5002
   ```
 
-2. Deploy frpc on the internal machine A with the following configuration:
+2. 在内部机器A上部署frpc，配置如下：
 
   ```toml
   serverAddr = "x.x.x.x"
@@ -224,7 +215,7 @@ This example implements multiple SSH services exposed through the same port usin
   localPort = 22
   ```
 
-3. Deploy another frpc on the internal machine B with the following configuration:
+3. 在内部机器B上部署另一个frpc，配置如下：
 
   ```toml
   serverAddr = "x.x.x.x"
@@ -239,21 +230,21 @@ This example implements multiple SSH services exposed through the same port usin
   localPort = 22
   ```
 
-4. To access internal machine A using SSH ProxyCommand, assuming the username is "test":
+4. 使用SSH ProxyCommand访问内部机器A，假设用户名为"test"：
 
   `ssh -o 'proxycommand socat - PROXY:x.x.x.x:%h:%p,proxyport=5002' test@machine-a.example.com`
 
-5. To access internal machine B, the only difference is the domain name, assuming the username is "test":
+5. 要访问内部机器B，唯一的区别是域名，假设用户名为"test"：
 
   `ssh -o 'proxycommand socat - PROXY:x.x.x.x:%h:%p,proxyport=5002' test@machine-b.example.com`
 
-### Accessing Internal Web Services with Custom Domains in LAN
+### 使用自定义域名访问局域网内的Web服务
 
-Sometimes we need to expose a local web service behind a NAT network to others for testing purposes with our own domain name.
+有时我们需要将NAT网络后面的本地Web服务暴露给他人，以便使用我们自己的域名进行测试。
 
-Unfortunately, we cannot resolve a domain name to a local IP. However, we can use frp to expose an HTTP(S) service.
+不幸的是，我们无法将域名解析到本地IP。但是，我们可以使用frp来暴露HTTP(S)服务。
 
-1. Modify `frps.toml` and set the HTTP port for vhost to 8080:
+1. 修改`frps.toml`并将vhost的HTTP端口设置为8080：
 
   ```toml
   # frps.toml
@@ -261,13 +252,13 @@ Unfortunately, we cannot resolve a domain name to a local IP. However, we can us
   vhostHTTPPort = 8080
   ```
 
-  If you want to configure an https proxy, you need to set up the `vhostHTTPSPort`.
+  如果要配置https代理，需要设置`vhostHTTPSPort`。
 
-2. Start `frps`:
+2. 启动`frps`：
 
   `./frps -c ./frps.toml`
 
-3. Modify `frpc.toml` and set `serverAddr` to the IP address of the remote frps server. Specify the `localPort` of your web service:
+3. 修改`frpc.toml`并将`serverAddr`设置为远程frps服务器的IP地址。指定Web服务的`localPort`：
 
   ```toml
   # frpc.toml
@@ -281,28 +272,28 @@ Unfortunately, we cannot resolve a domain name to a local IP. However, we can us
   customDomains = ["www.example.com"]
   ```
 
-4. Start `frpc`:
+4. 启动`frpc`：
 
   `./frpc -c ./frpc.toml`
 
-5. Map the A record of `www.example.com` to either the public IP of the remote frps server or a CNAME record pointing to your original domain.
+5. 将`www.example.com`的A记录映射到远程frps服务器的公网IP，或将CNAME记录指向您的原始域名。
 
-6. Visit your local web service using url `http://www.example.com:8080`.
+6. 使用URL `http://www.example.com:8080` 访问您的本地Web服务。
 
-### Forward DNS query requests
+### 转发DNS查询请求
 
-1. Modify `frps.toml`:
+1. 修改`frps.toml`：
 
   ```toml
   # frps.toml
   bindPort = 7000
   ```
 
-2. Start `frps`:
+2. 启动`frps`：
 
   `./frps -c ./frps.toml`
 
-3. Modify `frpc.toml` and set `serverAddr` to the IP address of the remote frps server. Forward DNS query requests to the Google Public DNS server `8.8.8.8:53`:
+3. 修改`frpc.toml`并将`serverAddr`设置为远程frps服务器的IP地址。将DNS查询请求转发到Google公共DNS服务器`8.8.8.8:53`：
 
   ```toml
   # frpc.toml
@@ -317,21 +308,21 @@ Unfortunately, we cannot resolve a domain name to a local IP. However, we can us
   remotePort = 6000
   ```
 
-4. Start frpc:
+4. 启动frpc：
 
   `./frpc -c ./frpc.toml`
 
-5. Test DNS resolution using the `dig` command:
+5. 使用`dig`命令测试DNS解析：
 
   `dig @x.x.x.x -p 6000 www.google.com`
 
-### Forward Unix Domain Socket
+### 转发Unix域套接字
 
-Expose a Unix domain socket (e.g. the Docker daemon socket) as TCP.
+将Unix域套接字（例如Docker守护进程套接字）作为TCP暴露。
 
-Configure `frps` as above.
+按上述方式配置`frps`。
 
-1. Start `frpc` with the following configuration:
+1. 使用以下配置启动`frpc`：
 
   ```toml
   # frpc.toml
@@ -347,17 +338,17 @@ Configure `frps` as above.
   unixPath = "/var/run/docker.sock"
   ```
 
-2. Test the configuration by getting the docker version using `curl`:
+2. 通过使用`curl`获取docker版本来测试配置：
 
   `curl http://x.x.x.x:6000/version`
 
-### Expose a simple HTTP file server
+### 暴露简单的HTTP文件服务器
 
-Expose a simple HTTP file server to access files stored in the LAN from the public Internet.
+暴露一个简单的HTTP文件服务器，以便从公共互联网访问存储在局域网中的文件。
 
-Configure `frps` as described above, then:
+按上述方式配置`frps`，然后：
 
-1. Start `frpc` with the following configuration:
+1. 使用以下配置启动`frpc`：
 
   ```toml
   # frpc.toml
@@ -376,13 +367,13 @@ Configure `frps` as described above, then:
   httpPassword = "abc"
   ```
 
-2. Visit `http://x.x.x.x:6000/static/` from your browser and specify correct username and password to view files in `/tmp/files` on the `frpc` machine.
+2. 从浏览器访问`http://x.x.x.x:6000/static/`，并指定正确的用户名和密码以查看`frpc`机器上`/tmp/files`中的文件。
 
-### Enable HTTPS for a local HTTP(S) service
+### 为本地HTTP(S)服务启用HTTPS
 
-You may substitute `https2https` for the plugin, and point the `localAddr` to a HTTPS endpoint.
+您可以将`https2https`替换为插件，并将`localAddr`指向HTTPS端点。
 
-1. Start `frpc` with the following configuration:
+1. 使用以下配置启动`frpc`：
 
   ```toml
   # frpc.toml
@@ -403,15 +394,15 @@ You may substitute `https2https` for the plugin, and point the `localAddr` to a 
   requestHeaders.set.x-from-where = "frp"
   ```
 
-2. Visit `https://test.example.com`.
+2. 访问`https://test.example.com`。
 
-### Expose your service privately
+### 私密暴露您的服务
 
-To mitigate risks associated with exposing certain services directly to the public network, STCP (Secret TCP) mode requires a preshared key to be used for access to the service from other clients.
+为了降低将某些服务直接暴露到公共网络的风险，STCP（Secret TCP）模式要求使用预共享密钥从其他客户端访问服务。
 
-Configure `frps` same as above.
+按上述方式配置`frps`。
 
-1. Start `frpc` on machine B with the following config. This example is for exposing the SSH service (port 22), and note the `secretKey` field for the preshared key, and that the `remotePort` field is removed here:
+1. 在机器B上使用以下配置启动`frpc`。此示例用于暴露SSH服务（端口22），请注意`secretKey`字段用于预共享密钥，并且此处删除了`remotePort`字段：
 
   ```toml
   # frpc.toml
@@ -426,7 +417,7 @@ Configure `frps` same as above.
   localPort = 22
   ```
 
-2. Start another `frpc` (typically on another machine C) with the following config to access the SSH service with a security key (`secretKey` field):
+2. 使用以下配置启动另一个`frpc`（通常在另一台机器C上），以使用安全密钥（`secretKey`字段）访问SSH服务：
 
   ```toml
   # frpc.toml
@@ -442,23 +433,23 @@ Configure `frps` same as above.
   bindPort = 6000
   ```
 
-3. On machine C, connect to SSH on machine B, using this command:
+3. 在机器C上，使用以下命令连接到机器B上的SSH：
 
   `ssh -oPort=6000 127.0.0.1`
 
-### P2P Mode
+### P2P模式
 
-**xtcp** is designed to transmit large amounts of data directly between clients. A frps server is still needed, as P2P here only refers to the actual data transmission.
+**xtcp**旨在直接在客户端之间传输大量数据。仍然需要frps服务器，因为这里的P2P仅指实际的数据传输。
 
-Note that it may not work with all types of NAT devices. You might want to fallback to stcp if xtcp doesn't work.
+请注意，它可能不适用于所有类型的NAT设备。如果xtcp不起作用，您可能需要回退到stcp。
 
-1. Start `frpc` on machine B, and expose the SSH port. Note that the `remotePort` field is removed:
+1. 在机器B上启动`frpc`，并暴露SSH端口。请注意`remotePort`字段已被删除：
 
   ```toml
   # frpc.toml
   serverAddr = "x.x.x.x"
   serverPort = 7000
-  # set up a new stun server if the default one is not available.
+  # 如果默认的stun服务器不可用，请设置新的stun服务器。
   # natHoleStunServer = "xxx"
 
   [[proxies]]
@@ -469,13 +460,13 @@ Note that it may not work with all types of NAT devices. You might want to fallb
   localPort = 22
   ```
 
-2. Start another `frpc` (typically on another machine C) with the configuration to connect to SSH using P2P mode:
+2. 使用配置启动另一个`frpc`（通常在另一台机器C上），以使用P2P模式连接到SSH：
 
   ```toml
   # frpc.toml
   serverAddr = "x.x.x.x"
   serverPort = 7000
-  # set up a new stun server if the default one is not available.
+  # 如果默认的stun服务器不可用，请设置新的stun服务器。
   # natHoleStunServer = "xxx"
 
   [[visitors]]
@@ -485,33 +476,33 @@ Note that it may not work with all types of NAT devices. You might want to fallb
   secretKey = "abcdefg"
   bindAddr = "127.0.0.1"
   bindPort = 6000
-  # when automatic tunnel persistence is required, set it to true
+  # 当需要自动隧道持久化时，将其设置为true
   keepTunnelOpen = false
   ```
 
-3. On machine C, connect to SSH on machine B, using this command:
+3. 在机器C上，使用以下命令连接到机器B上的SSH：
 
   `ssh -oPort=6000 127.0.0.1`
 
-## Features
+## 特性
 
-### Configuration Files
+### 配置文件
 
-Since v0.52.0, we support TOML, YAML, and JSON for configuration. Please note that INI is deprecated and will be removed in future releases. New features will only be available in TOML, YAML, or JSON. Users wanting these new features should switch their configuration format accordingly.
+从v0.52.0开始，我们支持TOML、YAML和JSON进行配置。请注意，INI已被弃用，将在未来版本中删除。新特性将仅在TOML、YAML或JSON中可用。需要这些新特性的用户应相应地切换其配置格式。
 
-Read the full example configuration files to find out even more features not described here.
+阅读完整的示例配置文件，以了解这里未描述的更多特性。
 
-Examples use TOML format, but you can still use YAML or JSON.
+示例使用TOML格式，但您仍然可以使用YAML或JSON。
 
-These configuration files is for reference only. Please do not use this configuration directly to run the program as it may have various issues.
+这些配置文件仅供参考。请不要直接使用此配置来运行程序，因为它可能存在各种问题。
 
-[Full configuration file for frps (Server)](./conf/frps_full_example.toml)
+[frps（服务器）的完整配置文件](./conf/frps_full_example.toml)
 
-[Full configuration file for frpc (Client)](./conf/frpc_full_example.toml)
+[frpc（客户端）的完整配置文件](./conf/frpc_full_example.toml)
 
-### Using Environment Variables
+### 使用环境变量
 
-Environment variables can be referenced in the configuration file, using Go's standard format:
+环境变量可以在配置文件中引用，使用Go的标准格式：
 
 ```toml
 # frpc.toml
@@ -526,7 +517,7 @@ localPort = 22
 remotePort = {{ .Envs.FRP_SSH_REMOTE_PORT }}
 ```
 
-With the config above, variables can be passed into `frpc` program like this:
+使用上面的配置，可以通过以下方式将变量传递到`frpc`程序：
 
 ```
 export FRP_SERVER_ADDR=x.x.x.x
@@ -534,11 +525,11 @@ export FRP_SSH_REMOTE_PORT=6000
 ./frpc -c ./frpc.toml
 ```
 
-`frpc` will render configuration file template using OS environment variables. Remember to prefix your reference with `.Envs`.
+`frpc`将使用OS环境变量渲染配置文件模板。请记住在引用前加上`.Envs`前缀。
 
-### Split Configures Into Different Files
+### 将配置拆分到不同文件
 
-You can split multiple proxy configs into different files and include them in the main file.
+您可以将多个代理配置拆分到不同文件中，并在主文件中包含它们。
 
 ```toml
 # frpc.toml
@@ -558,43 +549,43 @@ localPort = 22
 remotePort = 6000
 ```
 
-### Server Dashboard
+### 服务器仪表盘
 
-Check frp's status and proxies' statistics information by Dashboard.
+通过仪表盘检查frp的状态和代理的统计信息。
 
-Configure a port for dashboard to enable this feature:
+配置仪表盘端口以启用此功能：
 
 ```toml
-# The default value is 127.0.0.1. Change it to 0.0.0.0 when you want to access it from a public network.
+# 默认值为127.0.0.1。当您想从公共网络访问它时，将其更改为0.0.0.0。
 webServer.addr = "0.0.0.0"
 webServer.port = 7500
-# dashboard's username and password are both optional
+# dashboard的用户名和密码都是可选的
 webServer.user = "admin"
 webServer.password = "admin"
 ```
 
-Then visit `http://[serverAddr]:7500` to see the dashboard, with username and password both being `admin`.
+然后访问`http://[serverAddr]:7500`查看仪表盘，用户名和密码均为`admin`。
 
-Additionally, you can use HTTPS port by using your domains wildcard or normal SSL certificate:
+此外，您可以使用HTTPS端口，使用您的域的通配符或普通SSL证书：
 
 ```toml
 webServer.port = 7500
-# dashboard's username and password are both optional
+# dashboard的用户名和密码都是可选的
 webServer.user = "admin"
 webServer.password = "admin"
 webServer.tls.certFile = "server.crt"
 webServer.tls.keyFile = "server.key"
 ```
 
-Then visit `https://[serverAddr]:7500` to see the dashboard in secure HTTPS connection, with username and password both being `admin`.
+然后访问`https://[serverAddr]:7500`以安全的HTTPS连接查看仪表盘，用户名和密码均为`admin`。
 
 ![dashboard](/doc/pic/dashboard.png)
 
-### Client Admin UI
+### 客户端管理界面
 
-The Client Admin UI helps you check and manage frpc's configuration.
+客户端管理界面帮助您检查和管理frpc的配置。
 
-Configure an address for admin UI to enable this feature:
+配置管理界面地址以启用此功能：
 
 ```toml
 webServer.addr = "127.0.0.1"
@@ -603,41 +594,41 @@ webServer.user = "admin"
 webServer.password = "admin"
 ```
 
-Then visit `http://127.0.0.1:7400` to see admin UI, with username and password both being `admin`.
+然后访问`http://127.0.0.1:7400`查看管理界面，用户名和密码均为`admin`。
 
-### Monitor
+### 监控
 
-When web server is enabled, frps will save monitor data in cache for 7 days. It will be cleared after process restart.
+启用Web服务器后，frps将在缓存中保存7天的监控数据。进程重启后将被清除。
 
-Prometheus is also supported.
+还支持Prometheus。
 
 #### Prometheus
 
-Enable dashboard first, then configure `enablePrometheus = true` in `frps.toml`.
+首先启用仪表盘，然后在`frps.toml`中配置`enablePrometheus = true`。
 
-`http://{dashboard_addr}/metrics` will provide prometheus monitor data.
+`http://{dashboard_addr}/metrics`将提供prometheus监控数据。
 
-### Authenticating the Client
+### 客户端认证
 
-There are 2 authentication methods to authenticate frpc with frps. 
+有2种认证方法可以认证frpc和frps。
 
-You can decide which one to use by configuring `auth.method` in `frpc.toml` and `frps.toml`, the default one is token.
+您可以通过在`frpc.toml`和`frps.toml`中配置`auth.method`来决定使用哪一种，默认是token。
 
-Configuring `auth.additionalScopes = ["HeartBeats"]` will use the configured authentication method to add and validate authentication on every heartbeat between frpc and frps.
+配置`auth.additionalScopes = ["HeartBeats"]`将使用配置的认证方法在frpc和frps之间的每次心跳中添加和验证认证。
 
-Configuring `auth.additionalScopes = ["NewWorkConns"]` will do the same for every new work connection between frpc and frps.
+配置`auth.additionalScopes = ["NewWorkConns"]`将对frpc和frps之间的每个新工作连接执行相同的操作。
 
-#### Token Authentication
+#### Token认证
 
-When specifying `auth.method = "token"` in `frpc.toml` and `frps.toml` - token based authentication will be used.
+当在`frpc.toml`和`frps.toml`中指定`auth.method = "token"`时，将使用基于token的认证。
 
-Make sure to specify the same `auth.token` in `frps.toml` and `frpc.toml` for frpc to pass frps validation
+确保在`frps.toml`和`frpc.toml`中指定相同的`auth.token`，以便frpc通过frps验证。
 
-##### Token Source
+##### Token来源
 
-frp supports reading authentication tokens from external sources using the `tokenSource` configuration. Currently, file-based token source is supported.
+frp支持使用`tokenSource`配置从外部源读取认证token。目前支持基于文件的token源。
 
-**File-based token source:**
+**基于文件的token源：**
 
 ```toml
 # frpc.toml
@@ -646,15 +637,15 @@ auth.tokenSource.type = "file"
 auth.tokenSource.file.path = "/path/to/token/file"
 ```
 
-The token will be read from the specified file at startup. This is useful for scenarios where tokens are managed by external systems or need to be kept separate from configuration files for security reasons.
+token将在启动时从指定文件中读取。这对于token由外部系统管理或出于安全原因需要与配置文件分开保存的场景非常有用。
 
-#### OIDC Authentication
+#### OIDC认证
 
-When specifying `auth.method = "oidc"` in `frpc.toml` and `frps.toml` - OIDC based authentication will be used.
+当在`frpc.toml`和`frps.toml`中指定`auth.method = "oidc"`时，将使用基于OIDC的认证。
 
-OIDC stands for OpenID Connect, and the flow used is called [Client Credentials Grant](https://tools.ietf.org/html/rfc6749#section-4.4).
+OIDC代表OpenID Connect，使用的流程称为[客户端凭证授予](https://tools.ietf.org/html/rfc6749#section-4.4)。
 
-To use this authentication type - configure `frpc.toml` and `frps.toml` as follows:
+要使用此认证类型，请按如下方式配置`frpc.toml`和`frps.toml`：
 
 ```toml
 # frps.toml
@@ -666,15 +657,15 @@ auth.oidc.audience = "https://oidc-audience.com/.default"
 ```toml
 # frpc.toml
 auth.method = "oidc"
-auth.oidc.clientID = "98692467-37de-409a-9fac-bb2585826f18" # Replace with OIDC client ID
+auth.oidc.clientID = "98692467-37de-409a-9fac-bb2585826f18" # 替换为OIDC客户端ID
 auth.oidc.clientSecret = "oidc_secret"
 auth.oidc.audience = "https://oidc-audience.com/.default"
 auth.oidc.tokenEndpointURL = "https://example-oidc-endpoint.com/oauth2/v2.0/token"
 ```
 
-### Encryption and Compression
+### 加密和压缩
 
-The features are off by default. You can turn on encryption and/or compression:
+这些特性默认是关闭的。您可以开启加密和/或压缩：
 
 ```toml
 # frpc.toml
@@ -690,13 +681,13 @@ transport.useCompression = true
 
 #### TLS
 
-Since v0.50.0, the default value of `transport.tls.enable` and `transport.tls.disableCustomTLSFirstByte` has been changed to true, and tls is enabled by default.
+从v0.50.0开始，`transport.tls.enable`和`transport.tls.disableCustomTLSFirstByte`的默认值已更改为true，默认启用了tls。
 
-For port multiplexing, frp sends a first byte `0x17` to dial a TLS connection. This only takes effect when you set `transport.tls.disableCustomTLSFirstByte` to false.
+对于端口复用，frp发送第一个字节`0x17`来拨打TLS连接。这仅在您将`transport.tls.disableCustomTLSFirstByte`设置为false时生效。
 
-To **enforce** `frps` to only accept TLS connections - configure `transport.tls.force = true` in `frps.toml`. **This is optional.**
+要**强制**`frps`仅接受TLS连接，请在`frps.toml`中配置`transport.tls.force = true`。**这是可选的。**
 
-**`frpc` TLS settings:**
+**`frpc` TLS设置：**
 
 ```toml
 transport.tls.enable = true
@@ -705,7 +696,7 @@ transport.tls.keyFile = "certificate.key"
 transport.tls.trustedCaFile = "ca.crt"
 ```
 
-**`frps` TLS settings:**
+**`frps` TLS设置：**
 
 ```toml
 transport.tls.force = true
@@ -714,13 +705,13 @@ transport.tls.keyFile = "certificate.key"
 transport.tls.trustedCaFile = "ca.crt"
 ```
 
-You will need **a root CA cert** and **at least one SSL/TLS certificate**. It **can** be self-signed or regular (such as Let's Encrypt or another SSL/TLS certificate provider).
+您将需要**一个根CA证书**和**至少一个SSL/TLS证书**。它**可以**是自签名的或常规的（例如Let's Encrypt或其他SSL/TLS证书提供商）。
 
-If you using `frp` via IP address and not hostname, make sure to set the appropriate IP address in the Subject Alternative Name (SAN) area when generating SSL/TLS Certificates.
+如果您通过IP地址而不是主机名使用`frp`，请确保在生成SSL/TLS证书时在主题备用名称（SAN）区域中设置适当的IP地址。
 
-Given an example:
+举个例子：
 
-* Prepare openssl config file. It exists at `/etc/pki/tls/openssl.cnf` in Linux System and `/System/Library/OpenSSL/openssl.cnf` in MacOS, and you can copy it to current path, like `cp /etc/pki/tls/openssl.cnf ./my-openssl.cnf`. If not, you can build it by yourself, like:
+* 准备openssl配置文件。它存在于Linux系统的`/etc/pki/tls/openssl.cnf`和MacOS的`/System/Library/OpenSSL/openssl.cnf`中，您可以将其复制到当前路径，如`cp /etc/pki/tls/openssl.cnf ./my-openssl.cnf`。如果没有，您可以自己构建，如：
 ```
 cat > my-openssl.cnf << EOF
 [ ca ]
@@ -749,13 +740,13 @@ basicConstraints       = CA:true
 EOF
 ```
 
-* build ca certificates:
+* 构建ca证书：
 ```
 openssl genrsa -out ca.key 2048
 openssl req -x509 -new -nodes -key ca.key -subj "/CN=example.ca.com" -days 5000 -out ca.crt
 ```
 
-* build frps certificates:
+* 构建frps证书：
 ```
 openssl genrsa -out server.key 2048
 
@@ -771,7 +762,7 @@ openssl x509 -req -days 365 -sha256 \
 	-out server.crt
 ```
 
-* build frpc certificates：
+* 构建frpc证书：
 ```
 openssl genrsa -out client.key 2048
 openssl req -new -sha256 -key client.key \
@@ -786,9 +777,9 @@ openssl x509 -req -days 365 -sha256 \
 	-out client.crt
 ```
 
-### Hot-Reloading frpc configuration
+### 热重载frpc配置
 
-The `webServer` fields are required for enabling HTTP API:
+`webServer`字段是启用HTTP API所必需的：
 
 ```toml
 # frpc.toml
@@ -796,19 +787,19 @@ webServer.addr = "127.0.0.1"
 webServer.port = 7400
 ```
 
-Then run command `frpc reload -c ./frpc.toml` and wait for about 10 seconds to let `frpc` create or update or remove proxies.
+然后运行命令`frpc reload -c ./frpc.toml`，等待约10秒，让`frpc`创建、更新或删除代理。
 
-**Note that global client parameters won't be modified except 'start'.**
+**注意，全局客户端参数不会被修改，除了'start'。**
 
-You can run command `frpc verify -c ./frpc.toml` before reloading to check if there are config errors.
+您可以在重载之前运行命令`frpc verify -c ./frpc.toml`来检查是否存在配置错误。
 
-### Get proxy status from client
+### 从客户端获取代理状态
 
-Use `frpc status -c ./frpc.toml` to get status of all proxies. The `webServer` fields are required for enabling HTTP API.
+使用`frpc status -c ./frpc.toml`获取所有代理的状态。`webServer`字段是启用HTTP API所必需的。
 
-### Only allowing certain ports on the server
+### 仅允许服务器上的特定端口
 
-`allowPorts` in `frps.toml` is used to avoid abuse of ports:
+`frps.toml`中的`allowPorts`用于避免端口滥用：
 
 ```toml
 # frps.toml
@@ -820,17 +811,17 @@ allowPorts = [
 ]
 ```
 
-### Port Reuse
+### 端口复用
 
-`vhostHTTPPort` and `vhostHTTPSPort` in frps can use same port with `bindPort`. frps will detect the connection's protocol and handle it correspondingly.
+frps中的`vhostHTTPPort`和`vhostHTTPSPort`可以与`bindPort`使用相同的端口。frps将检测连接的协议并相应地处理它。
 
-What you need to pay attention to is that if you want to configure `vhostHTTPSPort` and `bindPort` to the same port, you need to first set `transport.tls.disableCustomTLSFirstByte` to false.
+您需要注意的是，如果要将`vhostHTTPSPort`和`bindPort`配置为相同的端口，您需要首先将`transport.tls.disableCustomTLSFirstByte`设置为false。
 
-We would like to try to allow multiple proxies bind a same remote port with different protocols in the future.
+我们希望将来尝试允许多个代理使用不同的协议绑定到同一个远程端口。
 
-### Bandwidth Limit
+### 带宽限制
 
-#### For Each Proxy
+#### 每个代理
 
 ```toml
 # frpc.toml
@@ -843,100 +834,100 @@ remotePort = 6000
 transport.bandwidthLimit = "1MB"
 ```
 
-Set `transport.bandwidthLimit` in each proxy's configure to enable this feature. Supported units are `MB` and `KB`.
+在每个代理的配置中设置`transport.bandwidthLimit`以启用此功能。支持的单位是`MB`和`KB`。
 
-Set `transport.bandwidthLimitMode` to `client` or `server` to limit bandwidth on the client or server side. Default is `client`.
+设置`transport.bandwidthLimitMode`为`client`或`server`以限制客户端或服务器端的带宽。默认为`client`。
 
-### TCP Stream Multiplexing
+### TCP流多路复用
 
-frp supports tcp stream multiplexing since v0.10.0 like HTTP2 Multiplexing, in which case all logic connections to the same frpc are multiplexed into the same TCP connection.
+frp从v0.10.0开始支持TCP流多路复用，如HTTP2多路复用，在这种情况下，到同一frpc的所有逻辑连接都被多路复用到同一个TCP连接中。
 
-You can disable this feature by modify `frps.toml` and `frpc.toml`:
+您可以通过修改`frps.toml`和`frpc.toml`来禁用此功能：
 
 ```toml
-# frps.toml and frpc.toml, must be same
+# frps.toml和frpc.toml，必须相同
 transport.tcpMux = false
 ```
 
-### Support KCP Protocol
+### 支持KCP协议
 
-KCP is a fast and reliable protocol that can achieve the transmission effect of a reduction of the average latency by 30% to 40% and reduction of the maximum delay by a factor of three, at the cost of 10% to 20% more bandwidth wasted than TCP.
+KCP是一种快速可靠的协议，可以实现平均延迟减少30%至40%，最大延迟减少三倍的传输效果，代价是比TCP多浪费10%至20%的带宽。
 
-KCP mode uses UDP as the underlying transport. Using KCP in frp:
+KCP模式使用UDP作为底层传输。在frp中使用KCP：
 
-1. Enable KCP in frps:
+1. 在frps中启用KCP：
 
   ```toml
   # frps.toml
   bindPort = 7000
-  # Specify a UDP port for KCP.
+  # 为KCP指定一个UDP端口。
   kcpBindPort = 7000
   ```
 
-  The `kcpBindPort` number can be the same number as `bindPort`, since `bindPort` field specifies a TCP port.
+  `kcpBindPort`数字可以与`bindPort`相同，因为`bindPort`字段指定TCP端口。
 
-2. Configure `frpc.toml` to use KCP to connect to frps:
+2. 配置`frpc.toml`使用KCP连接到frps：
 
   ```toml
   # frpc.toml
   serverAddr = "x.x.x.x"
-  # Same as the 'kcpBindPort' in frps.toml
+  # 与frps.toml中的'kcpBindPort'相同
   serverPort = 7000
   transport.protocol = "kcp"
   ```
 
-### Support QUIC Protocol
+### 支持QUIC协议
 
-QUIC is a new multiplexed transport built on top of UDP.
+QUIC是一种基于UDP构建的新型多路复用传输。
 
-Using QUIC in frp:
+在frp中使用QUIC：
 
-1. Enable QUIC in frps:
+1. 在frps中启用QUIC：
 
   ```toml
   # frps.toml
   bindPort = 7000
-  # Specify a UDP port for QUIC.
+  # 为QUIC指定一个UDP端口。
   quicBindPort = 7000
   ```
 
-  The `quicBindPort` number can be the same number as `bindPort`, since `bindPort` field specifies a TCP port.
+  `quicBindPort`数字可以与`bindPort`相同，因为`bindPort`字段指定TCP端口。
 
-2. Configure `frpc.toml` to use QUIC to connect to frps:
+2. 配置`frpc.toml`使用QUIC连接到frps：
 
   ```toml
   # frpc.toml
   serverAddr = "x.x.x.x"
-  # Same as the 'quicBindPort' in frps.toml
+  # 与frps.toml中的'quicBindPort'相同
   serverPort = 7000
   transport.protocol = "quic"
   ```
 
-### Connection Pooling
+### 连接池
 
-By default, frps creates a new frpc connection to the backend service upon a user request. With connection pooling, frps keeps a certain number of pre-established connections, reducing the time needed to establish a connection.
+默认情况下，frps会根据用户请求创建到后端服务的新frpc连接。通过连接池，frps会保持一定数量的预建立连接，减少建立连接所需的时间。
 
-This feature is suitable for a large number of short connections.
+此功能适用于大量短连接的场景。
 
-1. Configure the limit of pool count each proxy can use in `frps.toml`:
+1. 在`frps.toml`中配置每个代理可以使用的池计数限制：
 
   ```toml
   # frps.toml
   transport.maxPoolCount = 5
   ```
 
-2. Enable and specify the number of connection pool:
+2. 启用并指定连接池数量：
 
   ```toml
   # frpc.toml
   transport.poolCount = 1
   ```
 
-### Load balancing
+### 负载均衡
 
-Load balancing is supported by `group`.
+负载均衡通过`group`支持。
 
-This feature is only available for types `tcp`, `http`, `tcpmux` now.
+此功能目前仅适用于类型`tcp`、`http`、`tcpmux`。
 
 ```toml
 # frpc.toml
@@ -958,21 +949,21 @@ loadBalancer.group = "web"
 loadBalancer.groupKey = "123"
 ```
 
-`loadBalancer.groupKey` is used for authentication.
+`loadBalancer.groupKey`用于认证。
 
-Connections to port 80 will be dispatched to proxies in the same group randomly.
+到端口80的连接将被随机分发到同一组中的代理。
 
-For type `tcp`, `remotePort` in the same group should be the same.
+对于类型`tcp`，同一组中的`remotePort`应该相同。
 
-For type `http`, `customDomains`, `subdomain`, `locations` should be the same.
+对于类型`http`，`customDomains`、`subdomain`、`locations`应该相同。
 
-### Service Health Check
+### 服务健康检查
 
-Health check feature can help you achieve high availability with load balancing.
+健康检查功能可以帮助您通过负载均衡实现高可用性。
 
-Add `healthCheck.type = "tcp"` or `healthCheck.type = "http"` to enable health check.
+添加`healthCheck.type = "tcp"`或`healthCheck.type = "http"`来启用健康检查。
 
-With health check type **tcp**, the service port will be pinged (TCPing):
+使用健康检查类型**tcp**，服务端口将被ping（TCPing）：
 
 ```toml
 # frpc.toml
@@ -982,17 +973,17 @@ name = "test1"
 type = "tcp"
 localPort = 22
 remotePort = 6000
-# Enable TCP health check
+# 启用TCP健康检查
 healthCheck.type = "tcp"
-# TCPing timeout seconds
+# TCPing超时秒数
 healthCheck.timeoutSeconds = 3
-# If health check failed 3 times in a row, the proxy will be removed from frps
+# 如果健康检查连续失败3次，代理将从frps中删除
 healthCheck.maxFailed = 3
-# A health check every 10 seconds
+# 每10秒进行一次健康检查
 healthCheck.intervalSeconds = 10
 ```
 
-With health check type **http**, an HTTP request will be sent to the service and an HTTP 2xx OK response is expected:
+使用健康检查类型**http**，将向服务发送HTTP请求，并期望HTTP 2xx OK响应：
 
 ```toml
 # frpc.toml
@@ -1003,21 +994,21 @@ type = "http"
 localIP = "127.0.0.1"
 localPort = 80
 customDomains = ["test.example.com"]
-# Enable HTTP health check
+# 启用HTTP健康检查
 healthCheck.type = "http"
-# frpc will send a GET request to '/status'
-# and expect an HTTP 2xx OK response
+# frpc将发送GET请求到'/status'
+# 并期望HTTP 2xx OK响应
 healthCheck.path = "/status"
 healthCheck.timeoutSeconds = 3
 healthCheck.maxFailed = 3
 healthCheck.intervalSeconds = 10
 ```
 
-### Rewriting the HTTP Host Header
+### 重写HTTP Host头
 
-By default frp does not modify the tunneled HTTP requests at all as it's a byte-for-byte copy.
+默认情况下，frp不会修改隧道HTTP请求，因为它是字节对字节的副本。
 
-However, speaking of web servers and HTTP requests, your web server might rely on the `Host` HTTP header to determine the website to be accessed. frp can rewrite the `Host` header when forwarding the HTTP requests, with the `hostHeaderRewrite` field:
+然而，对于Web服务器和HTTP请求，您的Web服务器可能依赖于`Host` HTTP头来确定要访问的网站。frp可以在转发HTTP请求时重写`Host`头，使用`hostHeaderRewrite`字段：
 
 ```toml
 # frpc.toml
@@ -1030,11 +1021,11 @@ customDomains = ["test.example.com"]
 hostHeaderRewrite = "dev.example.com"
 ```
 
-The HTTP request will have the `Host` header rewritten to `Host: dev.example.com` when it reaches the actual web server, although the request from the browser probably has `Host: test.example.com`.
+当HTTP请求到达实际的Web服务器时，它将具有被重写为`Host: dev.example.com`的`Host`头，尽管来自浏览器的请求可能具有`Host: test.example.com`。
 
-### Setting other HTTP Headers
+### 设置其他HTTP头
 
-Similar to `Host`, You can override other HTTP request and response headers with proxy type `http`.
+类似于`Host`，您可以使用代理类型`http`覆盖其他HTTP请求和响应头。
 
 ```toml
 # frpc.toml
@@ -1049,21 +1040,21 @@ requestHeaders.set.x-from-where = "frp"
 responseHeaders.set.foo = "bar"
 ```
 
-In this example, it will set header `x-from-where: frp` in the HTTP request and `foo: bar` in the HTTP response.
+在此示例中，它将在HTTP请求中设置头`x-from-where: frp`，在HTTP响应中设置`foo: bar`。
 
-### Get Real IP
+### 获取真实IP
 
 #### HTTP X-Forwarded-For
 
-This feature is for `http` proxies or proxies with the `https2http` and `https2https` plugins enabled.
+此功能适用于`http`代理或启用了`https2http`和`https2https`插件的代理。
 
-You can get user's real IP from HTTP request headers `X-Forwarded-For`.
+您可以从HTTP请求头`X-Forwarded-For`获取用户的真实IP。
 
 #### Proxy Protocol
 
-frp supports Proxy Protocol to send user's real IP to local services.
+frp支持Proxy Protocol将用户的真实IP发送到本地服务。
 
-Here is an example for https service:
+以下是https服务的示例：
 
 ```toml
 # frpc.toml
@@ -1074,19 +1065,19 @@ type = "https"
 localPort = 443
 customDomains = ["test.example.com"]
 
-# now v1 and v2 are supported
+# 现在支持v1和v2
 transport.proxyProtocolVersion = "v2"
 ```
 
-You can enable Proxy Protocol support in nginx to expose user's real IP in HTTP header `X-Real-IP`, and then read `X-Real-IP` header in your web service for the real IP.
+您可以在nginx中启用Proxy Protocol支持，以在HTTP头`X-Real-IP`中暴露用户的真实IP，然后在Web服务中读取`X-Real-IP`头获取真实IP。
 
-### Require HTTP Basic Auth (Password) for Web Services
+### 为Web服务要求HTTP基本认证（密码）
 
-Anyone who can guess your tunnel URL can access your local web server unless you protect it with a password.
+任何能够猜测您的隧道URL的人都可以访问您的本地Web服务器，除非您用密码保护它。
 
-This enforces HTTP Basic Auth on all requests with the username and password specified in frpc's configure file.
+这会在所有请求上强制执行HTTP基本认证，使用frpc配置文件中指定的用户名和密码。
 
-It can only be enabled when proxy type is http.
+它只能在代理类型为http时启用。
 
 ```toml
 # frpc.toml
@@ -1100,18 +1091,18 @@ httpUser = "abc"
 httpPassword = "abc"
 ```
 
-Visit `http://test.example.com` in the browser and now you are prompted to enter the username and password.
+在浏览器中访问`http://test.example.com`，现在您会被提示输入用户名和密码。
 
-### Custom Subdomain Names
+### 自定义子域名
 
-It is convenient to use `subdomain` configure for http and https types when many people share one frps server.
+当多人共享一个frps服务器时，对http和https类型使用`subdomain`配置很方便。
 
 ```toml
 # frps.toml
 subDomainHost = "frps.com"
 ```
 
-Resolve `*.frps.com` to the frps server's IP. This is usually called a Wildcard DNS record.
+将`*.frps.com`解析到frps服务器的IP。这通常称为通配符DNS记录。
 
 ```toml
 # frpc.toml
@@ -1123,15 +1114,15 @@ localPort = 80
 subdomain = "test"
 ```
 
-Now you can visit your web service on `test.frps.com`.
+现在您可以在`test.frps.com`上访问您的Web服务。
 
-Note that if `subdomainHost` is not empty, `customDomains` should not be the subdomain of `subdomainHost`.
+请注意，如果`subdomainHost`不为空，`customDomains`不应是`subdomainHost`的子域名。
 
-### URL Routing
+### URL路由
 
-frp supports forwarding HTTP requests to different backend web services by url routing.
+frp支持通过URL路由将HTTP请求转发到不同的后端Web服务。
 
-`locations` specifies the prefix of URL used for routing. frps first searches for the most specific prefix location given by literal strings regardless of the listed order.
+`locations`指定用于路由的URL前缀。frps首先搜索由文字字符串给出的最具体的前缀位置，而不管列出的顺序如何。
 
 ```toml
 # frpc.toml
@@ -1151,19 +1142,19 @@ customDomains = ["web.example.com"]
 locations = ["/news", "/about"]
 ```
 
-HTTP requests with URL prefix `/news` or `/about` will be forwarded to **web02** and other requests to **web01**.
+URL前缀为`/news`或`/about`的HTTP请求将被转发到**web02**，其他请求将被转发到**web01**。
 
-### TCP Port Multiplexing
+### TCP端口多路复用
 
-frp supports receiving TCP sockets directed to different proxies on a single port on frps, similar to `vhostHTTPPort` and `vhostHTTPSPort`.
+frp支持在frps的单个端口上接收定向到不同代理的TCP套接字，类似于`vhostHTTPPort`和`vhostHTTPSPort`。
 
-The only supported TCP port multiplexing method available at the moment is `httpconnect` - HTTP CONNECT tunnel.
+目前唯一支持的TCP端口多路复用方法是`httpconnect` - HTTP CONNECT隧道。
 
-When setting `tcpmuxHTTPConnectPort` to anything other than 0 in frps, frps will listen on this port for HTTP CONNECT requests.
+当在frps中设置`tcpmuxHTTPConnectPort`为0以外的任何值时，frps将在此端口上监听HTTP CONNECT请求。
 
-The host of the HTTP CONNECT request will be used to match the proxy in frps. Proxy hosts can be configured in frpc by configuring `customDomains` and / or `subdomain` under `tcpmux` proxies, when `multiplexer = "httpconnect"`.
+HTTP CONNECT请求的主机将用于匹配frps中的代理。代理主机可以通过在`tcpmux`代理下配置`customDomains`和/或`subdomain`来在frpc中配置，当`multiplexer = "httpconnect"`时。
 
-For example:
+例如：
 
 ```toml
 # frps.toml
@@ -1191,18 +1182,18 @@ customDomains = ["test2"]
 localPort = 8080
 ```
 
-In the above configuration - frps can be contacted on port 1337 with a HTTP CONNECT header such as:
+在上面的配置中，frps可以在端口1337上通过HTTP CONNECT头联系，例如：
 
 ```
 CONNECT test1 HTTP/1.1\r\n\r\n
 ```
-and the connection will be routed to `proxy1`.
+连接将被路由到`proxy1`。
 
-### Connecting to frps via PROXY
+### 通过PROXY连接到frps
 
-frpc can connect to frps through proxy if you set OS environment variable `HTTP_PROXY`, or if `transport.proxyURL` is set in frpc.toml file.
+如果您设置OS环境变量`HTTP_PROXY`，或者在frpc.toml文件中设置`transport.proxyURL`，frpc可以通过代理连接到frps。
 
-It only works when protocol is tcp.
+它仅在协议为tcp时工作。
 
 ```toml
 # frpc.toml
@@ -1211,13 +1202,13 @@ serverPort = 7000
 transport.proxyURL = "http://user:pwd@192.168.1.128:8080"
 ```
 
-### Port range mapping
+### 端口范围映射
 
-*Added in v0.56.0*
+*在v0.56.0中添加*
 
-We can use the range syntax of Go template combined with the built-in `parseNumberRangePair` function to achieve port range mapping.
+我们可以使用Go模板的范围语法结合内置的`parseNumberRangePair`函数来实现端口范围映射。
 
-The following example, when run, will create 8 proxies named `test-6000, test-6001 ... test-6007`, each mapping the remote port to the local port.
+以下示例运行时将创建8个代理，名称为`test-6000, test-6001 ... test-6007`，每个映射远程端口到本地端口。
 
 ```
 {{- range $_, $v := parseNumberRangePair "6000-6006,6007" "6000-6006,6007" }}
@@ -1229,13 +1220,13 @@ remotePort = {{ $v.Second }}
 {{- end }}
 ```
 
-### Client Plugins
+### 客户端插件
 
-frpc only forwards requests to local TCP or UDP ports by default.
+默认情况下，frpc仅将请求转发到本地TCP或UDP端口。
 
-Plugins are used for providing rich features. There are built-in plugins such as `unix_domain_socket`, `http_proxy`, `socks5`, `static_file`, `http2https`, `https2http`, `https2https` and you can see [example usage](#example-usage).
+插件用于提供丰富的功能。有内置插件如`unix_domain_socket`、`http_proxy`、`socks5`、`static_file`、`http2https`、`https2http`、`https2https`，您可以看到[示例用法](#example-usage)。
 
-Using plugin **http_proxy**:
+使用插件**http_proxy**：
 
 ```toml
 # frpc.toml
@@ -1250,34 +1241,34 @@ httpUser = "abc"
 httpPassword = "abc"
 ```
 
-`httpUser` and `httpPassword` are configuration parameters used in `http_proxy` plugin.
+`httpUser`和`httpPassword`是`http_proxy`插件中使用的配置参数。
 
-### Server Manage Plugins
+### 服务器管理插件
 
-Read the [document](/doc/server_plugin.md).
+阅读[文档](/doc/server_plugin.md)。
 
-Find more plugins in [gofrp/plugin](https://github.com/gofrp/plugin).
+在[gofrp/plugin](https://github.com/gofrp/plugin)中找到更多插件。
 
-### SSH Tunnel Gateway
+### SSH隧道网关
 
-*added in v0.53.0*
+*在v0.53.0中添加*
 
-frp supports listening to an SSH port on the frps side and achieves TCP protocol proxying through the SSH -R protocol, without relying on frpc.
+frp支持在frps端监听SSH端口，并通过SSH -R协议实现TCP协议代理，无需依赖frpc。
 
 ```toml
 # frps.toml
 sshTunnelGateway.bindPort = 2200
 ```
 
-When running `./frps -c frps.toml`, a private key file named `.autogen_ssh_key` will be automatically created in the current working directory. This generated private key file will be used by the SSH server in frps.
+运行`./frps -c frps.toml`时，当前工作目录中会自动创建一个名为`.autogen_ssh_key`的私钥文件。这个生成的私钥文件将被frps中的SSH服务器使用。
 
-Executing the command
+执行命令
 
 ```bash
 ssh -R :80:127.0.0.1:8080 v0@{frp address} -p 2200 tcp --proxy_name "test-tcp" --remote_port 9090
 ```
 
-sets up a proxy on frps that forwards the local 8080 service to the port 9090.
+在frps上设置一个代理，将本地8080服务转发到端口9090。
 
 ```bash
 frp (via SSH) (Ctrl+C to quit)
@@ -1288,73 +1279,73 @@ Type: tcp
 RemoteAddress: :9090
 ```
 
-This is equivalent to:
+这相当于：
 
 ```bash
 frpc tcp --proxy_name "test-tcp" --local_ip 127.0.0.1 --local_port 8080 --remote_port 9090
 ```
 
-Please refer to this [document](/doc/ssh_tunnel_gateway.md) for more information.
+有关更多信息，请参考此[文档](/doc/ssh_tunnel_gateway.md)。
 
-### Virtual Network (VirtualNet)
+### 虚拟网络（VirtualNet）
 
-*Alpha feature added in v0.62.0*
+*在v0.62.0中添加的Alpha特性*
 
-The VirtualNet feature enables frp to create and manage virtual network connections between clients and visitors through a TUN interface. This allows for IP-level routing between machines, extending frp beyond simple port forwarding to support full network connectivity.
+VirtualNet特性使frp能够通过TUN接口在客户端和访问者之间创建和管理虚拟网络连接。这允许机器之间的IP级路由，将frp从简单的端口转发扩展到支持完整的网络连接。
 
-For detailed information about configuration and usage, please refer to the [VirtualNet documentation](/doc/virtual_net.md).
+有关配置和使用的详细信息，请参阅[VirtualNet文档](/doc/virtual_net.md)。
 
-## Feature Gates
+## 特性开关
 
-frp supports feature gates to enable or disable experimental features. This allows users to try out new features before they're considered stable.
+frp支持特性开关来启用或禁用实验性功能。这允许用户在功能被认为稳定之前尝试新功能。
 
-### Available Feature Gates
+### 可用的特性开关
 
-| Name | Stage | Default | Description |
+| 名称 | 阶段 | 默认 | 描述 |
 |------|-------|---------|-------------|
-| VirtualNet | ALPHA | false | Virtual network capabilities for frp |
+| VirtualNet | ALPHA | false | frp的虚拟网络功能 |
 
-### Enabling Feature Gates
+### 启用特性开关
 
-To enable an experimental feature, add the feature gate to your configuration:
+要启用实验性功能，请将特性开关添加到您的配置中：
 
 ```toml
 featureGates = { VirtualNet = true }
 ```
 
-### Feature Lifecycle
+### 特性生命周期
 
-Features typically go through three stages:
-1. **ALPHA**: Disabled by default, may be unstable
-2. **BETA**: May be enabled by default, more stable but still evolving
-3. **GA (Generally Available)**: Enabled by default, ready for production use
+特性通常经历三个阶段：
+1. **ALPHA**：默认禁用，可能不稳定
+2. **BETA**：可能默认启用，更稳定但仍在发展中
+3. **GA（一般可用）**：默认启用，可用于生产环境
 
-## Related Projects
+## 相关项目
 
-* [gofrp/plugin](https://github.com/gofrp/plugin) - A repository for frp plugins that contains a variety of plugins implemented based on the frp extension mechanism, meeting the customization needs of different scenarios.
-* [gofrp/tiny-frpc](https://github.com/gofrp/tiny-frpc) - A lightweight version of the frp client (around 3.5MB at minimum) implemented using the ssh protocol, supporting some of the most commonly used features, suitable for devices with limited resources.
+* [gofrp/plugin](https://github.com/gofrp/plugin) - frp插件的存储库，包含基于frp扩展机制实现的各种插件，满足不同场景的定制需求。
+* [gofrp/tiny-frpc](https://github.com/gofrp/tiny-frpc) - frp客户端的轻量级版本（最小约3.5MB），使用ssh协议实现，支持一些最常用的功能，适用于资源有限的设备。
 
-## Contributing
+## 贡献
 
-Interested in getting involved? We would like to help you!
+有兴趣参与吗？我们很乐意帮助您！
 
-* Take a look at our [issues list](https://github.com/purpose168/frp/issues) and consider sending a Pull Request to **dev branch**.
-* If you want to add a new feature, please create an issue first to describe the new feature, as well as the implementation approach. Once a proposal is accepted, create an implementation of the new features and submit it as a pull request.
-* Sorry for my poor English. Improvements for this document are welcome, even some typo fixes.
-* If you have great ideas, send an email to fatedier@gmail.com.
+* 查看我们的[issues列表](https://github.com/purpose168/frp/issues)，并考虑向**dev分支**发送Pull Request。
+* 如果您想添加新功能，请先创建一个issue来描述新功能，以及实现方法。一旦提案被接受，请创建新功能的实现并将其作为pull request提交。
+* 抱歉，我的英语不好。欢迎对本文档进行改进，甚至是一些拼写修正。
+* 如果您有好的想法，请发送电子邮件至fatedier@gmail.com。
 
-**Note: We prefer you to give your advise in [issues](https://github.com/purpose168/frp/issues), so others with a same question can search it quickly and we don't need to answer them repeatedly.**
+**注意：我们希望您在[issues](https://github.com/purpose168/frp/issues)中给出您的建议，这样有相同问题的其他人可以快速搜索到，我们也不需要重复回答。**
 
-## Donation
+## 捐赠
 
-If frp helps you a lot, you can support us by:
+如果frp对您有很大帮助，您可以通过以下方式支持我们：
 
-### GitHub Sponsors
+### GitHub赞助商
 
-Support us by [Github Sponsors](https://github.com/sponsors/fatedier).
+通过[Github Sponsors](https://github.com/sponsors/fatedier)支持我们。
 
-You can have your company's logo placed on README file of this project.
+您可以将公司的徽标放置在这个项目的README文件上。
 
 ### PayPal
 
-Donate money by [PayPal](https://www.paypal.me/fatedier) to my account **fatedier@gmail.com**.
+通过[PayPal](https://www.paypal.me/fatedier)向我的账户**fatedier@gmail.com**捐赠资金。
