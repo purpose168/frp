@@ -1,83 +1,83 @@
-name: Build Image and Publish to Dockerhub & GPR
+name: 构建镜像并发布到 Dockerhub 和 GPR
 
 on:
   release:
-    types: [ published ]
+    types: [ published ]  # 当发布新版本时触发
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Image tag'
+        description: '镜像标签'  # 手动触发时输入的镜像标签
         required: true
         default: 'test'
 permissions:
-  contents: read
+  contents: read  # 只需要读取仓库内容的权限
 
 jobs:
   image:
-    name: Build Image from Dockerfile and binaries
-    runs-on: ubuntu-latest
+    name: 从 Dockerfile 和二进制文件构建镜像
+    runs-on: ubuntu-latest  # 使用 Ubuntu 最新版本作为运行环境
     steps:
-      # environment
-      - name: Checkout
+      # 环境准备
+      - name: 检出代码
         uses: actions/checkout@v4
         with:
-          fetch-depth: '0'
+          fetch-depth: '0'  # 拉取完整的仓库历史
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+      - name: 设置 QEMU
+        uses: docker/setup-qemu-action@v3  # 安装 QEMU 以支持多架构构建
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: 设置 Docker Buildx
+        uses: docker/setup-buildx-action@v3  # 安装 Buildx 以支持多平台构建
 
-      # get image tag name
-      - name: Get Image Tag Name
+      # 获取镜像标签名称
+      - name: 获取镜像标签名称
         run: |
           if [ x${{ github.event.inputs.tag }} == x"" ]; then
-            echo "TAG_NAME=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+            echo "TAG_NAME=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV  # 如果没有手动输入标签，则使用 GitHub 发布的标签
           else
-            echo "TAG_NAME=${{ github.event.inputs.tag }}" >> $GITHUB_ENV
+            echo "TAG_NAME=${{ github.event.inputs.tag }}" >> $GITHUB_ENV  # 使用手动输入的标签
           fi
-      - name: Login to DockerHub
+      - name: 登录 DockerHub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}  # 从 GitHub Secrets 中获取 DockerHub 用户名
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}  # 从 GitHub Secrets 中获取 DockerHub 密码
 
-      - name: Login to the GPR
+      - name: 登录 GPR
         uses: docker/login-action@v3
         with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GPR_TOKEN }}
+          registry: ghcr.io  # GitHub 容器注册表
+          username: ${{ github.repository_owner }}  # 仓库所有者
+          password: ${{ secrets.GPR_TOKEN }}  # 从 GitHub Secrets 中获取 GPR 令牌
 
-      # prepare image tags
-      - name: Prepare Image Tags
+      # 准备镜像标签
+      - name: 准备镜像标签
         run: |
-          echo "DOCKERFILE_FRPC_PATH=dockerfiles/Dockerfile-for-frpc" >> $GITHUB_ENV
-          echo "DOCKERFILE_FRPS_PATH=dockerfiles/Dockerfile-for-frps" >> $GITHUB_ENV
-          echo "TAG_FRPC=fatedier/frpc:${{ env.TAG_NAME }}" >> $GITHUB_ENV
-          echo "TAG_FRPS=fatedier/frps:${{ env.TAG_NAME }}" >> $GITHUB_ENV
-          echo "TAG_FRPC_GPR=ghcr.io/fatedier/frpc:${{ env.TAG_NAME }}" >> $GITHUB_ENV
-          echo "TAG_FRPS_GPR=ghcr.io/fatedier/frps:${{ env.TAG_NAME }}" >> $GITHUB_ENV
+          echo "DOCKERFILE_FRPC_PATH=dockerfiles/Dockerfile-for-frpc" >> $GITHUB_ENV  # frpc Dockerfile 路径
+          echo "DOCKERFILE_FRPS_PATH=dockerfiles/Dockerfile-for-frps" >> $GITHUB_ENV  # frps Dockerfile 路径
+          echo "TAG_FRPC=fatedier/frpc:${{ env.TAG_NAME }}" >> $GITHUB_ENV  # DockerHub 上的 frpc 镜像标签
+          echo "TAG_FRPS=fatedier/frps:${{ env.TAG_NAME }}" >> $GITHUB_ENV  # DockerHub 上的 frps 镜像标签
+          echo "TAG_FRPC_GPR=ghcr.io/fatedier/frpc:${{ env.TAG_NAME }}" >> $GITHUB_ENV  # GPR 上的 frpc 镜像标签
+          echo "TAG_FRPS_GPR=ghcr.io/fatedier/frps:${{ env.TAG_NAME }}" >> $GITHUB_ENV  # GPR 上的 frps 镜像标签
 
-      - name: Build and push frpc
+      - name: 构建并推送 frpc 镜像
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ./dockerfiles/Dockerfile-for-frpc
-          platforms: linux/amd64,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x
-          push: true
+          context: .  # 构建上下文为当前目录
+          file: ./dockerfiles/Dockerfile-for-frpc  # 使用 frpc 的 Dockerfile
+          platforms: linux/amd64,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x  # 支持的架构
+          push: true  # 推送镜像到仓库
           tags: |
-            ${{ env.TAG_FRPC }}
-            ${{ env.TAG_FRPC_GPR }}
+            ${{ env.TAG_FRPC }}  # DockerHub 标签
+            ${{ env.TAG_FRPC_GPR }}  # GPR 标签
 
-      - name: Build and push frps
+      - name: 构建并推送 frps 镜像
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ./dockerfiles/Dockerfile-for-frps
-          platforms: linux/amd64,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x
-          push: true
+          context: .  # 构建上下文为当前目录
+          file: ./dockerfiles/Dockerfile-for-frps  # 使用 frps 的 Dockerfile
+          platforms: linux/amd64,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x  # 支持的架构
+          push: true  # 推送镜像到仓库
           tags: |
-            ${{ env.TAG_FRPS }}
-            ${{ env.TAG_FRPS_GPR }}
+            ${{ env.TAG_FRPS }}  # DockerHub 标签
+            ${{ env.TAG_FRPS_GPR }}  # GPR 标签

@@ -1,35 +1,35 @@
-name: golangci-lint
+name: golangci-lint  # 工作流名称：golangci-lint代码检查
 on:
   push:
     branches:
-    - master
-    - dev
-  pull_request:
+    - master  # 当代码推送到master分支时触发
+    - dev     # 当代码推送到dev分支时触发
+  pull_request:  # 当创建或更新Pull Request时触发
 permissions:
-  contents: read
-  # Optional: allow read access to pull request. Use with `only-new-issues` option.
-  pull-requests: read
+  contents: read  # 读取仓库内容权限
+  # 可选：允许读取Pull Request内容，与`only-new-issues`选项配合使用
+  pull-requests: read  # 读取Pull Request权限
 jobs:
   golangci:
-    name: lint
-    runs-on: ubuntu-latest
+    name: lint  # 任务名称：代码检查
+    runs-on: ubuntu-latest  # 在最新版Ubuntu系统上运行
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-go@v5
+    - uses: actions/checkout@v4  # 检出仓库代码
+    - uses: actions/setup-go@v5  # 设置Go环境
       with:
-        go-version: '1.24'
-        cache: false
-    - uses: actions/setup-node@v4
+        go-version: '1.24'  # Go版本1.24
+        cache: false  # 禁用Go模块缓存
+    - uses: actions/setup-node@v4  # 设置Node.js环境
       with:
-        node-version: '22'
-    - name: Build web assets (frps)
-      run: make install build
-      working-directory: web/frps
-    - name: Build web assets (frpc)
-      run: make install build
-      working-directory: web/frpc
-    - name: golangci-lint
-      uses: golangci/golangci-lint-action@v8
+        node-version: '22'  # Node.js版本22
+    - name: 构建Web资源(frps)  # 构建frps的Web前端资源
+      run: make install build  # 执行安装依赖和构建命令
+      working-directory: web/frps  # 工作目录：web/frps
+    - name: 构建Web资源(frpc)  # 构建frpc的Web前端资源
+      run: make install build  # 执行安装依赖和构建命令
+      working-directory: web/frpc  # 工作目录：web/frpc
+    - name: golangci-lint  # 运行golangci-lint代码检查
+      uses: golangci/golangci-lint-action@v8  # 使用golangci-lint官方Action
       with:
-        # Optional: version of golangci-lint to use in form of v1.2 or v1.2.3 or `latest` to use the latest version
-        version: v2.3
+        # 可选：指定golangci-lint版本，格式如v1.2、v1.2.3或`latest`使用最新版本
+        version: v2.3  # 使用v2.3版本的golangci-lint

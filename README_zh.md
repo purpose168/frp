@@ -1,27 +1,25 @@
 # frp
 
-[![Build Status](https://circleci.com/gh/fatedier/frp.svg?style=shield)](https://circleci.com/gh/fatedier/frp)
-[![GitHub release](https://img.shields.io/github/tag/fatedier/frp.svg?label=release)](https://github.com/purpose168/frp/releases)
-[![Go Report Card](https://goreportcard.com/badge/github.com/fatedier/frp)](https://goreportcard.com/report/github.com/fatedier/frp)
-[![GitHub Releases Stats](https://img.shields.io/github/downloads/purpose168/frp/total.svg?logo=github)](https://somsubhra.github.io/github-release-stats/?username=fatedier&repository=frp)
+[![构建状态](https://circleci.com/gh/fatedier/frp.svg?style=shield)](https://circleci.com/gh/fatedier/frp)
+[![GitHub 版本](https://img.shields.io/github/tag/fatedier/frp.svg?label=release)](https://github.com/purpose168/frp/releases)
+[![Go 报告卡](https://goreportcard.com/badge/github.com/fatedier/frp)](https://goreportcard.com/report/github.com/fatedier/frp)
+[![GitHub 下载统计](https://img.shields.io/github/downloads/purpose168/frp/total.svg?logo=github)](https://somsubhra.github.io/github-release-stats/?username=fatedier&repository=frp)
 
-[README](README.md) | [中文文档](README_zh.md)
+[英文文档](README.md) | [中文文档](README_zh.md)
 
-frp 是一个专注于内网穿透的高性能的反向代理应用，支持 TCP、UDP、HTTP、HTTPS 等多种协议，且支持 P2P 通信。可以将内网服务以安全、便捷的方式通过具有公网 IP 节点的中转暴露到公网。
+## 赞助商
 
-## Sponsors
+frp 是一个开源项目，其持续开发完全依赖于我们出色赞助商的支持。如果您想加入他们，请考虑[赞助 frp 的开发](https://github.com/sponsors/fatedier)。
 
-frp 是一个完全开源的项目，我们的开发工作完全依靠赞助者们的支持。如果你愿意加入他们的行列，请考虑 [赞助 frp 的开发](https://github.com/sponsors/fatedier)。
-
-<h3 align="center">Gold Sponsors</h3>
-<!--gold sponsors start-->
+<h3 align="center">金牌赞助商</h3>
+<!--金牌赞助商开始-->
 <p align="center">
   <a href="https://requestly.com/?utm_source=github&utm_medium=partnered&utm_campaign=frp" target="_blank">
     <img width="480px" src="https://github.com/user-attachments/assets/24670320-997d-4d62-9bca-955c59fe883d">
     <br>
-    <b>Requestly - Free & Open-Source alternative to Postman</b>
+    <b>Requestly - Postman 的免费开源替代品</b>
     <br>
-    <sub>All-in-one platform to Test, Mock and Intercept APIs.</sub>
+    <sub>一站式平台，用于测试、模拟和拦截 API。</sub>
   </a>
 </p>
 
@@ -29,7 +27,7 @@ frp 是一个完全开源的项目，我们的开发工作完全依靠赞助者�
   <a href="https://jb.gg/frp" target="_blank">
     <img width="420px" src="https://raw.githubusercontent.com/purpose168/frp/dev/doc/pic/sponsor_jetbrains.jpg">
 	<br>
-	<b>The complete IDE crafted for professional Go developers</b>
+	<b>为专业 Go 开发者打造的完整 IDE</b>
   </a>
 </p>
 
@@ -37,89 +35,165 @@ frp 是一个完全开源的项目，我们的开发工作完全依靠赞助者�
   <a href="https://github.com/beclab/Olares" target="_blank">
     <img width="420px" src="https://raw.githubusercontent.com/purpose168/frp/dev/doc/pic/sponsor_olares.jpeg">
 	<br>
-	<b>The sovereign cloud that puts you in control</b>
+	<b>让您掌控一切的主权云</b>
 	<br>
-	<sub>An open source, self-hosted alternative to public clouds, built for data ownership and privacy</sub>
+	<sub>一个开源的、自托管的公共云替代品，专为数据所有权和隐私而构建</sub>
   </a>
 </p>
 <div align="center">
 
-## Recall.ai - API for meeting recordings
+## Recall.ai - 会议录制 API
 
-If you're looking for a meeting recording API, consider checking out [Recall.ai](https://www.recall.ai/?utm_source=github&utm_medium=sponsorship&utm_campaign=fatedier-frp),
+如果您正在寻找会议录制 API，请考虑使用 [Recall.ai](https://www.recall.ai/?utm_source=github&utm_medium=sponsorship&utm_campaign=fatedier-frp)，
 
-an API that records Zoom, Google Meet, Microsoft Teams, in-person meetings, and more.
+一个可以录制 Zoom、Google Meet、Microsoft Teams、面对面会议等的 API。
 
 </div>
-<!--gold sponsors end-->
+<!--金牌赞助商结束-->
 
-## 为什么使用 frp ？
+## 什么是 frp？
 
-通过在具有公网 IP 的节点上部署 frp 服务端，可以轻松地将内网服务穿透到公网，同时提供诸多专业的功能特性，这包括：
+frp 是一个快速的反向代理，允许您将位于 NAT 或防火墙后面的本地服务器暴露到互联网上。它目前支持 **TCP** 和 **UDP** 协议，以及 **HTTP** 和 **HTTPS** 协议，允许通过域名将请求转发到内部服务。
 
-* 客户端服务端通信支持 TCP、QUIC、KCP 以及 Websocket 等多种协议。
-* 采用 TCP 连接流式复用，在单个连接间承载更多请求，节省连接建立时间，降低请求延迟。
-* 代理组间的负载均衡。
-* 端口复用，多个服务通过同一个服务端端口暴露。
-* 支持 P2P 通信，流量不经过服务器中转，充分利用带宽资源。
-* 多个原生支持的客户端插件（静态文件查看，HTTPS/HTTP 协议转换，HTTP、SOCK5 代理等），便于独立使用 frp 客户端完成某些工作。
-* 高度扩展性的服务端插件系统，易于结合自身需求进行功能扩展。
-* 服务端和客户端 UI 页面。
+frp 还提供了 P2P 连接模式。
+
+## 目录
+
+<!-- vim-markdown-toc GFM -->
+
+* [开发状态](#开发状态)
+    * [关于 V2 版本](#关于-v2-版本)
+* [架构](#架构)
+* [示例用法](#示例用法)
+    * [通过 SSH 访问局域网中的计算机](#通过-ssh-访问局域网中的计算机)
+    * [多个 SSH 服务共享同一端口](#多个-ssh-服务共享同一端口)
+    * [使用自定义域名访问局域网内的 Web 服务](#使用自定义域名访问局域网内的-web-服务)
+    * [转发 DNS 查询请求](#转发-dns-查询请求)
+    * [转发 Unix 域套接字](#转发-unix-域套接字)
+    * [暴露一个简单的 HTTP 文件服务器](#暴露一个简单的-http-文件服务器)
+    * [为本地 HTTP(S) 服务启用 HTTPS](#为本地-https-服务启用-https)
+    * [私密暴露您的服务](#私密暴露您的服务)
+    * [P2P 模式](#p2p-模式)
+* [功能特性](#功能特性)
+    * [配置文件](#配置文件)
+    * [使用环境变量](#使用环境变量)
+    * [将配置拆分为不同文件](#将配置拆分为不同文件)
+    * [服务器仪表盘](#服务器仪表盘)
+    * [客户端管理 UI](#客户端管理-ui)
+    * [监控](#监控)
+        * [Prometheus](#prometheus)
+    * [客户端认证](#客户端认证)
+        * [Token 认证](#token-认证)
+        * [OIDC 认证](#oidc-认证)
+    * [加密和压缩](#加密和压缩)
+        * [TLS](#tls)
+    * [热重载 frpc 配置](#热重载-frpc-配置)
+    * [从客户端获取代理状态](#从客户端获取代理状态)
+    * [仅允许服务器上的特定端口](#仅允许服务器上的特定端口)
+    * [端口复用](#端口复用)
+    * [带宽限制](#带宽限制)
+        * [每个代理](#每个代理)
+    * [TCP 流多路复用](#tcp-流多路复用)
+    * [支持 KCP 协议](#支持-kcp-协议)
+    * [支持 QUIC 协议](#支持-quic-协议)
+    * [连接池](#连接池)
+    * [负载均衡](#负载均衡)
+    * [服务健康检查](#服务健康检查)
+    * [重写 HTTP Host 头](#重写-http-host-头)
+    * [设置其他 HTTP 头](#设置其他-http-头)
+    * [获取真实 IP](#获取真实-ip)
+        * [HTTP X-Forwarded-For](#http-x-forwarded-for)
+        * [代理协议](#代理协议)
+    * [为 Web 服务要求 HTTP 基本认证（密码）](#为-web-服务要求-http-基本认证密码)
+    * [自定义子域名](#自定义子域名)
+    * [URL 路由](#url-路由)
+    * [TCP 端口多路复用](#tcp-端口多路复用)
+    * [通过 PROXY 连接到 frps](#通过-proxy-连接到-frps)
+    * [端口范围映射](#端口范围映射)
+    * [客户端插件](#客户端插件)
+    * [服务器管理插件](#服务器管理插件)
+    * [SSH 隧道网关](#ssh-隧道网关)
+    * [虚拟网络（VirtualNet）](#虚拟网络-virtualnet)
+* [功能门控](#功能门控)
+    * [可用功能门控](#可用功能门控)
+    * [启用功能门控](#启用功能门控)
+    * [功能生命周期](#功能生命周期)
+* [相关项目](#相关项目)
+* [贡献](#贡献)
+* [捐赠](#捐赠)
+    * [GitHub 赞助商](#github-赞助商)
+    * [PayPal](#paypal)
+
+<!-- vim-markdown-toc -->
 
 ## 开发状态
 
-frp 目前已被很多公司广泛用于测试、生产环境。
+frp 目前正在开发中。您可以尝试 `master` 分支中的最新版本，或者使用 `dev` 分支访问当前正在开发的版本。
 
-master 分支用于发布稳定版本，dev 分支用于开发，您可以尝试下载最新的 release 版本进行测试。
+我们目前正在开发版本 2，并尝试进行一些代码重构和改进。但请注意，它将与版本 1 不兼容。
 
-我们正在进行 v2 大版本的开发，将会尝试在各个方面进行重构和升级，且不会与 v1 版本进行兼容，预计会持续较长的一段时间。
+我们将在适当的时候从版本 0 过渡到版本 1，并且只接受 bug 修复和改进，而不是大型功能请求。
 
-现在的 v0 版本将会在合适的时间切换为 v1 版本并且保证兼容性，后续只做 bug 修复和优化，不再进行大的功能性更新。
+### 关于 V2 版本
 
-### 关于 v2 的一些说明
+V2 版本的复杂性和难度远远超出了预期。我只能利用碎片化的时间进行开发，而不断的中断严重影响了工作效率。鉴于这种情况，我们将继续优化和迭代当前版本，直到我们有更多的空闲时间来进行重大版本的全面升级。
 
-v2 版本的复杂度和难度比我们预期的要高得多。我只能利用零散的时间进行开发，而且由于上下文经常被打断，效率极低。由于这种情况可能会持续一段时间，我们仍然会在当前版本上进行一些优化和迭代，直到我们有更多空闲时间来推进大版本的重构，或者也有可能放弃一次性的重构，而是采用渐进的方式在当前版本上逐步做一些可能会导致不兼容的修改。
+V2 的概念基于我多年来在云原生领域的经验和思考，特别是在 K8s 和 ServiceMesh 方面。它的核心是一个现代化的四层和七层代理，类似于 envoy。这个代理本身具有高度的可扩展性，不仅能够实现内网穿透的功能，还适用于各种其他领域。基于这个高度可扩展的核心，我们的目标是实现 frp v1 的所有功能，同时解决以前无法实现或难以优雅实现的功能。此外，我们将保持高效的开发和迭代能力。
 
-v2 的构想是基于我多年在云原生领域，特别是在 K8s 和 ServiceMesh 方面的工作经验和思考。它的核心是一个现代化的四层和七层代理，类似于 envoy。这个代理本身高度可扩展，不仅可以用于实现内网穿透的功能，还可以应用于更多领域。在这个高度可扩展的内核基础上，我们将实现 frp v1 中的所有功能，并且能够以一种更加优雅的方式实现原先架构中无法实现或不易实现的功能。同时，我们将保持高效的开发和迭代能力。
+此外，我设想 frp 本身将成为一个高度可扩展的系统和平台，类似于我们可以基于 K8s 提供一系列扩展功能。在 K8s 中，我们可以根据企业需求进行定制开发，利用 CRD、控制器模式、webhook、CSI 和 CNI 等功能。在 frp v1 中，我们引入了服务器插件的概念，实现了一些基本的可扩展性。然而，它依赖于简单的 HTTP 协议，需要用户启动独立的进程并自行管理。这种方式远不够灵活和方便，而现实世界的需求差异很大。期望由少数人维护的非盈利开源项目满足每个人的需求是不现实的。
 
-除此之外，我希望 frp 本身也成为一个高度可扩展的系统和平台，就像我们可以基于 K8s 提供一系列扩展能力一样。在 K8s 上，我们可以根据企业需求进行定制化开发，例如使用 CRD、controller 模式、webhook、CSI 和 CNI 等。在 frp v1 中，我们引入了服务端插件的概念，实现了一些简单的扩展性。但是，它实际上依赖于简单的 HTTP 协议，并且需要用户自己启动独立的进程和管理。这种方式远远不够灵活和方便，而且现实世界的需求千差万别，我们不能期望一个由少数人维护的非营利性开源项目能够满足所有人的需求。
+最后，我们认识到配置管理、权限验证、证书管理和 API 管理等模块的当前设计不够现代化。虽然我们可能会在 v1 版本中进行一些优化，但确保兼容性仍然是一个具有挑战性的问题，需要付出相当大的努力来解决。
 
-最后，我们意识到像配置管理、权限验证、证书管理和管理 API 等模块的当前设计并不够现代化。尽管我们可能在 v1 版本中进行一些优化，但确保兼容性是一个令人头疼的问题，需要投入大量精力来解决。
+我们衷心感谢您对 frp 的支持。
 
-非常感谢您对 frp 的支持。
+## 架构
 
-## 文档
+![架构](/doc/pic/architecture.png)
 
-完整文档已经迁移至 [https://gofrp.org](https://gofrp.org)。
+## 示例用法
 
-## 为 frp 做贡献
+首先，从 [Release](https://github.com/purpose168/frp/releases) 页面下载适用于您的操作系统和架构的最新程序。
 
-frp 是一个免费且开源的项目，我们欢迎任何人为其开发和进步贡献力量。
+接下来，将 `frps` 二进制文件和服务器配置文件放在具有公网 IP 地址的服务器 A 上。
 
-* 在使用过程中出现任何问题，可以通过 [issues](https://github.com/purpose168/frp/issues) 来反馈。
-* Bug 的修复可以直接提交 Pull Request 到 dev 分支。
-* 如果是增加新的功能特性，请先创建一个 issue 并做简单描述以及大致的实现方法，提议被采纳后，就可以创建一个实现新特性的 Pull Request。
-* 欢迎对说明文档做出改善，帮助更多的人使用 frp，特别是英文文档。
-* 贡献代码请提交 PR 至 dev 分支，master 分支仅用于发布稳定可用版本。
-* 如果你有任何其他方面的问题或合作，欢迎发送邮件至 fatedier@gmail.com 。
+最后，将 `frpc` 二进制文件和客户端配置文件放在无法从公网直接访问的局域网中的服务器 B 上。
 
-**提醒：和项目相关的问题请在 [issues](https://github.com/purpose168/frp/issues) 中反馈，这样方便其他有类似问题的人可以快速查找解决方法，并且也避免了我们重复回答一些问题。**
+一些杀毒软件错误地将 frpc 标记为恶意软件并删除它。这是因为 frp 是一个能够创建反向代理的网络工具。杀毒软件有时会标记反向代理，因为它们能够绕过防火墙端口限制。如果您正在使用杀毒软件，您可能需要在杀毒软件设置中将 frpc 列入白名单/排除，以避免意外隔离/删除。有关更多详细信息，请参阅 [issue 3637](https://github.com/purpose168/frp/issues/3637)。
 
-## 关联项目
+### 通过 SSH 访问局域网中的计算机
 
-* [gofrp/plugin](https://github.com/gofrp/plugin) - frp 插件仓库，收录了基于 frp 扩展机制实现的各种插件，满足各种场景下的定制化需求。
-* [gofrp/tiny-frpc](https://github.com/gofrp/tiny-frpc) - 基于 ssh 协议实现的 frp 客户端的精简版本(最低约 3.5MB 左右)，支持常用的部分功能，适用于资源有限的设备。
+1. 修改服务器 A 上的 `frps.toml`，设置 frp 客户端连接的 `bindPort`：
 
-## 赞助
+  ```toml
+  # frps.toml
+  bindPort = 7000
+  ```
 
-如果您觉得 frp 对你有帮助，欢迎给予我们一定的捐助来维持项目的长期发展。
+2. 在服务器 A 上启动 `frps`：
 
-### Sponsors
+  `./frps -c ./frps.toml`
 
-长期赞助可以帮助我们保持项目的持续发展。
+3. 修改服务器 B 上的 `frpc.toml`，将 `serverAddr` 字段设置为您的 frps 服务器的公网 IP 地址：
 
-您可以通过 [GitHub Sponsors](https://github.com/sponsors/fatedier) 赞助我们。
+  ```toml
+  # frpc.toml
+  serverAddr = "x.x.x.x"
+  serverPort = 7000
 
-国内用户可以通过 [爱发电](https://afdian.com/a/fatedier) 赞助我们。
+  [[proxies]]
+  name = "ssh"
+  type = "tcp"
+  localIP = "127.0.0.1"
+  localPort = 22
+  remotePort = 6000
+  ```
 
-企业赞助者可以将贵公司的 Logo 以及链接放置在项目 README 文件中。
+请注意，`localPort`（客户端监听的端口）和 `remotePort`（服务器上暴露的端口）用于进出 frp 系统的流量，而 `serverPort` 用于 frps 和 frpc 之间的通信。
+
+4. 在服务器 B 上启动 `frpc`：
+
+  `./frpc -c ./frpc.toml`
+
+5. 要通过服务器 A 从另一台机器 SSH 访问服务器 B（假设用户名是 `test`），请使用以下命令：
+
+  `ssh -oPort=6000 test@x.x.x.x`

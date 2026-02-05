@@ -60,7 +60,7 @@ func init() {
 // rootCmd 是 frpc 的根命令
 var rootCmd = &cobra.Command{
 	Use:   "frpc",
-	Short: "frpc 是 frp 的客户端 (https://github.com/fatedier/frp)",
+	Short: "frpc 是 frp 的客户端 (https://github.com/purpose168/frp)",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if showVersion {
 			fmt.Println(version.Full())
