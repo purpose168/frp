@@ -1,59 +1,59 @@
-name: Bug report
-description: Report a bug to help us improve frp
+name: 错误报告
+description: 报告错误以帮助我们改进 frp
 
 body:
 - type: markdown
   attributes:
     value: |
-      Thanks for taking the time to fill out this bug report!
+      感谢您抽出时间填写此错误报告！
 - type: textarea
   id: bug-description
   attributes:
-    label: Bug Description
-    description: Tell us what issues you ran into
-    placeholder: Include information about what you tried, what you expected to happen, and what actually happened. The more details, the better!
+    label: 错误描述
+    description: 告诉我们您遇到了什么问题
+    placeholder: 包括您尝试了什么、您期望发生什么以及实际发生了什么的信息。详细信息越多越好！
   validations:
     required: true
 - type: input
   id: frpc-version
   attributes:
-    label: frpc Version
-    description: Include the output of `frpc -v`
+    label: frpc 版本
+    description: 包含 `frpc -v` 的输出
   validations:
     required: true
 - type: input
   id: frps-version
   attributes:
-    label: frps Version
-    description: Include the output of `frps -v`
+    label: frps 版本
+    description: 包含 `frps -v` 的输出
   validations:
     required: true
 - type: input
   id: system-architecture
   attributes:
-    label: System Architecture
-    description: Include which architecture you used, such as `linux/amd64`, `windows/amd64`
+    label: 系统架构
+    description: 包含您使用的架构，例如 `linux/amd64`、`windows/amd64`
   validations:
     required: true
 - type: textarea
   id: config
   attributes:
-    label: Configurations
-    description: Include what configurrations you used and ran into this problem
-    placeholder: Pay attention to hiding the token and password in your output
+    label: 配置
+    description: 包含您使用的配置以及遇到此问题的配置
+    placeholder: 注意在输出中隐藏 token 和密码
   validations:
     required: true
 - type: textarea
   id: log
   attributes:
-    label: Logs
-    description: Prefer you providing releated error logs here
-    placeholder: Pay attention to hiding your personal informations
+    label: 日志
+    description: 建议您在此提供相关的错误日志
+    placeholder: 注意隐藏您的个人信息
 - type: textarea
   id: steps-to-reproduce
   attributes:
-    label: Steps to reproduce
-    description: How to reproduce it? It's important for us to find the bug
+    label: 复现步骤
+    description: 如何复现它？这对我们找到错误很重要
     value: |
       1. 
       2. 
@@ -62,16 +62,16 @@ body:
 - type: checkboxes
   id: area
   attributes:
-    label: Affected area
+    label: 受影响的区域
     options:
-    - label: "Docs"
-    - label: "Installation"
-    - label: "Performance and Scalability"
-    - label: "Security"
-    - label: "User Experience"
-    - label: "Test and Release"
-    - label: "Developer Infrastructure"
-    - label: "Client Plugin"
-    - label: "Server Plugin"
-    - label: "Extensions"
-    - label: "Others"
+    - label: "文档"
+    - label: "安装"
+    - label: "性能和可扩展性"
+    - label: "安全性"
+    - label: "用户体验"
+    - label: "测试和发布"
+    - label: "开发者基础设施"
+    - label: "客户端插件"
+    - label: "服务器插件"
+    - label: "扩展"
+    - label: "其他"

@@ -1,36 +1,36 @@
-name: Feature Request
-description: Suggest an idea to improve frp
-title: "[Feature Request] "
+name: 功能请求
+description: 提出改进 frp 的想法
+title: "[功能请求] "
 
 body:
 - type: markdown
   attributes:
     value: |
-      This is only used to request new product features.
+      此模板仅用于请求新产品功能。
 - type: textarea
   id: feature-request
   attributes:
-    label: Describe the feature request
-    description: Tell us what's you want and why it should be added in frp.
+    label: 描述功能请求
+    description: 告诉我们您想要什么以及为什么应该在 frp 中添加它。
   validations:
     required: true
 - type: textarea
   id: alternatives
   attributes:
-    label: Describe alternatives you've considered
+    label: 描述您考虑过的替代方案
 - type: checkboxes
   id: area
   attributes:
-    label: Affected area
+    label: 受影响的区域
     options:
-    - label: "Docs"
-    - label: "Installation"
-    - label: "Performance and Scalability"
-    - label: "Security"
-    - label: "User Experience"
-    - label: "Test and Release"
-    - label: "Developer Infrastructure"
-    - label: "Client Plugin"
-    - label: "Server Plugin"
-    - label: "Extensions"
-    - label: "Others"
+    - label: "文档"
+    - label: "安装"
+    - label: "性能和可扩展性"
+    - label: "安全性"
+    - label: "用户体验"
+    - label: "测试和发布"
+    - label: "开发者基础设施"
+    - label: "客户端插件"
+    - label: "服务器插件"
+    - label: "扩展"
+    - label: "其他"
