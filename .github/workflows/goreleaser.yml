@@ -34,6 +34,6 @@ jobs:
         uses: goreleaser/goreleaser-action@v6  # 使用GoReleaser官方Action
         with:
           version: latest  # 使用最新版GoReleaser
-          args: release --clean --skip-validate --release-notes=./Release.md  # 发布参数：清理旧版本并使用Release.md作为发布说明
+          args: release --clean --release-notes=./Release.md  # 发布参数：清理旧版本并使用Release.md作为发布说明
         env:
           GITHUB_TOKEN: ${{ secrets.GPR_TOKEN }}  # 环境变量：GitHub令牌
