@@ -18,9 +18,9 @@
       <div class="card-meta">
         <div class="meta-group">
           <span v-if="client.ip" class="meta-item">
-          <span class="meta-label">IP</span>
-          <span class="meta-value">{{ client.ip }}</span>
-        </span>
+            <span class="meta-label">IP</span>
+            <span class="meta-value">{{ client.ip }}</span>
+          </span>
         </div>
         <span class="meta-item activity">
           <el-icon class="activity-icon"><DataLine /></el-icon>
@@ -32,11 +32,11 @@
     </div>
 
     <div class="card-action">
-        <div class="status-badge" :class="client.online ? 'online' : 'offline'">
-          {{ client.online ? '在线' : '离线' }}
-        </div>
-        <el-icon class="arrow-icon"><ArrowRight /></el-icon>
+      <div class="status-badge" :class="client.online ? 'online' : 'offline'">
+        {{ client.online ? '在线' : '离线' }}
       </div>
+      <el-icon class="arrow-icon"><ArrowRight /></el-icon>
+    </div>
   </div>
 </template>
 

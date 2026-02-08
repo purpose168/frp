@@ -71,33 +71,33 @@
         <!-- Stats Cards -->
         <div class="stats-grid">
           <div v-if="proxy.port" class="stat-card">
-          <div class="stat-header">
-            <span class="stat-label">端口</span>
-            <div class="stat-icon port">
-              <el-icon><Connection /></el-icon>
+            <div class="stat-header">
+              <span class="stat-label">端口</span>
+              <div class="stat-icon port">
+                <el-icon><Connection /></el-icon>
+              </div>
             </div>
+            <div class="stat-value">{{ proxy.port }}</div>
           </div>
-          <div class="stat-value">{{ proxy.port }}</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-header">
-            <span class="stat-label">连接数</span>
-            <div class="stat-icon connections">
-              <el-icon><DataLine /></el-icon>
+          <div class="stat-card">
+            <div class="stat-header">
+              <span class="stat-label">连接数</span>
+              <div class="stat-icon connections">
+                <el-icon><DataLine /></el-icon>
+              </div>
             </div>
+            <div class="stat-value">{{ proxy.conns }}</div>
           </div>
-          <div class="stat-value">{{ proxy.conns }}</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-header">
-            <span class="stat-label">入站流量</span>
-            <div class="stat-icon traffic-in">
-              <el-icon><Bottom /></el-icon>
+          <div class="stat-card">
+            <div class="stat-header">
+              <span class="stat-label">入站流量</span>
+              <div class="stat-icon traffic-in">
+                <el-icon><Bottom /></el-icon>
+              </div>
             </div>
-          </div>
-          <div class="stat-value">
-            <span class="value-number">{{
-              formatTrafficValue(proxy.trafficIn)
+            <div class="stat-value">
+              <span class="value-number">{{
+                formatTrafficValue(proxy.trafficIn)
               }}</span>
               <span class="value-unit">{{
                 formatTrafficUnit(proxy.trafficIn)

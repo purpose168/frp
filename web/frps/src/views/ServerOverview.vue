@@ -91,9 +91,7 @@
               <div class="proxy-type-name">{{ type.toUpperCase() }}</div>
               <div class="proxy-type-count">{{ count }}</div>
             </div>
-            <div v-if="!hasActiveProxies" class="no-data">
-              无活跃代理
-            </div>
+            <div v-if="!hasActiveProxies" class="no-data">无活跃代理</div>
           </div>
         </el-card>
       </el-col>
