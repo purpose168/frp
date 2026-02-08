@@ -1,8 +1,8 @@
-## Features
+## 特性
 
-* frpc now supports a `clientID` option to uniquely identify client instances. The server dashboard displays all connected clients with their online/offline status, connection history, and metadata, making it easier to monitor and manage multiple frpc deployments.
-* Redesigned the frp web dashboard with a modern UI, dark mode support, and improved navigation.
+* frpc 现在支持 `clientID` 选项来唯一标识客户端实例。服务器仪表盘显示所有连接的客户端，包括它们的在线/离线状态、连接历史和元数据，使监控和管理多个 frpc 部署变得更加容易。
+* 重新设计了 frp Web 仪表盘，采用现代 UI、支持深色模式和改进的导航。
 
-## Fixes
+## 修复
 
-* Fixed UDP proxy protocol sending header on every packet instead of only the first packet of each session.
+* 修复了 UDP 代理协议在每个数据包上发送头部而不是仅在每个会话的第一个数据包上发送的问题。
