@@ -153,7 +153,7 @@ func (c *Controller) APIClientDetail(ctx *httppkg.Context) (any, error) {
 	}
 
 	if c.clientRegistry == nil {
-		return nil, fmt.Errorf("client registry unavailable")
+		return nil, fmt.Errorf("客户端注册表不可用")
 	}
 
 	info, ok := c.clientRegistry.GetByKey(key)
