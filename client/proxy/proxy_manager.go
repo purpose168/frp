@@ -168,7 +168,7 @@ func (pm *Manager) UpdateAll(proxyCfgs []v1.ProxyConfigurer) {
 		}
 	}
 	if len(delPxyNames) > 0 {
-		xl.Infof("proxy removed: %s", delPxyNames)
+		xl.Infof("代理已移除: %s", delPxyNames)
 	}
 
 	addPxyNames := make([]string, 0)
@@ -186,6 +186,6 @@ func (pm *Manager) UpdateAll(proxyCfgs []v1.ProxyConfigurer) {
 		}
 	}
 	if len(addPxyNames) > 0 {
-		xl.Infof("proxy added: %s", addPxyNames)
+		xl.Infof("代理已添加: %s", addPxyNames)
 	}
 }

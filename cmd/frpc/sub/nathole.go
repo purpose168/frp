@@ -29,23 +29,23 @@ var (
 	natHoleLocalAddr  string
 )
 
-// init 初始化 NAT 打洞命令
+// init 初始化NAT打洞命令
 func init() {
 	rootCmd.AddCommand(natholeCmd)
 	natholeCmd.AddCommand(natholeDiscoveryCmd)
 
-	natholeCmd.PersistentFlags().StringVarP(&natHoleSTUNServer, "nat_hole_stun_server", "", "", "NAT 打洞的 STUN 服务器地址")
-	natholeCmd.PersistentFlags().StringVarP(&natHoleLocalAddr, "nat_hole_local_addr", "l", "", "连接 STUN 服务器的本地地址")
+	natholeCmd.PersistentFlags().StringVarP(&natHoleSTUNServer, "nat_hole_stun_server", "", "", "NAT打洞的STUN服务器地址")
+	natholeCmd.PersistentFlags().StringVarP(&natHoleLocalAddr, "nat_hole_local_addr", "l", "", "连接STUN服务器的本地地址")
 }
 
 var natholeCmd = &cobra.Command{
 	Use:   "nathole",
-	Short: "关于 NAT 打洞的操作",
+	Short: "关于NAT打洞的操作",
 }
 
 var natholeDiscoveryCmd = &cobra.Command{
 	Use:   "discover",
-	Short: "从 STUN 服务器发现 NAT 打洞信息",
+	Short: "从STUN服务器发现NAT打洞信息",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// 在此处忽略错误，因为我们可以使用命令行参数
 		cfg, _, _, _, err := config.LoadClientConfig(cfgFile, strictConfigMode)
@@ -79,11 +79,11 @@ var natholeDiscoveryCmd = &cobra.Command{
 
 		natFeature, err := nathole.ClassifyNATFeature(addrs, localIPs)
 		if err != nil {
-			fmt.Println("分类 NAT 特征错误:", err)
+			fmt.Println("分类NAT特征错误:", err)
 			os.Exit(1)
 		}
-		fmt.Println("STUN 服务器:", cfg.NatHoleSTUNServer)
-		fmt.Println("您的 NAT 类型是:", natFeature.NatType)
+		fmt.Println("STUN服务器:", cfg.NatHoleSTUNServer)
+		fmt.Println("您的NAT类型是:", natFeature.NatType)
 		fmt.Println("行为是:", natFeature.Behavior)
 		fmt.Println("外部地址是:", addrs)
 		fmt.Println("本地地址是:", localAddr.String())
@@ -92,10 +92,10 @@ var natholeDiscoveryCmd = &cobra.Command{
 	},
 }
 
-// validateForNatHoleDiscovery 验证 NAT 打洞发现的配置
+// validateForNatHoleDiscovery 验证NAT打洞发现的配置
 func validateForNatHoleDiscovery(cfg *v1.ClientCommonConfig) error {
 	if cfg.NatHoleSTUNServer == "" {
-		return fmt.Errorf("nat_hole_stun_server 不能为空")
+		return fmt.Errorf("nat_hole_stun_server不能为空")
 	}
 	return nil
 }

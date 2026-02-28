@@ -52,7 +52,7 @@ func init() {
 // rootCmd 是 frps 的根命令
 var rootCmd = &cobra.Command{
 	Use:   "frps",
-	Short: "frps 是 frp 的服务器端 (https://github.com/fatedier/frp)",
+	Short: "frps是frp的服务器端 (https://github.com/purpose168/frp)",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if showVersion {
 			fmt.Println(version.Full())
@@ -71,8 +71,8 @@ var rootCmd = &cobra.Command{
 				os.Exit(1)
 			}
 			if isLegacyFormat {
-				fmt.Printf("警告: ini 格式已弃用，未来将移除支持，" +
-					"请使用 yaml/json/toml 格式替代!\n")
+				fmt.Printf("警告: ini格式已弃用，未来将移除支持，" +
+					"请使用yaml/json/toml格式替代!\n")
 			}
 		} else {
 			if err := serverCfg.Complete(); err != nil {
@@ -114,16 +114,16 @@ func runServer(cfg *v1.ServerConfig) (err error) {
 	log.InitLogger(cfg.Log.To, cfg.Log.Level, int(cfg.Log.MaxDays), cfg.Log.DisablePrintColor)
 
 	if cfgFile != "" {
-		log.Infof("frps 使用配置文件: %s", cfgFile)
+		log.Infof("frps使用配置文件: %s", cfgFile)
 	} else {
-		log.Infof("frps 使用命令行参数进行配置")
+		log.Infof("frps使用命令行参数进行配置")
 	}
 
 	svr, err := server.NewService(cfg)
 	if err != nil {
 		return err
 	}
-	log.Infof("frps 启动成功")
+	log.Infof("frps启动成功")
 	svr.Run(context.Background())
 	return
 }

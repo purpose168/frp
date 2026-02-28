@@ -1,0 +1,670 @@
+<mxfile host="app.diagrams.net" modified="2026-02-28T00:00:00.000Z" agent="Mozilla/5.0" version="21.0.0" type="device">
+  <diagram name="FRP系统架构图" id="frp-architecture-dark">
+    <mxGraphModel dx="1434" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1400" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- 黑色背景 -->
+        <mxCell id="bg" value="" style="shape=rectangle;fillColor=#000000;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="0" y="0" width="1800" height="1400" as="geometry" />
+        </mxCell>
+        
+        <!-- 标题 -->
+        <mxCell id="title" value="FRP (Fast Reverse Proxy) 系统架构图" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=28;fontStyle=1;fontColor=#00bcd4;" vertex="1" parent="1">
+          <mxGeometry x="500" y="20" width="800" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- 版本信息 -->
+        <mxCell id="version" value="Go 1.24.0 | github.com/purpose168/frp | 联系方式: purpose168@outlook.com" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#607d8b;" vertex="1" parent="1">
+          <mxGeometry x="500" y="65" width="800" height="25" as="geometry" />
+        </mxCell>
+        
+        <!-- ==================== 外部用户层 ==================== -->
+        <mxCell id="external-layer" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0d1421;strokeColor=#1a237e;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="40" y="100" width="1720" height="120" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="external-layer-title" value="外部访问层" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#00bcd4;" vertex="1" parent="1">
+          <mxGeometry x="50" y="105" width="120" height="25" as="geometry" />
+        </mxCell>
+        
+        <!-- 外部用户 -->
+        <mxCell id="ext-user" value="外部用户&#xa;(公网访问者)" style="shape=actor;whiteSpace=wrap;html=1;fillColor=#1a237e;strokeColor=#00bcd4;strokeWidth=2;fontColor=#ffffff;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="100" y="135" width="60" height="70" as="geometry" />
+        </mxCell>
+        
+        <!-- 内网服务 -->
+        <mxCell id="int-service" value="内网服务&#xa;(本地应用)" style="shape=actor;whiteSpace=wrap;html=1;fillColor=#1a237e;strokeColor=#00bcd4;strokeWidth=2;fontColor=#ffffff;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1600" y="135" width="60" height="70" as="geometry" />
+        </mxCell>
+        
+        <!-- 管理员 -->
+        <mxCell id="admin" value="管理员&#xa;(运维监控)" style="shape=actor;whiteSpace=wrap;html=1;fillColor=#1a237e;strokeColor=#00bcd4;strokeWidth=2;fontColor=#ffffff;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="850" y="135" width="60" height="70" as="geometry" />
+        </mxCell>
+        
+        <!-- ==================== 网络接入层 ==================== -->
+        <mxCell id="network-layer" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0a1929;strokeColor=#0d47a1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="40" y="240" width="1720" height="140" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="network-layer-title" value="网络接入层 (多协议支持)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#2196f3;" vertex="1" parent="1">
+          <mxGeometry x="50" y="245" width="200" height="25" as="geometry" />
+        </mxCell>
+        
+        <!-- TCP -->
+        <mxCell id="net-tcp" value="TCP&#xa;端口: 7000" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1565c0;strokeColor=#2196f3;strokeWidth=2;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="60" y="280" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- KCP -->
+        <mxCell id="net-kcp" value="KCP&#xa;(UDP可靠传输)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1565c0;strokeColor=#2196f3;strokeWidth=2;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="180" y="280" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- QUIC -->
+        <mxCell id="net-quic" value="QUIC&#xa;(HTTP/3)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1565c0;strokeColor=#2196f3;strokeWidth=2;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="300" y="280" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- WebSocket -->
+        <mxCell id="net-ws" value="WebSocket&#xa;(全双工通信)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1565c0;strokeColor=#2196f3;strokeWidth=2;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="420" y="280" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- TLS -->
+        <mxCell id="net-tls" value="TLS 1.3&#xa;(加密传输)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1565c0;strokeColor=#2196f3;strokeWidth=2;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="540" y="280" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- SSH隧道 -->
+        <mxCell id="net-ssh" value="SSH Tunnel&#xa;(安全隧道)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1565c0;strokeColor=#2196f3;strokeWidth=2;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="660" y="280" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- HTTP虚拟主机 -->
+        <mxCell id="net-http" value="HTTP vHost&#xa;端口: 80" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00695c;strokeColor=#00bcd4;strokeWidth=2;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="780" y="280" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- HTTPS虚拟主机 -->
+        <mxCell id="net-https" value="HTTPS vHost&#xa;端口: 443" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00695c;strokeColor=#00bcd4;strokeWidth=2;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="900" y="280" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- TCP Mux -->
+        <mxCell id="net-tcpmux" value="TCP Mux&#xa;(HTTP Connect)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1565c0;strokeColor=#2196f3;strokeWidth=2;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1020" y="280" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- 连接多路复用器 -->
+        <mxCell id="net-muxer" value="连接多路复用器&#xa;(Muxer)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0d47a1;strokeColor=#2196f3;strokeWidth=3;fontColor=#ffffff;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1160" y="270" width="120" height="70" as="geometry" />
+        </mxCell>
+        
+        <!-- STUN -->
+        <mxCell id="net-stun" value="STUN&#xa;(NAT探测)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1565c0;strokeColor=#2196f3;strokeWidth=2;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="280" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- P2P -->
+        <mxCell id="net-p2p" value="P2P穿透&#xa;(XTCP)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1565c0;strokeColor=#2196f3;strokeWidth=2;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1420" y="280" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- 虚拟网络 -->
+        <mxCell id="net-vnet" value="虚拟网络&#xa;(TUN设备)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#7b1fa2;strokeColor=#9c27b0;strokeWidth=2;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1540" y="280" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- ==================== 服务端核心层 ==================== -->
+        <mxCell id="server-layer" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0d1421;strokeColor=#1a237e;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="40" y="400" width="840" height="280" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="server-layer-title" value="服务端核心层 (frps)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#00bcd4;" vertex="1" parent="1">
+          <mxGeometry x="50" y="405" width="200" height="25" as="geometry" />
+        </mxCell>
+        
+        <!-- Service入口 -->
+        <mxCell id="srv-service" value="Service&#xa;服务入口" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1a237e;strokeColor=#00bcd4;strokeWidth=2;fontColor=#ffffff;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="445" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- 控制管理器 -->
+        <mxCell id="srv-ctlmgr" value="ControlManager&#xa;控制管理器" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#283593;strokeColor=#3f51b5;strokeWidth=1;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="60" y="510" width="100" height="45" as="geometry" />
+        </mxCell>
+        
+        <!-- 控制器 -->
+        <mxCell id="srv-ctl" value="Control&#xa;控制器" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#303f9f;strokeColor=#3f51b5;strokeWidth=1;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="60" y="570" width="100" height="45" as="geometry" />
+        </mxCell>
+        
+        <!-- 代理管理器 -->
+        <mxCell id="srv-pxymgr" value="ProxyManager&#xa;代理管理器" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#283593;strokeColor=#3f51b5;strokeWidth=1;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="180" y="445" width="100" height="45" as="geometry" />
+        </mxCell>
+        
+        <!-- 代理实现 -->
+        <mxCell id="srv-proxy" value="Proxy&#xa;代理实现" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#303f9f;strokeColor=#3f51b5;strokeWidth=1;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="180" y="510" width="100" height="45" as="geometry" />
+        </mxCell>
+        
+        <!-- 分组控制器 -->
+        <mxCell id="srv-group" value="GroupController&#xa;分组/负载均衡" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#303f9f;strokeColor=#3f51b5;strokeWidth=1;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="180" y="570" width="100" height="45" as="geometry" />
+        </mxCell>
+        
+        <!-- 访问者管理器 -->
+        <mxCell id="srv-vismgr" value="VisitorManager&#xa;访问者管理" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#283593;strokeColor=#3f51b5;strokeWidth=1;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="300" y="445" width="100" height="45" as="geometry" />
+        </mxCell>
+        
+        <!-- 客户端注册表 -->
+        <mxCell id="srv-registry" value="ClientRegistry&#xa;客户端注册表" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#303f9f;strokeColor=#3f51b5;strokeWidth=1;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="300" y="510" width="100" height="45" as="geometry" />
+        </mxCell>
+        
+        <!-- 端口管理器 -->
+        <mxCell id="srv-port" value="PortManager&#xa;端口管理" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#303f9f;strokeColor=#3f51b5;strokeWidth=1;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="300" y="570" width="100" height="45" as="geometry" />
+        </mxCell>
+        
+        <!-- 资源控制器 -->
+        <mxCell id="srv-resource" value="ResourceController&#xa;资源控制器" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1a237e;strokeColor=#00bcd4;strokeWidth=2;fontColor=#ffffff;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="420" y="445" width="120" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- NAT穿透控制器 -->
+        <mxCell id="srv-nat" value="NatHoleController&#xa;NAT穿透控制" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#303f9f;strokeColor=#3f51b5;strokeWidth=1;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="420" y="510" width="120" height="45" as="geometry" />
+        </mxCell>
+        
+        <!-- 插件管理器 -->
+        <mxCell id="srv-plugin" value="PluginManager&#xa;插件管理" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#303f9f;strokeColor=#3f51b5;strokeWidth=1;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="420" y="570" width="120" height="45" as="geometry" />
+        </mxCell>
+        
+        <!-- API控制器 -->
+        <mxCell id="srv-api" value="API Controller&#xa;REST API" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1a237e;strokeColor=#00bcd4;strokeWidth=2;fontColor=#ffffff;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="560" y="445" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- Web服务器 -->
+        <mxCell id="srv-web" value="WebServer&#xa;仪表盘UI" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#283593;strokeColor=#3f51b5;strokeWidth=1;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="560" y="510" width="100" height="45" as="geometry" />
+        </mxCell>
+        
+        <!-- Prometheus -->
+        <mxCell id="srv-prom" value="Prometheus&#xa;指标导出" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#283593;strokeColor=#3f51b5;strokeWidth=1;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="560" y="570" width="100" height="45" as="geometry" />
+        </mxCell>
+        
+        <!-- 指标收集 -->
+        <mxCell id="srv-metrics" value="Metrics&#xa;指标收集" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#303f9f;strokeColor=#3f51b5;strokeWidth=1;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="680" y="445" width="90" height="45" as="geometry" />
+        </mxCell>
+        
+        <!-- 认证模块 -->
+        <mxCell id="srv-auth" value="Auth&#xa;认证服务" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#303f9f;strokeColor=#3f51b5;strokeWidth=1;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="680" y="510" width="90" height="45" as="geometry" />
+        </mxCell>
+        
+        <!-- HTTP插件 -->
+        <mxCell id="srv-httpplugin" value="HTTP Plugins&#xa;外部插件" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#303f9f;strokeColor=#3f51b5;strokeWidth=1;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="680" y="570" width="90" height="45" as="geometry" />
+        </mxCell>
+        
+        <!-- ==================== 客户端核心层 ==================== -->
+        <mxCell id="client-layer" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0a1929;strokeColor=#00695c;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="920" y="400" width="840" height="280" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="client-layer-title" value="客户端核心层 (frpc)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#00bcd4;" vertex="1" parent="1">
+          <mxGeometry x="930" y="405" width="200" height="25" as="geometry" />
+        </mxCell>
+        
+        <!-- 客户端Service -->
+        <mxCell id="cli-service" value="Service&#xa;服务入口" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#004d40;strokeColor=#00bcd4;strokeWidth=2;fontColor=#ffffff;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1580" y="445" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- 连接器 -->
+        <mxCell id="cli-connector" value="Connector&#xa;连接器" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00695c;strokeColor=#00bcd4;strokeWidth=1;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1580" y="510" width="100" height="45" as="geometry" />
+        </mxCell>
+        
+        <!-- 控制器 -->
+        <mxCell id="cli-ctl" value="Control&#xa;控制器" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00796b;strokeColor=#00bcd4;strokeWidth=1;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1580" y="570" width="100" height="45" as="geometry" />
+        </mxCell>
+        
+        <!-- 代理管理 -->
+        <mxCell id="cli-proxy" value="Proxy&#xa;代理管理" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00695c;strokeColor=#00bcd4;strokeWidth=1;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1460" y="445" width="100" height="45" as="geometry" />
+        </mxCell>
+        
+        <!-- 代理包装器 -->
+        <mxCell id="cli-wrapper" value="ProxyWrapper&#xa;代理包装器" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00796b;strokeColor=#00bcd4;strokeWidth=1;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1460" y="510" width="100" height="45" as="geometry" />
+        </mxCell>
+        
+        <!-- 健康检查 -->
+        <mxCell id="cli-health" value="Health&#xa;健康检查" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00796b;strokeColor=#00bcd4;strokeWidth=1;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1460" y="570" width="100" height="45" as="geometry" />
+        </mxCell>
+        
+        <!-- 访问者 -->
+        <mxCell id="cli-visitor" value="Visitor&#xa;访问者" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00695c;strokeColor=#00bcd4;strokeWidth=1;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="445" width="100" height="45" as="geometry" />
+        </mxCell>
+        
+        <!-- 事件处理 -->
+        <mxCell id="cli-event" value="Event&#xa;事件处理" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00796b;strokeColor=#00bcd4;strokeWidth=1;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="510" width="100" height="45" as="geometry" />
+        </mxCell>
+        
+        <!-- 连接池 -->
+        <mxCell id="cli-pool" value="ConnPool&#xa;连接池" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00796b;strokeColor=#00bcd4;strokeWidth=1;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="570" width="100" height="45" as="geometry" />
+        </mxCell>
+        
+        <!-- 管理API -->
+        <mxCell id="cli-api" value="Admin API&#xa;管理接口" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#004d40;strokeColor=#00bcd4;strokeWidth=2;fontColor=#ffffff;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="445" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- Web服务器 -->
+        <mxCell id="cli-web" value="WebServer&#xa;管理界面" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00695c;strokeColor=#00bcd4;strokeWidth=1;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="510" width="100" height="45" as="geometry" />
+        </mxCell>
+        
+        <!-- 虚拟网络 -->
+        <mxCell id="cli-vnet" value="VNetController&#xa;虚拟网络" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00796b;strokeColor=#00bcd4;strokeWidth=1;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="570" width="100" height="45" as="geometry" />
+        </mxCell>
+        
+        <!-- 插件系统 -->
+        <mxCell id="cli-plugin" value="Plugins&#xa;插件系统" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#004d40;strokeColor=#00bcd4;strokeWidth=2;fontColor=#ffffff;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="940" y="445" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- HTTP代理插件 -->
+        <mxCell id="plugin-http" value="HTTP Proxy" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00796b;strokeColor=#00bcd4;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="940" y="510" width="65" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- SOCKS5插件 -->
+        <mxCell id="plugin-socks5" value="SOCKS5" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00796b;strokeColor=#00bcd4;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1015" y="510" width="65" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- 静态文件插件 -->
+        <mxCell id="plugin-static" value="Static File" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00796b;strokeColor=#00bcd4;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="510" width="65" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- HTTPS2HTTP插件 -->
+        <mxCell id="plugin-h2h" value="HTTPS2HTTP" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00796b;strokeColor=#00bcd4;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="940" y="550" width="65" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- Unix域套接字 -->
+        <mxCell id="plugin-unix" value="Unix Socket" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00796b;strokeColor=#00bcd4;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1015" y="550" width="65" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- TLS2Raw插件 -->
+        <mxCell id="plugin-tls" value="TLS2Raw" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00796b;strokeColor=#00bcd4;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="550" width="65" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- 虚拟网络插件 -->
+        <mxCell id="plugin-vnet" value="Virtual Net" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#7b1fa2;strokeColor=#9c27b0;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="940" y="590" width="205" height="25" as="geometry" />
+        </mxCell>
+        
+        <!-- ==================== 通信协议层 ==================== -->
+        <mxCell id="protocol-layer" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0d1421;strokeColor=#37474f;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="40" y="700" width="1720" height="120" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="protocol-layer-title" value="通信协议层 (pkg)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#00bcd4;" vertex="1" parent="1">
+          <mxGeometry x="50" y="705" width="150" height="25" as="geometry" />
+        </mxCell>
+        
+        <!-- 消息协议 -->
+        <mxCell id="proto-msg" value="消息协议 (msg)&#xa;Login | NewProxy&#xa;Ping/Pong | WorkConn" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#37474f;strokeColor=#546e7a;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="60" y="740" width="130" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 传输层 -->
+        <mxCell id="proto-transport" value="传输层 (transport)&#xa;TLS加密 | 压缩&#xa;带宽限制" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#37474f;strokeColor=#546e7a;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="210" y="740" width="130" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 认证 -->
+        <mxCell id="proto-auth" value="认证 (auth)&#xa;Token | OIDC&#xa;令牌验证" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#37474f;strokeColor=#546e7a;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="360" y="740" width="130" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 配置 -->
+        <mxCell id="proto-config" value="配置 (config)&#xa;TOML解析 | 验证&#xa;热重载" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#37474f;strokeColor=#546e7a;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="510" y="740" width="130" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- NAT穿透 -->
+        <mxCell id="proto-nat" value="NAT穿透 (nathole)&#xa;STUN | P2P&#xa;打洞策略" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#37474f;strokeColor=#546e7a;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="660" y="740" width="130" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 多路复用 -->
+        <mxCell id="proto-mux" value="多路复用 (yamux)&#xa;TCP Mux | QUIC&#xa;连接池管理" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#37474f;strokeColor=#546e7a;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="810" y="740" width="130" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 虚拟网络 -->
+        <mxCell id="proto-vnet" value="虚拟网络 (vnet)&#xa;TUN设备&#xa;IP路由" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#7b1fa2;strokeColor=#9c27b0;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="960" y="740" width="130" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- SDK -->
+        <mxCell id="proto-sdk" value="SDK (sdk)&#xa;客户端SDK&#xa;编程接口" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#37474f;strokeColor=#546e7a;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1110" y="740" width="130" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 插件接口 -->
+        <mxCell id="proto-plugin" value="插件 (plugin)&#xa;客户端/服务端&#xa;扩展机制" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#37474f;strokeColor=#546e7a;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1260" y="740" width="130" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 安全策略 -->
+        <mxCell id="proto-policy" value="策略 (policy)&#xa;安全策略&#xa;访问控制" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#37474f;strokeColor=#546e7a;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1410" y="740" width="130" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- SSH -->
+        <mxCell id="proto-ssh" value="SSH (ssh)&#xa;SSH隧道&#xa;网关支持" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#37474f;strokeColor=#546e7a;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1560" y="740" width="130" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- ==================== 基础设施层 ==================== -->
+        <mxCell id="util-layer" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0a1929;strokeColor=#263238;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="40" y="840" width="1720" height="90" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="util-layer-title" value="基础设施层 (pkg/util)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#607d8b;" vertex="1" parent="1">
+          <mxGeometry x="50" y="845" width="200" height="25" as="geometry" />
+        </mxCell>
+        
+        <!-- 工具模块 -->
+        <mxCell id="util-log" value="log/xlog&#xa;日志" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#263238;strokeColor=#37474f;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="60" y="880" width="80" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="util-net" value="net&#xa;网络工具" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#263238;strokeColor=#37474f;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="150" y="880" width="80" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="util-http" value="http&#xa;HTTP工具" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#263238;strokeColor=#37474f;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="240" y="880" width="80" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="util-version" value="version&#xa;版本" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#263238;strokeColor=#37474f;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="330" y="880" width="80" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="util-wait" value="wait&#xa;等待/重试" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#263238;strokeColor=#37474f;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="420" y="880" width="80" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="util-vhost" value="vhost&#xa;虚拟主机" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#263238;strokeColor=#37474f;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="510" y="880" width="80" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="util-tcpmux" value="tcpmux&#xa;TCP复用" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#263238;strokeColor=#37474f;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="600" y="880" width="80" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="util-error" value="errors&#xa;错误处理" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#263238;strokeColor=#37474f;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="690" y="880" width="80" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="util-metrics" value="metrics&#xa;指标定义" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#263238;strokeColor=#37474f;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="780" y="880" width="80" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="util-proto" value="proto&#xa;协议常量" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#263238;strokeColor=#37474f;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="870" y="880" width="80" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- ==================== 外部依赖层 ==================== -->
+        <mxCell id="dep-layer" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0d1421;strokeColor=#455a64;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="40" y="950" width="1720" height="100" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="dep-layer-title" value="外部依赖" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#607d8b;" vertex="1" parent="1">
+          <mxGeometry x="50" y="955" width="100" height="25" as="geometry" />
+        </mxCell>
+        
+        <!-- 外部依赖 -->
+        <mxCell id="dep-cobra" value="spf13/cobra&#xa;命令行" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#455a64;strokeColor=#546e7a;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="60" y="990" width="85" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="dep-mux" value="gorilla/mux&#xa;HTTP路由" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#455a64;strokeColor=#546e7a;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="155" y="990" width="85" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="dep-ws" value="gorilla/ws&#xa;WebSocket" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#455a64;strokeColor=#546e7a;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="250" y="990" width="85" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="dep-yamux" value="yamux&#xa;多路复用" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#455a64;strokeColor=#546e7a;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="345" y="990" width="85" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="dep-quic" value="quic-go&#xa;QUIC协议" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#455a64;strokeColor=#546e7a;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="440" y="990" width="85" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="dep-kcp" value="kcp-go&#xa;KCP协议" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#455a64;strokeColor=#546e7a;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="535" y="990" width="85" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="dep-prom" value="prometheus&#xa;监控指标" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#455a64;strokeColor=#546e7a;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="630" y="990" width="85" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="dep-oidc" value="go-oidc&#xa;OIDC认证" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#455a64;strokeColor=#546e7a;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="725" y="990" width="85" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="dep-crypto" value="x/crypto&#xa;加密库" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#455a64;strokeColor=#546e7a;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="820" y="990" width="85" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="dep-stun" value="pion/stun&#xa;STUN协议" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#455a64;strokeColor=#546e7a;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="915" y="990" width="85" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="dep-toml" value="go-toml&#xa;配置解析" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#455a64;strokeColor=#546e7a;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1010" y="990" width="85" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="dep-k8s" value="client-go&#xa;K8s客户端" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#455a64;strokeColor=#546e7a;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1105" y="990" width="85" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="dep-wg" value="wireguard&#xa;VPN隧道" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#455a64;strokeColor=#546e7a;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1200" y="990" width="85" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="dep-water" value="water&#xa;TUN设备" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#455a64;strokeColor=#546e7a;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1295" y="990" width="85" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="dep-uuid" value="uuid&#xa;唯一标识" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#455a64;strokeColor=#546e7a;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1390" y="990" width="85" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="dep-samber" value="samber/lo&#xa;工具函数" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#455a64;strokeColor=#546e7a;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1485" y="990" width="85" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="dep-gjson" value="gjson&#xa;JSON解析" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#455a64;strokeColor=#546e7a;strokeWidth=1;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1580" y="990" width="85" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- ==================== 数据流连接线 ==================== -->
+        
+        <!-- 外部用户到网络层 -->
+        <mxCell id="flow-user-net" value="" style="endArrow=classic;html=1;strokeColor=#00bcd4;strokeWidth=2;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="ext-user" target="net-tcp">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- 网络层到服务端 -->
+        <mxCell id="flow-net-srv" value="" style="endArrow=classic;html=1;strokeColor=#2196f3;strokeWidth=2;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="net-muxer" target="srv-service">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- 服务端到客户端 (控制连接) -->
+        <mxCell id="flow-srv-cli" value="控制连接 &amp; 数据隧道" style="endArrow=classic;startArrow=classic;html=1;strokeColor=#ff9800;strokeWidth=3;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="srv-service" target="cli-service">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- 客户端到内网服务 -->
+        <mxCell id="flow-cli-int" value="" style="endArrow=classic;html=1;strokeColor=#00bcd4;strokeWidth=2;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="cli-proxy" target="int-service">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- 管理员到仪表盘 -->
+        <mxCell id="flow-admin-web" value="" style="endArrow=classic;html=1;strokeColor=#4caf50;strokeWidth=2;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="admin" target="srv-web">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- ==================== 图例 ==================== -->
+        <mxCell id="legend-box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0d1421;strokeColor=#37474f;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1070" width="1720" height="130" as="geometry" />
+        </mxCell>
+        
+        <!-- 代理类型图例 -->
+        <mxCell id="legend-proxy-title" value="代理类型" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#00bcd4;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1080" width="80" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="leg-tcp" value="TCP" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1565c0;strokeColor=#2196f3;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1105" width="60" height="25" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="leg-udp" value="UDP" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1565c0;strokeColor=#2196f3;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="130" y="1105" width="60" height="25" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="leg-http" value="HTTP" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00695c;strokeColor=#00bcd4;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="200" y="1105" width="60" height="25" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="leg-https" value="HTTPS" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00695c;strokeColor=#00bcd4;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="270" y="1105" width="60" height="25" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="leg-stcp" value="STCP" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e65100;strokeColor=#ff9800;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="340" y="1105" width="60" height="25" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="leg-xtcp" value="XTCP" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e65100;strokeColor=#ff9800;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="410" y="1105" width="60" height="25" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="leg-tcpmux" value="TCPMux" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#7b1fa2;strokeColor=#9c27b0;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="480" y="1105" width="60" height="25" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="leg-proxy-desc" value="TCP/UDP: 端口转发 | HTTP/HTTPS: Web服务 | STCP: 密钥访问 | XTCP: P2P穿透 | TCPMux: 多路复用" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#607d8b;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1135" width="500" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- 数据流图例 -->
+        <mxCell id="legend-flow-title" value="数据流向" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#00bcd4;" vertex="1" parent="1">
+          <mxGeometry x="600" y="1080" width="80" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="leg-flow1" value="" style="endArrow=classic;html=1;strokeColor=#00bcd4;strokeWidth=2;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="600" y="1118" as="sourcePoint" />
+            <mxPoint x="680" y="1118" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="leg-flow1-txt" value="用户请求" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="690" y="1108" width="60" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="leg-flow2" value="" style="endArrow=classic;startArrow=classic;html=1;strokeColor=#ff9800;strokeWidth=3;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="600" y="1148" as="sourcePoint" />
+            <mxPoint x="680" y="1148" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="leg-flow2-txt" value="控制/数据隧道" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="690" y="1138" width="90" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="leg-flow3" value="" style="endArrow=classic;html=1;strokeColor=#4caf50;strokeWidth=2;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="800" y="1118" as="sourcePoint" />
+            <mxPoint x="880" y="1118" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="leg-flow3-txt" value="管理访问" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="890" y="1108" width="60" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- 技术栈图例 -->
+        <mxCell id="legend-tech-title" value="技术栈" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#00bcd4;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="1080" width="80" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="leg-tech1" value="Go 1.24" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00695c;strokeColor=#00bcd4;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="1105" width="60" height="25" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="leg-tech2" value="TOML" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00695c;strokeColor=#00bcd4;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1070" y="1105" width="60" height="25" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="leg-tech3" value="TLS 1.3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00695c;strokeColor=#00bcd4;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1140" y="1105" width="60" height="25" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="leg-tech4" value="QUIC" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00695c;strokeColor=#00bcd4;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1210" y="1105" width="60" height="25" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="leg-tech5" value="WebSocket" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00695c;strokeColor=#00bcd4;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1280" y="1105" width="70" height="25" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="leg-tech6" value="STUN/NAT" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00695c;strokeColor=#00bcd4;fontColor=#ffffff;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1360" y="1105" width="70" height="25" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="leg-tech-desc" value="跨平台: Linux | Windows | macOS | Docker | Kubernetes" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#607d8b;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="1135" width="400" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- 层级说明 -->
+        <mxCell id="legend-layer-title" value="系统层级" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#00bcd4;" vertex="1" parent="1">
+          <mxGeometry x="1500" y="1080" width="80" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="leg-layer-desc" value="外部访问层 → 网络接入层 → 核心层&#xa;(服务端/客户端) → 协议层&#xa;→ 基础设施层 → 外部依赖" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="1500" y="1105" width="250" height="50" as="geometry" />
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
