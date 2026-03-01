@@ -1,16 +1,14 @@
 // Copyright 2013-2023 The Cobra Authors
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// 根据 Apache 许可证第 2.0 版（"许可证"）许可；
+// 除非遵守许可证，否则不得使用此文件。
+// 您可以在以下地址获取许可证副本：
 //
 //      http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// 除非适用法律要求或书面同意，否则根据许可证分发的软件
+// 按"原样"分发，不提供任何明示或暗示的保证或条件。
+// 请参阅许可证了解具体的语言和权限限制。
 
 package cobra
 
@@ -26,22 +24,21 @@ import (
 )
 
 const (
-	// ShellCompRequestCmd is the name of the hidden command that is used to request
-	// completion results from the program.  It is used by the shell completion scripts.
+	// ShellCompRequestCmd 是用于向程序请求补全结果的隐藏命令名称。
+	// 它由 shell 补全脚本使用。
 	ShellCompRequestCmd = "__complete"
-	// ShellCompNoDescRequestCmd is the name of the hidden command that is used to request
-	// completion results without their description.  It is used by the shell completion scripts.
+	// ShellCompNoDescRequestCmd 是用于请求不带描述的补全结果的隐藏命令名称。
+	// 它由 shell 补全脚本使用。
 	ShellCompNoDescRequestCmd = "__completeNoDesc"
 )
 
-// Global map of flag completion functions. Make sure to use flagCompletionMutex before you try to read and write from it.
+// 标志补全函数的全局映射。在读取和写入之前请务必使用 flagCompletionMutex。
 var flagCompletionFunctions = map[*pflag.Flag]CompletionFunc{}
 
-// lock for reading and writing from flagCompletionFunctions
+// 读写 flagCompletionFunctions 的锁
 var flagCompletionMutex = &sync.RWMutex{}
 
-// ShellCompDirective is a bit map representing the different behaviors the shell
-// can be instructed to have once completions have been provided.
+// ShellCompDirective 是一个位图，表示在提供补全后可以指示 shell 具有的不同行为。
 type ShellCompDirective int
 
 type flagCompError struct {
@@ -54,69 +51,60 @@ func (e *flagCompError) Error() string {
 }
 
 const (
-	// ShellCompDirectiveError indicates an error occurred and completions should be ignored.
+	// ShellCompDirectiveError 表示发生错误，应忽略补全。
 	ShellCompDirectiveError ShellCompDirective = 1 << iota
 
-	// ShellCompDirectiveNoSpace indicates that the shell should not add a space
-	// after the completion even if there is a single completion provided.
+	// ShellCompDirectiveNoSpace 表示即使提供了单个补全，shell 也不应添加空格。
 	ShellCompDirectiveNoSpace
 
-	// ShellCompDirectiveNoFileComp indicates that the shell should not provide
-	// file completion even when no completion is provided.
+	// ShellCompDirectiveNoFileComp 表示即使没有提供补全，shell 也不应提供文件补全。
 	ShellCompDirectiveNoFileComp
 
-	// ShellCompDirectiveFilterFileExt indicates that the provided completions
-	// should be used as file extension filters.
-	// For flags, using Command.MarkFlagFilename() and Command.MarkPersistentFlagFilename()
-	// is a shortcut to using this directive explicitly.  The BashCompFilenameExt
-	// annotation can also be used to obtain the same behavior for flags.
+	// ShellCompDirectiveFilterFileExt 表示提供的补全应该用作文件扩展名过滤器。
+	// 对于标志，使用 Command.MarkFlagFilename() 和 Command.MarkPersistentFlagFilename()
+	// 是显式使用此指令的快捷方式。BashCompFilenameExt
+	// 注释也可以用于获取相同的行为。
 	ShellCompDirectiveFilterFileExt
 
-	// ShellCompDirectiveFilterDirs indicates that only directory names should
-	// be provided in file completion.  To request directory names within another
-	// directory, the returned completions should specify the directory within
-	// which to search.  The BashCompSubdirsInDir annotation can be used to
-	// obtain the same behavior but only for flags.
+	// ShellCompDirectiveFilterDirs 表示在文件补全中只应提供目录名称。
+	// 要在另一个目录中请求目录名称，返回的补全应指定
+	// 要搜索的目录。BashCompSubdirsInDir 注释可以用于
+	// 获取相同的行为，但仅适用于标志。
 	ShellCompDirectiveFilterDirs
 
-	// ShellCompDirectiveKeepOrder indicates that the shell should preserve the order
-	// in which the completions are provided
+	// ShellCompDirectiveKeepOrder 表示 shell 应保留提供补全的顺序。
 	ShellCompDirectiveKeepOrder
 
 	// ===========================================================================
 
-	// All directives using iota should be above this one.
-	// For internal use.
+	// 所有使用 iota 的指令都应在此之上。
+	// 供内部使用。
 	shellCompDirectiveMaxValue
 
-	// ShellCompDirectiveDefault indicates to let the shell perform its default
-	// behavior after completions have been provided.
-	// This one must be last to avoid messing up the iota count.
+	// ShellCompDirectiveDefault 表示让 shell 在提供补全后执行其默认行为。
+	// 这一个必须放在最后以避免弄乱 iota 计数。
 	ShellCompDirectiveDefault ShellCompDirective = 0
 )
 
 const (
-	// Constants for the completion command
+	// completion 命令的常量
 	compCmdName              = "completion"
 	compCmdNoDescFlagName    = "no-descriptions"
-	compCmdNoDescFlagDesc    = "disable completion descriptions"
+	compCmdNoDescFlagDesc    = "禁用补全描述"
 	compCmdNoDescFlagDefault = false
 )
 
-// CompletionOptions are the options to control shell completion
+// CompletionOptions 是控制 shell 补全的选项
 type CompletionOptions struct {
-	// DisableDefaultCmd prevents Cobra from creating a default 'completion' command
+	// DisableDefaultCmd 防止 Cobra 创建默认的 'completion' 命令
 	DisableDefaultCmd bool
-	// DisableNoDescFlag prevents Cobra from creating the '--no-descriptions' flag
-	// for shells that support completion descriptions
+	// DisableNoDescFlag 防止 Cobra 为支持补全描述的 shell 创建 '--no-descriptions' 标志
 	DisableNoDescFlag bool
-	// DisableDescriptions turns off all completion descriptions for shells
-	// that support them
+	// DisableDescriptions 关闭对支持补全描述的 shell 的所有补全描述
 	DisableDescriptions bool
-	// HiddenDefaultCmd makes the default 'completion' command hidden
+	// HiddenDefaultCmd 使默认的 'completion' 命令隐藏
 	HiddenDefaultCmd bool
-	// DefaultShellCompDirective sets the ShellCompDirective that is returned
-	// if no special directive can be determined
+	// DefaultShellCompDirective 设置如果没有确定特殊指令时返回的 ShellCompDirective
 	DefaultShellCompDirective *ShellCompDirective
 }
 
@@ -124,49 +112,47 @@ func (receiver *CompletionOptions) SetDefaultShellCompDirective(directive ShellC
 	receiver.DefaultShellCompDirective = &directive
 }
 
-// Completion is a string that can be used for completions
+// Completion 是可用于补全的字符串
 //
-// two formats are supported:
-//   - the completion choice
-//   - the completion choice with a textual description (separated by a TAB).
+// 支持两种格式：
+//   - 补全选项
+//   - 带文本描述的补全选项（用 TAB 分隔）。
 //
-// [CompletionWithDesc] can be used to create a completion string with a textual description.
+// [CompletionWithDesc] 可用于创建带文本描述的补全字符串。
 //
-// Note: Go type alias is used to provide a more descriptive name in the documentation, but any string can be used.
+// 注意：Go 类型别名用于在文档中提供更具描述性的名称，但可以使用任何字符串。
 type Completion = string
 
-// CompletionFunc is a function that provides completion results.
+// CompletionFunc 是提供补全结果的函数。
 type CompletionFunc = func(cmd *Command, args []string, toComplete string) ([]Completion, ShellCompDirective)
 
-// CompletionWithDesc returns a [Completion] with a description by using the TAB delimited format.
+// CompletionWithDesc 使用 TAB 分隔格式返回带描述的 [Completion]。
 func CompletionWithDesc(choice string, description string) Completion {
 	return choice + "\t" + description
 }
 
-// NoFileCompletions can be used to disable file completion for commands that should
-// not trigger file completions.
+// NoFileCompletions 可用于禁用于不应触发文件补全的命令的文件补全。
 //
-// This method satisfies [CompletionFunc].
-// It can be used with [Command.RegisterFlagCompletionFunc] and for [Command.ValidArgsFunction].
+// 此方法满足 [CompletionFunc]。
+// 可与 [Command.RegisterFlagCompletionFunc] 和 [Command.ValidArgsFunction] 一起使用。
 func NoFileCompletions(cmd *Command, args []string, toComplete string) ([]Completion, ShellCompDirective) {
 	return nil, ShellCompDirectiveNoFileComp
 }
 
-// FixedCompletions can be used to create a completion function which always
-// returns the same results.
+// FixedCompletions 可用于创建始终返回相同结果的补全函数。
 //
-// This method returns a function that satisfies [CompletionFunc]
-// It can be used with [Command.RegisterFlagCompletionFunc] and for [Command.ValidArgsFunction].
+// 此方法返回满足 [CompletionFunc] 的函数
+// 可与 [Command.RegisterFlagCompletionFunc] 和 [Command.ValidArgsFunction] 一起使用。
 func FixedCompletions(choices []Completion, directive ShellCompDirective) CompletionFunc {
 	return func(cmd *Command, args []string, toComplete string) ([]Completion, ShellCompDirective) {
 		return choices, directive
 	}
 }
 
-// RegisterFlagCompletionFunc should be called to register a function to provide completion for a flag.
+// RegisterFlagCompletionFunc 应调用此函数来注册为标志提供补全的函数。
 //
-// You can use pre-defined completion functions such as [FixedCompletions] or [NoFileCompletions],
-// or you can define your own.
+// 您可以使用预定义的补全函数，例如 [FixedCompletions] 或 [NoFileCompletions]，
+// 或者您可以定义自己的函数。
 func (c *Command) RegisterFlagCompletionFunc(flagName string, f CompletionFunc) error {
 	flag := c.Flag(flagName)
 	if flag == nil {
@@ -182,7 +168,7 @@ func (c *Command) RegisterFlagCompletionFunc(flagName string, f CompletionFunc) 
 	return nil
 }
 
-// GetFlagCompletionFunc returns the completion function for the given flag of the command, if available.
+// GetFlagCompletionFunc 返回命令给定标志的补全函数（如果有）。
 func (c *Command) GetFlagCompletionFunc(flagName string) (CompletionFunc, bool) {
 	flag := c.Flag(flagName)
 	if flag == nil {
@@ -196,7 +182,7 @@ func (c *Command) GetFlagCompletionFunc(flagName string) (CompletionFunc, bool) 
 	return completionFunc, exists
 }
 
-// Returns a string listing the different directive enabled in the specified parameter
+// 返回列出指定参数中启用的不同指令的字符串
 func (d ShellCompDirective) string() string {
 	var directives []string
 	if d&ShellCompDirectiveError != 0 {

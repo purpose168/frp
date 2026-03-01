@@ -1,19 +1,17 @@
 // Copyright 2013-2023 The Cobra Authors
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// 根据 Apache 许可证第 2.0 版（"许可证"）许可；
+// 除非遵守许可证，否则不得使用此文件。
+// 您可以在以下地址获取许可证副本：
 //
 //      http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// 除非适用法律要求或书面同意，否则根据许可证分发的软件
+// 按"原样"分发，不提供任何明示或暗示的保证或条件。
+// 请参阅许可证了解具体的语言和权限限制。
 
-// Package cobra is a commander providing a simple interface to create powerful modern CLI interfaces.
-// In addition to providing an interface, Cobra simultaneously provides a controller to organize your application code.
+// Package cobra 是一个 commander，提供了一个简单的接口来创建强大的现代 CLI 界面。
+// 除了提供接口外，Cobra 同时还提供了一个控制器来组织您的应用程序代码。
 package cobra
 
 import (
@@ -38,178 +36,175 @@ const (
 	helpCommandName = "help"
 )
 
-// FParseErrWhitelist configures Flag parse errors to be ignored
+// FParseErrWhitelist 配置要忽略的 Flag 解析错误
 type FParseErrWhitelist flag.ParseErrorsAllowlist
 
-// Group Structure to manage groups for commands
+// Group 管理命令组的结构
 type Group struct {
 	ID    string
 	Title string
 }
 
-// Command is just that, a command for your application.
-// E.g.  'go run ...' - 'run' is the command. Cobra requires
-// you to define the usage and description as part of your command
-// definition to ensure usability.
+// Command 就是您应用程序的命令。
+// 例如：'go run ...' - 'run' 就是命令。Cobra 要求
+// 您在命令定义中定义 usage 和 description 以确保可用性。
 type Command struct {
-	// Use is the one-line usage message.
-	// Recommended syntax is as follows:
-	//   [ ] identifies an optional argument. Arguments that are not enclosed in brackets are required.
-	//   ... indicates that you can specify multiple values for the previous argument.
-	//   |   indicates mutually exclusive information. You can use the argument to the left of the separator or the
-	//       argument to the right of the separator. You cannot use both arguments in a single use of the command.
-	//   { } delimits a set of mutually exclusive arguments when one of the arguments is required. If the arguments are
-	//       optional, they are enclosed in brackets ([ ]).
-	// Example: add [-F file | -D dir]... [-f format] profile
+	// Use 是单行 usage 消息。
+	// 推荐的语法如下：
+	//   [ ] 表示可选参数。不在括号中的参数是必需的。
+	//   ... 表示您可以为前一个参数指定多个值。
+	//   | 表示互斥信息。您可以使用分隔符左侧的参数或
+	//       分隔符右侧的参数。不能在一个命令使用中同时使用两个参数。
+	//   { } 当其中一个参数是必需时，用于分隔一组互斥参数。如果参数是
+	//       可选的，它们用括号括起来（[ ]）。
+	// 示例：add [-F file | -D dir]... [-f format] profile
 	Use string
 
-	// Aliases is an array of aliases that can be used instead of the first word in Use.
+	// Aliases 是可以替代 Use 中第一个词的别名数组。
 	Aliases []string
 
-	// SuggestFor is an array of command names for which this command will be suggested -
-	// similar to aliases but only suggests.
+	// SuggestFor 是建议此命令的命令名称数组 -
+	// 类似于别名，但只是建议。
 	SuggestFor []string
 
-	// Short is the short description shown in the 'help' output.
+	// Short 是 'help' 输出中显示的简短描述。
 	Short string
 
-	// The group id under which this subcommand is grouped in the 'help' output of its parent.
+	// GroupID 是在其父命令的 'help' 输出中，此子命令所属的组 ID。
 	GroupID string
 
-	// Long is the long message shown in the 'help <this-command>' output.
+	// Long 是 'help <this-command>' 输出中显示的长消息。
 	Long string
 
-	// Example is examples of how to use the command.
+	// Example 是使用命令的示例。
 	Example string
 
-	// ValidArgs is list of all valid non-flag arguments that are accepted in shell completions
+	// ValidArgs 是在 shell 补全中接受的所有有效非标志参数的列表
 	ValidArgs []Completion
-	// ValidArgsFunction is an optional function that provides valid non-flag arguments for shell completion.
-	// It is a dynamic version of using ValidArgs.
-	// Only one of ValidArgs and ValidArgsFunction can be used for a command.
+	// ValidArgsFunction 是一个可选函数，为 shell 补全提供有效的非标志参数。
+	// 它是使用 ValidArgs 的动态版本。
+	// 一个命令只能使用 ValidArgs 或 ValidArgsFunction 之一。
 	ValidArgsFunction CompletionFunc
 
-	// Expected arguments
+	// 预期参数
 	Args PositionalArgs
 
-	// ArgAliases is List of aliases for ValidArgs.
-	// These are not suggested to the user in the shell completion,
-	// but accepted if entered manually.
+	// ArgAliases 是 ValidArgs 的别名列表。
+	// 这些不会在 shell 补全中向用户建议，
+	// 但如果手动输入则会接受。
 	ArgAliases []string
 
-	// BashCompletionFunction is custom bash functions used by the legacy bash autocompletion generator.
-	// For portability with other shells, it is recommended to instead use ValidArgsFunction
+	// BashCompletionFunction 是传统 bash 自动补全生成器使用的自定义 bash 函数。
+	// 为了与其他 shell 的可移植性，建议改用 ValidArgsFunction
 	BashCompletionFunction string
 
-	// Deprecated defines, if this command is deprecated and should print this string when used.
+	// Deprecated 定义此命令是否已弃用，使用时应打印此字符串。
 	Deprecated string
 
-	// Annotations are key/value pairs that can be used by applications to identify or
-	// group commands or set special options.
+	// Annotations 是应用程序可以用来识别或
+	// 分组命令或设置特殊选项的键/值对。
 	Annotations map[string]string
 
-	// Version defines the version for this command. If this value is non-empty and the command does not
-	// define a "version" flag, a "version" boolean flag will be added to the command and, if specified,
-	// will print content of the "Version" variable. A shorthand "v" flag will also be added if the
-	// command does not define one.
+	// Version 定义此命令的版本。如果此值非空且命令未
+	// 定义 "version" 标志，则会向命令添加 "version" 布尔标志，
+	// 如果指定，将打印 "Version" 变量的内容。如果命令
+	// 未定义，还會添加 "v" 简写标志。
 	Version string
 
-	// The *Run functions are executed in the following order:
+	// *Run 函数按以下顺序执行：
 	//   * PersistentPreRun()
 	//   * PreRun()
 	//   * Run()
 	//   * PostRun()
 	//   * PersistentPostRun()
-	// All functions get the same args, the arguments after the command name.
-	// The *PreRun and *PostRun functions will only be executed if the Run function of the current
-	// command has been declared.
+	// 所有函数都获得相同的 args，即命令名称后的参数。
+	// *PreRun 和 *PostRun 函数仅在当前命令的 Run 函数已声明时才会执行。
 	//
-	// PersistentPreRun: children of this command will inherit and execute.
+	// PersistentPreRun：此命令的子命令将继承并执行。
 	PersistentPreRun func(cmd *Command, args []string)
-	// PersistentPreRunE: PersistentPreRun but returns an error.
+	// PersistentPreRunE：PersistentPreRun 但返回错误。
 	PersistentPreRunE func(cmd *Command, args []string) error
-	// PreRun: children of this command will not inherit.
+	// PreRun：此命令的子命令不会继承。
 	PreRun func(cmd *Command, args []string)
-	// PreRunE: PreRun but returns an error.
+	// PreRunE：PreRun 但返回错误。
 	PreRunE func(cmd *Command, args []string) error
-	// Run: Typically the actual work function. Most commands will only implement this.
+	// Run：通常是实际的工作函数。大多数命令只会实现这个。
 	Run func(cmd *Command, args []string)
-	// RunE: Run but returns an error.
+	// RunE：Run 但返回错误。
 	RunE func(cmd *Command, args []string) error
-	// PostRun: run after the Run command.
+	// PostRun：在 Run 命令之后运行。
 	PostRun func(cmd *Command, args []string)
-	// PostRunE: PostRun but returns an error.
+	// PostRunE：PostRun 但返回错误。
 	PostRunE func(cmd *Command, args []string) error
-	// PersistentPostRun: children of this command will inherit and execute after PostRun.
+	// PersistentPostRun：此命令的子命令将在 PostRun 之后继承并执行。
 	PersistentPostRun func(cmd *Command, args []string)
-	// PersistentPostRunE: PersistentPostRun but returns an error.
+	// PersistentPostRunE：PersistentPostRun 但返回错误。
 	PersistentPostRunE func(cmd *Command, args []string) error
 
-	// groups for subcommands
+	// 子命令的组
 	commandgroups []*Group
 
-	// args is actual args parsed from flags.
+	// args 是从标志解析的实际参数。
 	args []string
-	// flagErrorBuf contains all error messages from pflag.
+	// flagErrorBuf 包含来自 pflag 的所有错误消息。
 	flagErrorBuf *bytes.Buffer
-	// flags is full set of flags.
+	// flags 是完整的标志集。
 	flags *flag.FlagSet
-	// pflags contains persistent flags.
+	// pflags 包含持久标志。
 	pflags *flag.FlagSet
-	// lflags contains local flags.
-	// This field does not represent internal state, it's used as a cache to optimise LocalFlags function call
+	// lflags 包含本地标志。
+	// 此字段不表示内部状态，它用作缓存以优化 LocalFlags 函数调用
 	lflags *flag.FlagSet
-	// iflags contains inherited flags.
-	// This field does not represent internal state, it's used as a cache to optimise InheritedFlags function call
+	// iflags 包含继承的标志。
+	// 此字段不表示内部状态，它用作缓存以优化 InheritedFlags 函数调用
 	iflags *flag.FlagSet
-	// parentsPflags is all persistent flags of cmd's parents.
+	// parentsPflags 是 cmd 父级的所有持久标志。
 	parentsPflags *flag.FlagSet
-	// globNormFunc is the global normalization function
-	// that we can use on every pflag set and children commands
+	// globNormFunc 是全局规范化函数
+	// 我们可以在每个 pflag 集和子命令上使用
 	globNormFunc func(f *flag.FlagSet, name string) flag.NormalizedName
 
-	// usageFunc is usage func defined by user.
+	// usageFunc 是用户定义的 usage 函数。
 	usageFunc func(*Command) error
-	// usageTemplate is usage template defined by user.
+	// usageTemplate 是用户定义的 usage 模板。
 	usageTemplate *tmplFunc
-	// flagErrorFunc is func defined by user and it's called when the parsing of
-	// flags returns an error.
+	// flagErrorFunc 是用户定义的函数，在解析标志返回错误时调用。
 	flagErrorFunc func(*Command, error) error
-	// helpTemplate is help template defined by user.
+	// helpTemplate 是用户定义的 help 模板。
 	helpTemplate *tmplFunc
-	// helpFunc is help func defined by user.
+	// helpFunc 是用户定义的 help 函数。
 	helpFunc func(*Command, []string)
-	// helpCommand is command with usage 'help'. If it's not defined by user,
-	// cobra uses default help command.
+	// helpCommand 是 usage 为 'help' 的命令。如果用户没有定义，
+	// cobra 使用默认的 help 命令。
 	helpCommand *Command
-	// helpCommandGroupID is the group id for the helpCommand
+	// helpCommandGroupID 是 helpCommand 的组 ID
 	helpCommandGroupID string
 
-	// completionCommandGroupID is the group id for the completion command
+	// completionCommandGroupID 是 completion 命令的组 ID
 	completionCommandGroupID string
 
-	// versionTemplate is the version template defined by user.
+	// versionTemplate 是用户定义的版本模板。
 	versionTemplate *tmplFunc
 
-	// errPrefix is the error message prefix defined by user.
+	// errPrefix 是用户定义的错误消息前缀。
 	errPrefix string
 
-	// inReader is a reader defined by the user that replaces stdin
+	// inReader 是用户定义的替换 stdin 的 reader
 	inReader io.Reader
-	// outWriter is a writer defined by the user that replaces stdout
+	// outWriter 是用户定义的替换 stdout 的 writer
 	outWriter io.Writer
-	// errWriter is a writer defined by the user that replaces stderr
+	// errWriter 是用户定义的替换 stderr 的 writer
 	errWriter io.Writer
 
-	// FParseErrWhitelist flag parse errors to be ignored
+	// FParseErrWhitelist 标志解析错误要忽略
 	FParseErrWhitelist FParseErrWhitelist
 
-	// CompletionOptions is a set of options to control the handling of shell completion
+	// CompletionOptions 是一组用于控制 shell 补全处理的选项
 	CompletionOptions CompletionOptions
 
-	// commandsAreSorted defines, if command slice are sorted or not.
+	// commandsAreSorted 定义命令切片是否已排序。
 	commandsAreSorted bool
-	// commandCalledAs is the name or alias value used to call this command.
+	// commandCalledAs 是用于调用此命令的名称或别名值。
 	commandCalledAs struct {
 		name   string
 		called bool
@@ -217,99 +212,98 @@ type Command struct {
 
 	ctx context.Context
 
-	// commands is the list of commands supported by this program.
+	// commands 是此程序支持的命令列表。
 	commands []*Command
-	// parent is a parent command for this command.
+	// parent 是此命令的父命令。
 	parent *Command
 	// Max lengths of commands' string lengths for use in padding.
 	commandsMaxUseLen         int
 	commandsMaxCommandPathLen int
 	commandsMaxNameLen        int
 
-	// TraverseChildren parses flags on all parents before executing child command.
+	// TraverseChildren 在执行子命令之前解析所有父级的标志。
 	TraverseChildren bool
 
-	// Hidden defines, if this command is hidden and should NOT show up in the list of available commands.
+	// Hidden 定义此命令是否隐藏，不应显示在可用命令列表中。
 	Hidden bool
 
-	// SilenceErrors is an option to quiet errors down stream.
+	// SilenceErrors 是向下游静默错误的选项。
 	SilenceErrors bool
 
-	// SilenceUsage is an option to silence usage when an error occurs.
+	// SilenceUsage 是发生错误时静默 usage 的选项。
 	SilenceUsage bool
 
-	// DisableFlagParsing disables the flag parsing.
-	// If this is true all flags will be passed to the command as arguments.
+	// DisableFlagParsing 禁用标志解析。
+	// 如果为 true，所有标志将作为参数传递给命令。
 	DisableFlagParsing bool
 
-	// DisableAutoGenTag defines, if gen tag ("Auto generated by spf13/cobra...")
-	// will be printed by generating docs for this command.
+	// DisableAutoGenTag 定义是否打印 gen 标签（"Auto generated by spf13/cobra..."）
+	// 在为此命令生成文档时。
 	DisableAutoGenTag bool
 
-	// DisableFlagsInUseLine will disable the addition of [flags] to the usage
-	// line of a command when printing help or generating docs
+	// DisableFlagsInUseLine 将在打印帮助或生成文档时禁用
+	// 向命令的 usage 行添加 [flags]
 	DisableFlagsInUseLine bool
 
-	// DisableSuggestions disables the suggestions based on Levenshtein distance
-	// that go along with 'unknown command' messages.
+	// DisableSuggestions 禁用基于 Levenshtein 距离的建议，
+	// 这些建议会随 "unknown command" 消息一起显示。
 	DisableSuggestions bool
 
-	// SuggestionsMinimumDistance defines minimum levenshtein distance to display suggestions.
-	// Must be > 0.
+	// SuggestionsMinimumDistance 定义显示建议的最小 Levenshtein 距离。
+	// 必须 > 0。
 	SuggestionsMinimumDistance int
 }
 
-// Context returns underlying command context. If command was executed
-// with ExecuteContext or the context was set with SetContext, the
-// previously set context will be returned. Otherwise, nil is returned.
+// Context 返回底层命令上下文。如果命令使用 ExecuteContext 执行，
+// 或者使用 SetContext 设置了上下文，将返回先前设置的上下文。否则，返回 nil。
 //
-// Notice that a call to Execute and ExecuteC will replace a nil context of
-// a command with a context.Background, so a background context will be
-// returned by Context after one of these functions has been called.
+// 注意，调用 Execute 和 ExecuteContextC 将用 context.Background 替换
+// 命令的 nil 上下文，因此在这些函数之一被调用后，
+// Context 将返回后台上下文。
 func (c *Command) Context() context.Context {
 	return c.ctx
 }
 
-// SetContext sets context for the command. This context will be overwritten by
-// Command.ExecuteContext or Command.ExecuteContextC.
+// SetContext 为命令设置上下文。此上下文将被
+// Command.ExecuteContext 或 Command.ExecuteContextC 覆盖。
 func (c *Command) SetContext(ctx context.Context) {
 	c.ctx = ctx
 }
 
-// SetArgs sets arguments for the command. It is set to os.Args[1:] by default, if desired, can be overridden
-// particularly useful when testing.
+// SetArgs 为命令设置参数。默认设置为 os.Args[1:]，
+// 如果需要，可以重写，特别适用于测试。
 func (c *Command) SetArgs(a []string) {
 	c.args = a
 }
 
-// SetOutput sets the destination for usage and error messages.
-// If output is nil, os.Stderr is used.
+// SetOutput 设置 usage 和错误消息的目的地。
+// 如果 output 为 nil，则使用 os.Stderr。
 //
-// Deprecated: Use SetOut and/or SetErr instead
+// 已弃用：请改用 SetOut 和/或 SetErr
 func (c *Command) SetOutput(output io.Writer) {
 	c.outWriter = output
 	c.errWriter = output
 }
 
-// SetOut sets the destination for usage messages.
-// If newOut is nil, os.Stdout is used.
+// SetOut 设置 usage 消息的目的地。
+// 如果 newOut 为 nil，则使用 os.Stdout。
 func (c *Command) SetOut(newOut io.Writer) {
 	c.outWriter = newOut
 }
 
-// SetErr sets the destination for error messages.
-// If newErr is nil, os.Stderr is used.
+// SetErr 设置错误消息的目的地。
+// 如果 newErr 为 nil，则使用 os.Stderr。
 func (c *Command) SetErr(newErr io.Writer) {
 	c.errWriter = newErr
 }
 
-// SetIn sets the source for input data
-// If newIn is nil, os.Stdin is used.
+// SetIn 设置输入数据的来源
+// 如果 newIn 为 nil，则使用 os.Stdin。
 func (c *Command) SetIn(newIn io.Reader) {
 	c.inReader = newIn
 }
 
-// SetUsageFunc sets usage function. Usage can be defined by application.
+// SetUsageFunc 设置 usage 函数。Usage 可以由应用程序定义。
 func (c *Command) SetUsageFunc(f func(*Command) error) {
 	c.usageFunc = f
 }

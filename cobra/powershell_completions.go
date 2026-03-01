@@ -1,19 +1,17 @@
 // Copyright 2013-2023 The Cobra Authors
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// 根据 Apache 许可证第 2.0 版（"许可证"）许可；
+// 除非遵守许可证，否则不得使用此文件。
+// 您可以在以下地址获取许可证副本：
 //
 //      http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// 除非适用法律要求或书面同意，否则根据许可证分发的软件
+// 按"原样"分发，不提供任何明示或暗示的保证或条件。
+// 请参阅许可证了解具体的语言和权限限制。
 
-// The generated scripts require PowerShell v5.0+ (which comes Windows 10, but
-// can be downloaded separately for windows 7 or 8.1).
+// 生成的脚本需要 PowerShell v5.0+（随 Windows 10 提供，
+// 但可以为 Windows 7 或 8.1 单独下载）。
 
 package cobra
 
@@ -35,7 +33,7 @@ func genPowerShellComp(buf io.StringWriter, name string, includeDesc bool) {
 	if !includeDesc {
 		compCmd = ShellCompNoDescRequestCmd
 	}
-	WriteStringAndCheck(buf, fmt.Sprintf(`# powershell completion for %-36[1]s -*- shell-script -*-
+	WriteStringAndCheck(buf, fmt.Sprintf(`# %-36[1]s 的 powershell 补全 -*- shell-script -*-
 
 function __%[1]s_debug {
     if ($env:BASH_COMP_DEBUG_FILE) {
@@ -327,24 +325,22 @@ func (c *Command) genPowerShellCompletionFile(filename string, includeDesc bool)
 	return c.genPowerShellCompletion(outFile, includeDesc)
 }
 
-// GenPowerShellCompletionFile generates powershell completion file without descriptions.
+// GenPowerShellCompletionFile 生成不带描述的 powershell 补全文件。
 func (c *Command) GenPowerShellCompletionFile(filename string) error {
 	return c.genPowerShellCompletionFile(filename, false)
 }
 
-// GenPowerShellCompletion generates powershell completion file without descriptions
-// and writes it to the passed writer.
+// GenPowerShellCompletion 生成不带描述的 powershell 补全文件并写入传递的 writer。
 func (c *Command) GenPowerShellCompletion(w io.Writer) error {
 	return c.genPowerShellCompletion(w, false)
 }
 
-// GenPowerShellCompletionFileWithDesc generates powershell completion file with descriptions.
+// GenPowerShellCompletionFileWithDesc 生成带描述的 powershell 补全文件。
 func (c *Command) GenPowerShellCompletionFileWithDesc(filename string) error {
 	return c.genPowerShellCompletionFile(filename, true)
 }
 
-// GenPowerShellCompletionWithDesc generates powershell completion file with descriptions
-// and writes it to the passed writer.
+// GenPowerShellCompletionWithDesc 生成带描述的 powershell 补全文件并写入传递的 writer。
 func (c *Command) GenPowerShellCompletionWithDesc(w io.Writer) error {
 	return c.genPowerShellCompletion(w, true)
 }

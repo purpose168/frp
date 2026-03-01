@@ -1,16 +1,14 @@
 // Copyright 2013-2023 The Cobra Authors
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// 根据 Apache 许可证第 2.0 版（"许可证"）许可；
+// 除非遵守许可证，否则不得使用此文件。
+// 您可以在以下地址获取许可证副本：
 //
 //      http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// 除非适用法律要求或书面同意，否则根据许可证分发的软件
+// 按"原样"分发，不提供任何明示或暗示的保证或条件。
+// 请参阅许可证了解具体的语言和权限限制。
 
 package cobra
 
@@ -28,8 +26,7 @@ const (
 	mutuallyExclusiveAnnotation = "cobra_annotation_mutually_exclusive"
 )
 
-// MarkFlagsRequiredTogether marks the given flags with annotations so that Cobra errors
-// if the command is invoked with a subset (but not all) of the given flags.
+// MarkFlagsRequiredTogether 使用注释标记给定的标志，以便如果命令以给定标志的子集（但不是全部）调用，Cobra 会报错。
 func (c *Command) MarkFlagsRequiredTogether(flagNames ...string) {
 	c.mergePersistentFlags()
 	for _, v := range flagNames {
@@ -44,8 +41,7 @@ func (c *Command) MarkFlagsRequiredTogether(flagNames ...string) {
 	}
 }
 
-// MarkFlagsOneRequired marks the given flags with annotations so that Cobra errors
-// if the command is invoked without at least one flag from the given set of flags.
+// MarkFlagsOneRequired 使用注释标记给定的标志，以便如果命令在没有至少一个给定标志的情况下调用，Cobra 会报错。
 func (c *Command) MarkFlagsOneRequired(flagNames ...string) {
 	c.mergePersistentFlags()
 	for _, v := range flagNames {
@@ -60,8 +56,7 @@ func (c *Command) MarkFlagsOneRequired(flagNames ...string) {
 	}
 }
 
-// MarkFlagsMutuallyExclusive marks the given flags with annotations so that Cobra errors
-// if the command is invoked with more than one flag from the given set of flags.
+// MarkFlagsMutuallyExclusive 使用注释标记给定的标志，以便如果命令使用给定标志集中的多个标志调用，Cobra 会报错。
 func (c *Command) MarkFlagsMutuallyExclusive(flagNames ...string) {
 	c.mergePersistentFlags()
 	for _, v := range flagNames {
@@ -76,8 +71,7 @@ func (c *Command) MarkFlagsMutuallyExclusive(flagNames ...string) {
 	}
 }
 
-// ValidateFlagGroups validates the mutuallyExclusive/oneRequired/requiredAsGroup logic and returns the
-// first error encountered.
+// ValidateFlagGroups 验证 mutuallyExclusive/oneRequired/requiredAsGroup 逻辑并返回遇到的第一个错误。
 func (c *Command) ValidateFlagGroups() error {
 	if c.DisableFlagParsing {
 		return nil

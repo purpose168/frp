@@ -1,16 +1,15 @@
 // Copyright 2013-2023 The Cobra Authors
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// 根据 Apache 许可证 2.0 版本（"许可证"）授权；
+// 除非遵守许可证，否则您不得使用此文件。
+// 您可以在以下位置获取许可证副本：
 //
 //      http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// 除非适用法律要求或书面同意，否则根据许可证分发的软件
+// 是按"原样"基础分发的，不附带任何明示或暗示的担保或条件。
+// 请参阅许可证中有关管理权限和
+// 限制的特定语言。
 
 package cobra
 
@@ -21,29 +20,24 @@ import (
 
 const (
 	activeHelpMarker = "_activeHelp_ "
-	// The below values should not be changed: programs will be using them explicitly
-	// in their user documentation, and users will be using them explicitly.
+	// 以下值不应更改：程序将在其用户文档中显式使用它们，用户也将显式使用它们
 	activeHelpEnvVarSuffix  = "ACTIVE_HELP"
 	activeHelpGlobalEnvVar  = configEnvVarGlobalPrefix + "_" + activeHelpEnvVarSuffix
 	activeHelpGlobalDisable = "0"
 )
 
-// AppendActiveHelp adds the specified string to the specified array to be used as ActiveHelp.
-// Such strings will be processed by the completion script and will be shown as ActiveHelp
-// to the user.
-// The array parameter should be the array that will contain the completions.
-// This function can be called multiple times before and/or after completions are added to
-// the array.  Each time this function is called with the same array, the new
-// ActiveHelp line will be shown below the previous ones when completion is triggered.
+// AppendActiveHelp 将指定的字符串添加到指定的数组中用作 ActiveHelp。
+// 这些字符串将由补全脚本处理，并作为 ActiveHelp 显示给用户。
+// array 参数应该是包含补全结果的数组。
+// 此函数可以在向数组添加补全项之前和/或之后多次调用。
+// 每次使用相同数组调用此函数时，触发补全时新的 ActiveHelp 行将显示在之前行的下方。
 func AppendActiveHelp(compArray []Completion, activeHelpStr string) []Completion {
 	return append(compArray, fmt.Sprintf("%s%s", activeHelpMarker, activeHelpStr))
 }
 
-// GetActiveHelpConfig returns the value of the ActiveHelp environment variable
-// <PROGRAM>_ACTIVE_HELP where <PROGRAM> is the name of the root command in upper
-// case, with all non-ASCII-alphanumeric characters replaced by `_`.
-// It will always return "0" if the global environment variable COBRA_ACTIVE_HELP
-// is set to "0".
+// GetActiveHelpConfig 返回 ActiveHelp 环境变量 <PROGRAM>_ACTIVE_HELP 的值，
+// 其中 <PROGRAM> 是根命令名称的大写形式，所有非 ASCII 字母数字字符替换为 `_`。
+// 如果全局环境变量 COBRA_ACTIVE_HELP 设置为 "0"，则始终返回 "0"。
 func GetActiveHelpConfig(cmd *Command) string {
 	activeHelpCfg := os.Getenv(activeHelpGlobalEnvVar)
 	if activeHelpCfg != activeHelpGlobalDisable {
@@ -52,9 +46,9 @@ func GetActiveHelpConfig(cmd *Command) string {
 	return activeHelpCfg
 }
 
-// activeHelpEnvVar returns the name of the program-specific ActiveHelp environment
-// variable.  It has the format <PROGRAM>_ACTIVE_HELP where <PROGRAM> is the name of the
-// root command in upper case, with all non-ASCII-alphanumeric characters replaced by `_`.
+// activeHelpEnvVar 返回程序特定的 ActiveHelp 环境变量名称。
+// 格式为 <PROGRAM>_ACTIVE_HELP，其中 <PROGRAM> 是根命令名称的大写形式，
+// 所有非 ASCII 字母数字字符替换为 `_`。
 func activeHelpEnvVar(name string) string {
 	return configEnvVar(name, activeHelpEnvVarSuffix)
 }

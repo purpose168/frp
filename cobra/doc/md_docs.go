@@ -1,16 +1,14 @@
 // Copyright 2013-2023 The Cobra Authors
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// 根据 Apache 许可证第 2.0 版（"许可证"）许可；
+// 除非遵守许可证，否则不得使用此文件。
+// 您可以在以下地址获取许可证副本：
 //
 //      http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// 除非适用法律要求或书面同意，否则根据许可证分发的软件
+// 按"原样"分发，不提供任何明示或暗示的保证或条件。
+// 请参阅许可证了解具体的语言和权限限制。
 
 package doc
 
@@ -48,12 +46,12 @@ func printOptions(buf *bytes.Buffer, cmd *cobra.Command, name string) error {
 	return nil
 }
 
-// GenMarkdown creates markdown output.
+// GenMarkdown 创建 markdown 输出。
 func GenMarkdown(cmd *cobra.Command, w io.Writer) error {
 	return GenMarkdownCustom(cmd, w, func(s string) string { return s })
 }
 
-// GenMarkdownCustom creates custom markdown output.
+// GenMarkdownCustom 创建自定义 markdown 输出。
 func GenMarkdownCustom(cmd *cobra.Command, w io.Writer, linkHandler func(string) string) error {
 	cmd.InitDefaultHelpCmd()
 	cmd.InitDefaultHelpFlag()
@@ -116,20 +114,18 @@ func GenMarkdownCustom(cmd *cobra.Command, w io.Writer, linkHandler func(string)
 	return err
 }
 
-// GenMarkdownTree will generate a markdown page for this command and all
-// descendants in the directory given. The header may be nil.
-// This function may not work correctly if your command names have `-` in them.
-// If you have `cmd` with two subcmds, `sub` and `sub-third`,
-// and `sub` has a subcommand called `third`, it is undefined which
-// help output will be in the file `cmd-sub-third.1`.
+// GenMarkdownTree 将在给定目录中为此命令及所有后代生成一个 markdown 页面。
+// 头部可能为 nil。
+// 如果您的命令名称中包含 `-`，此函数可能无法正常工作。
+// 如果您有一个 `cmd` 和两个子命令 `sub` 和 `sub-third`，
+// 而 `sub` 有一个名为 `third` 的子命令，则哪个帮助输出将位于文件中是未定义的。
 func GenMarkdownTree(cmd *cobra.Command, dir string) error {
 	identity := func(s string) string { return s }
 	emptyStr := func(s string) string { return "" }
 	return GenMarkdownTreeCustom(cmd, dir, emptyStr, identity)
 }
 
-// GenMarkdownTreeCustom is the same as GenMarkdownTree, but
-// with custom filePrepender and linkHandler.
+// GenMarkdownTreeCustom 与 GenMarkdownTree 相同，但带有自定义 filePrepender 和 linkHandler。
 func GenMarkdownTreeCustom(cmd *cobra.Command, dir string, filePrepender, linkHandler func(string) string) error {
 	for _, c := range cmd.Commands() {
 		if !c.IsAvailableCommand() || c.IsAdditionalHelpTopicCommand() {

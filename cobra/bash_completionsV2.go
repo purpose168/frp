@@ -1,16 +1,14 @@
 // Copyright 2013-2023 The Cobra Authors
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// 根据 Apache 许可证第 2.0 版（"许可证"）许可；
+// 除非遵守许可证，否则不得使用此文件。
+// 您可以在以下地址获取许可证副本：
 //
 //      http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// 除非适用法律要求或书面同意，否则根据许可证分发的软件
+// 按"原样"分发，不提供任何明示或暗示的保证或条件。
+// 请参阅许可证了解具体的语言和权限限制。
 
 package cobra
 
@@ -34,7 +32,7 @@ func genBashComp(buf io.StringWriter, name string, includeDesc bool) {
 		compCmd = ShellCompNoDescRequestCmd
 	}
 
-	WriteStringAndCheck(buf, fmt.Sprintf(`# bash completion V2 for %-36[1]s -*- shell-script -*-
+	WriteStringAndCheck(buf, fmt.Sprintf(`# %-36[1]s 的 bash 补全 V2 -*- shell-script -*-
 
 __%[1]s_debug()
 {
@@ -43,21 +41,21 @@ __%[1]s_debug()
     fi
 }
 
-# Macs have bash3 for which the bash-completion package doesn't include
-# _init_completion. This is a minimal version of that function.
+# Mac 系统使用 bash3，bash-completion 包不包含
+# _init_completion 函数。这是该函数的最小版本。
 __%[1]s_init_completion()
 {
     COMPREPLY=()
     _get_comp_words_by_ref "$@" cur prev words cword
 }
 
-# This function calls the %[1]s program to obtain the completion
-# results and the directive.  It fills the 'out' and 'directive' vars.
+# 此函数调用 %[1]s 程序来获取补全结果和指令。
+# 它填充 'out' 和 'directive' 变量。
 __%[1]s_get_completion_results() {
     local requestComp lastParam lastChar args
 
-    # Prepare the command to request completions for the program.
-    # Calling ${words[0]} instead of directly %[1]s allows handling aliases
+    # 准备请求程序补全的命令。
+    # 调用 ${words[0]} 而不是直接调用 %[1]s 可以处理别名
     args=("${words[@]:1}")
     requestComp="${words[0]} %[2]s ${args[*]}"
 
@@ -66,33 +64,33 @@ __%[1]s_get_completion_results() {
     __%[1]s_debug "lastParam ${lastParam}, lastChar ${lastChar}"
 
     if [[ -z ${cur} && ${lastChar} != = ]]; then
-        # If the last parameter is complete (there is a space following it)
-        # We add an extra empty parameter so we can indicate this to the go method.
-        __%[1]s_debug "Adding extra empty parameter"
+        # 如果最后一个参数已完整（后面有空格）
+        # 我们添加一个额外的空参数以便向 go 方法指示这一点。
+        __%[1]s_debug "添加额外的空参数"
         requestComp="${requestComp} ''"
     fi
 
-    # When completing a flag with an = (e.g., %[1]s -n=<TAB>)
-    # bash focuses on the part after the =, so we need to remove
-    # the flag part from $cur
+    # 当补全带 = 的标志时（例如 %[1]s -n=<TAB>）
+    # bash 聚焦于 = 后的部分，所以我们需要
+    # 从 $cur 中移除标志部分
     if [[ ${cur} == -*=* ]]; then
         cur="${cur#*=}"
     fi
 
-    __%[1]s_debug "Calling ${requestComp}"
-    # Use eval to handle any environment variables and such
+    __%[1]s_debug "调用 ${requestComp}"
+    # 使用 eval 处理任何环境变量等
     out=$(eval "${requestComp}" 2>/dev/null)
 
-    # Extract the directive integer at the very end of the output following a colon (:)
+    # 提取输出末尾紧跟在冒号(:)后面的指令整数
     directive=${out##*:}
-    # Remove the directive
+    # 移除指令
     out=${out%%:*}
     if [[ ${directive} == "${out}" ]]; then
-        # There is not directive specified
+        # 未指定指令
         directive=0
     fi
-    __%[1]s_debug "The completion directive is: ${directive}"
-    __%[1]s_debug "The completions are: ${out}"
+    __%[1]s_debug "补全指令为: ${directive}"
+    __%[1]s_debug "补全内容为: ${out}"
 }
 
 __%[1]s_process_completion_results() {
@@ -104,69 +102,69 @@ __%[1]s_process_completion_results() {
     local shellCompDirectiveKeepOrder=%[8]d
 
     if (((directive & shellCompDirectiveError) != 0)); then
-        # Error code.  No completion.
-        __%[1]s_debug "Received error from custom completion go code"
+        # 错误代码。无补全。
+        __%[1]s_debug "从自定义补全 go 代码接收到错误"
         return
     else
         if (((directive & shellCompDirectiveNoSpace) != 0)); then
             if [[ $(type -t compopt) == builtin ]]; then
-                __%[1]s_debug "Activating no space"
+                __%[1]s_debug "启用无空格"
                 compopt -o nospace
             else
-                __%[1]s_debug "No space directive not supported in this version of bash"
+                __%[1]s_debug "此版本 bash 不支持无空格指令"
             fi
         fi
         if (((directive & shellCompDirectiveKeepOrder) != 0)); then
             if [[ $(type -t compopt) == builtin ]]; then
-                # no sort isn't supported for bash less than < 4.4
+                # bash < 4.4 不支持无排序
                 if [[ ${BASH_VERSINFO[0]} -lt 4 || ( ${BASH_VERSINFO[0]} -eq 4 && ${BASH_VERSINFO[1]} -lt 4 ) ]]; then
-                    __%[1]s_debug "No sort directive not supported in this version of bash"
+                    __%[1]s_debug "此版本 bash 不支持无排序指令"
                 else
-                    __%[1]s_debug "Activating keep order"
+                    __%[1]s_debug "启用保持顺序"
                     compopt -o nosort
                 fi
             else
-                __%[1]s_debug "No sort directive not supported in this version of bash"
+                __%[1]s_debug "此版本 bash 不支持无排序指令"
             fi
         fi
         if (((directive & shellCompDirectiveNoFileComp) != 0)); then
             if [[ $(type -t compopt) == builtin ]]; then
-                __%[1]s_debug "Activating no file completion"
+                __%[1]s_debug "启用无文件补全"
                 compopt +o default
             else
-                __%[1]s_debug "No file completion directive not supported in this version of bash"
+                __%[1]s_debug "此版本 bash 不支持无文件补全指令"
             fi
         fi
     fi
 
-    # Separate activeHelp from normal completions
+    # 将 activeHelp 与普通补全分开
     local completions=()
     local activeHelp=()
     __%[1]s_extract_activeHelp
 
     if (((directive & shellCompDirectiveFilterFileExt) != 0)); then
-        # File extension filtering
+        # 文件扩展名过滤
         local fullFilter="" filter filteringCmd
 
-        # Do not use quotes around the $completions variable or else newline
-        # characters will be kept.
+        # 不要在 $completions 变量周围使用引号，否则换行符
+        # 会被保留。
         for filter in ${completions[*]}; do
             fullFilter+="$filter|"
         done
 
         filteringCmd="_filedir $fullFilter"
-        __%[1]s_debug "File filtering command: $filteringCmd"
+        __%[1]s_debug "文件过滤命令: $filteringCmd"
         $filteringCmd
     elif (((directive & shellCompDirectiveFilterDirs) != 0)); then
-        # File completion for directories only
+        # 仅目录的文件补全
 
         local subdir
         subdir=${completions[0]}
         if [[ -n $subdir ]]; then
-            __%[1]s_debug "Listing directories in $subdir"
+            __%[1]s_debug "列出 $subdir 中的目录"
             pushd "$subdir" >/dev/null 2>&1 && _filedir -d && popd >/dev/null 2>&1 || return
         else
-            __%[1]s_debug "Listing directories in ."
+            __%[1]s_debug "列出当前目录中的目录"
             _filedir -d
         fi
     else
@@ -176,15 +174,15 @@ __%[1]s_process_completion_results() {
     __%[1]s_handle_special_char "$cur" :
     __%[1]s_handle_special_char "$cur" =
 
-    # Print the activeHelp statements before we finish
+    # 在完成前打印 activeHelp 语句
     __%[1]s_handle_activeHelp
 }
 
 __%[1]s_handle_activeHelp() {
-    # Print the activeHelp statements
+    # 打印 activeHelp 语句
     if ((${#activeHelp[*]} != 0)); then
         if [ -z $COMP_TYPE ]; then
-            # Bash v3 does not set the COMP_TYPE variable.
+            # Bash v3 不设置 COMP_TYPE 变量。
             printf "\n";
             printf "%%s\n" "${activeHelp[@]}"
             printf "\n"
@@ -192,39 +190,39 @@ __%[1]s_handle_activeHelp() {
             return
         fi
 
-        # Only print ActiveHelp on the second TAB press
+        # 仅在第二次按 TAB 时打印 ActiveHelp
         if [ $COMP_TYPE -eq 63 ]; then
             printf "\n"
             printf "%%s\n" "${activeHelp[@]}"
 
             if ((${#COMPREPLY[*]} == 0)); then
-                # When there are no completion choices from the program, file completion
-                # may kick in if the program has not disabled it; in such a case, we want
-                # to know if any files will match what the user typed, so that we know if
-                # there will be completions presented, so that we know how to handle ActiveHelp.
-                # To find out, we actually trigger the file completion ourselves;
-                # the call to _filedir will fill COMPREPLY if files match.
+                # 当程序没有提供补全选项时，文件补全
+                # 可能会启动；如果程序没有禁用它；我们想知道
+                # 是否有文件会匹配用户输入的内容，以便我们知道
+                # 是否会有补全呈现，所以我们知道如何处理 ActiveHelp。
+                # 为了找出答案，我们自己触发文件补全；
+                # 调用 _filedir 会在文件匹配时填充 COMPREPLY。
                 if (((directive & shellCompDirectiveNoFileComp) == 0)); then
-                    __%[1]s_debug "Listing files"
+                    __%[1]s_debug "列出文件"
                     _filedir
                 fi
             fi
 
             if ((${#COMPREPLY[*]} != 0)); then
-                # If there are completion choices to be shown, print a delimiter.
-                # Re-printing the command-line will automatically be done
-                # by the shell when it prints the completion choices.
+                # 如果有补全选项要显示，打印分隔符。
+                # 重新打印命令行将自动由
+                # shell 在打印补全选项时完成。
                 printf -- "--"
             else
-                # When there are no completion choices at all, we need
-                # to re-print the command-line since the shell will
-                # not be doing it itself.
+                # 当根本没有补全选项时，我们需要
+                # 重新打印命令行，因为 shell 不会
+                # 自己完成它。
                 __%[1]s_reprint_commandLine
             fi
         elif [ $COMP_TYPE -eq 37 ] || [ $COMP_TYPE -eq 42 ]; then
-            # For completion type: menu-complete/menu-complete-backward and insert-completions
-            # the completions are immediately inserted into the command-line, so we first
-            # print the activeHelp message and reprint the command-line since the shell won't.
+            # 对于补全类型：menu-complete/menu-complete-backward 和 insert-completions
+            # 补全会立即插入命令行，所以我们先
+            # 打印 activeHelp 消息并重新打印命令行，因为 shell 不会。
             printf "\n"
             printf "%%s\n" "${activeHelp[@]}"
 
@@ -234,19 +232,19 @@ __%[1]s_handle_activeHelp() {
 }
 
 __%[1]s_reprint_commandLine() {
-    # The prompt format is only available from bash 4.4.
-    # We test if it is available before using it.
+    # 提示符格式仅在 bash 4.4 及以上版本可用。
+    # 我们在使用前测试它是否可用。
     if (x=${PS1@P}) 2> /dev/null; then
         printf "%%s" "${PS1@P}${COMP_LINE[@]}"
     else
-        # Can't print the prompt.  Just print the
-        # text the user had typed, it is workable enough.
+        # 无法打印提示符。只是打印
+        # 用户输入的文本，足够用了。
         printf "%%s" "${COMP_LINE[@]}"
     fi
 }
 
-# Separate activeHelp lines from real completions.
-# Fills the $activeHelp and $completions arrays.
+# 将 activeHelp 行与真实补全分开。
+# 填充 $activeHelp 和 $completions 数组。
 __%[1]s_extract_activeHelp() {
     local activeHelpMarker="%[9]s"
     local endIndex=${#activeHelpMarker}
@@ -256,45 +254,45 @@ __%[1]s_extract_activeHelp() {
 
         if [[ ${comp:0:endIndex} == $activeHelpMarker ]]; then
             comp=${comp:endIndex}
-            __%[1]s_debug "ActiveHelp found: $comp"
+            __%[1]s_debug "找到 ActiveHelp: $comp"
             if [[ -n $comp ]]; then
                 activeHelp+=("$comp")
             fi
         else
-            # Not an activeHelp line but a normal completion
+            # 不是 activeHelp 行，而是普通补全
             completions+=("$comp")
         fi
     done <<<"${out}"
 }
 
 __%[1]s_handle_completion_types() {
-    __%[1]s_debug "__%[1]s_handle_completion_types: COMP_TYPE is $COMP_TYPE"
+    __%[1]s_debug "__%[1]s_handle_completion_types: COMP_TYPE 为 $COMP_TYPE"
 
     case $COMP_TYPE in
     37|42)
-        # Type: menu-complete/menu-complete-backward and insert-completions
-        # If the user requested inserting one completion at a time, or all
-        # completions at once on the command-line we must remove the descriptions.
+        # 类型：menu-complete/menu-complete-backward 和 insert-completions
+        # 如果用户请求一次插入一个补全，或一次在命令行上插入所有
+        # 补全，我们必须移除描述。
         # https://github.com/spf13/cobra/issues/1508
 
-        # If there are no completions, we don't need to do anything
+        # 如果没有补全，我们不需要做任何事
         (( ${#completions[@]} == 0 )) && return 0
 
         local tab=$'\t'
 
-        # Strip any description and escape the completion to handled special characters
+        # 剥离任何描述并转义补全以处理特殊字符
         IFS=$'\n' read -ra completions -d '' < <(printf "%%q\n" "${completions[@]%%%%$tab*}")
 
-        # Only consider the completions that match
+        # 只考虑与用户输入匹配的补全
         IFS=$'\n' read -ra COMPREPLY -d '' < <(IFS=$'\n'; compgen -W "${completions[*]}" -- "${cur}")
 
-        # compgen looses the escaping so we need to escape all completions again since they will
-        # all be inserted on the command-line.
+        # compgen 丢失了转义，所以我们需要再次转义所有补全，因为它们将
+        # 被插入到命令行中。
         IFS=$'\n' read -ra COMPREPLY -d '' < <(printf "%%q\n" "${COMPREPLY[@]}")
         ;;
 
     *)
-        # Type: complete (normal completion)
+        # 类型：complete（普通补全）
         __%[1]s_handle_standard_completion_case
         ;;
     esac
@@ -303,20 +301,20 @@ __%[1]s_handle_completion_types() {
 __%[1]s_handle_standard_completion_case() {
     local tab=$'\t'
 
-    # If there are no completions, we don't need to do anything
+    # 如果没有补全，我们不需要做任何事
     (( ${#completions[@]} == 0 )) && return 0
 
-    # Short circuit to optimize if we don't have descriptions
+    # 短路优化，如果我们没有描述
     if [[ "${completions[*]}" != *$tab* ]]; then
-        # First, escape the completions to handle special characters
+        # 首先，转义补全以处理特殊字符
         IFS=$'\n' read -ra completions -d '' < <(printf "%%q\n" "${completions[@]}")
-        # Only consider the completions that match what the user typed
+        # 只考虑与用户输入匹配的补全
         IFS=$'\n' read -ra COMPREPLY -d '' < <(IFS=$'\n'; compgen -W "${completions[*]}" -- "${cur}")
 
-        # compgen looses the escaping so, if there is only a single completion, we need to
-        # escape it again because it will be inserted on the command-line.  If there are multiple
-        # completions, we don't want to escape them because they will be printed in a list
-        # and we don't want to show escape characters in that list.
+        # compgen 丢失了转义，所以，如果只有一个补全，我们需要
+        # 再次转义它，因为它将被插入到命令行中。如果有多个
+        # 补全，我们不希望转义它们，因为它们将在列表中打印，
+        # 我们不想在该列表中显示转义字符。
         if (( ${#COMPREPLY[@]} == 1 )); then
             COMPREPLY[0]=$(printf "%%q" "${COMPREPLY[0]}")
         fi
@@ -325,42 +323,41 @@ __%[1]s_handle_standard_completion_case() {
 
     local longest=0
     local compline
-    # Look for the longest completion so that we can format things nicely
+    # 寻找最长补全以便我们可以格式化它们
     for compline in "${completions[@]}"; do
         [[ -z $compline ]] && continue
 
-        # Before checking if the completion matches what the user typed,
-        # we need to strip any description and escape the completion to handle special
-        # characters because those escape characters are part of what the user typed.
-        # Don't call "printf" in a sub-shell because it will be much slower
-        # since we are in a loop.
+        # 在检查补全是否与用户输入匹配之前，
+        # 我们需要剥离任何描述并转义补全以处理特殊
+        # 字符，因为这些转义字符是用户输入的一部分。
+        # 不要在子 shell 中调用 "printf"，因为它会慢得多
+        # 因为我们在循环中。
         printf -v comp "%%q" "${compline%%%%$tab*}" &>/dev/null || comp=$(printf "%%q" "${compline%%%%$tab*}")
 
-        # Only consider the completions that match
+        # 只考虑与用户输入匹配的补全
         [[ $comp == "$cur"* ]] || continue
 
-        # The completions matches.  Add it to the list of full completions including
-        # its description.  We don't escape the completion because it may get printed
-        # in a list if there are more than one and we don't want show escape characters
-        # in that list.
+        # 补全匹配。将其添加到完整补全列表中，包括
+        # 其描述。我们不转义补全，因为它可能在有多个时
+        # 在列表中打印，我们不想在该列表中显示转义字符。
         COMPREPLY+=("$compline")
 
-        # Strip any description before checking the length, and again, don't escape
-        # the completion because this length is only used when printing the completions
-        # in a list and we don't want show escape characters in that list.
+        # 在检查长度之前剥离任何描述，同样，不要转义
+        # 补全，因为此长度仅在列表中打印补全时使用，
+        # 我们不想在该列表中显示转义字符。
         comp=${compline%%%%$tab*}
         if ((${#comp}>longest)); then
             longest=${#comp}
         fi
     done
 
-    # If there is a single completion left, remove the description text and escape any special characters
+    # 如果只剩下一个补全，移除描述文本并转义任何特殊字符
     if ((${#COMPREPLY[*]} == 1)); then
         __%[1]s_debug "COMPREPLY[0]: ${COMPREPLY[0]}"
         COMPREPLY[0]=$(printf "%%q" "${COMPREPLY[0]%%%%$tab*}")
-        __%[1]s_debug "Removed description from single completion, which is now: ${COMPREPLY[0]}"
+        __%[1]s_debug "从单个补全中移除了描述，现在为: ${COMPREPLY[0]}"
     else
-        # Format the descriptions
+        # 格式化描述
         __%[1]s_format_comp_descriptions $longest
     fi
 }
@@ -387,30 +384,29 @@ __%[1]s_format_comp_descriptions()
     local i ci
     for ci in ${!COMPREPLY[*]}; do
         comp=${COMPREPLY[ci]}
-        # Properly format the description string which follows a tab character if there is one
+        # 正确格式化在制表符后面的描述字符串（如果有）
         if [[ "$comp" == *$tab* ]]; then
-            __%[1]s_debug "Original comp: $comp"
+            __%[1]s_debug "原始补全: $comp"
             desc=${comp#*$tab}
             comp=${comp%%%%$tab*}
 
-            # $COLUMNS stores the current shell width.
-            # Remove an extra 4 because we add 2 spaces and 2 parentheses.
+            # $COLUMNS 存储当前 shell 宽度。
+            # 再移除 4 个字符，因为我们要加 2 个空格和 2 个括号。
             maxdesclength=$(( COLUMNS - longest - 4 ))
 
-            # Make sure we can fit a description of at least 8 characters
-            # if we are to align the descriptions.
+            # 确保如果我们要对齐描述，至少可以容纳 8 个字符
             if ((maxdesclength > 8)); then
-                # Add the proper number of spaces to align the descriptions
+                # 添加适当数量的空格以对齐描述
                 for ((i = ${#comp} ; i < longest ; i++)); do
                     comp+=" "
                 done
             else
-                # Don't pad the descriptions so we can fit more text after the completion
+                # 不填充描述，以便在补全后容纳更多文本
                 maxdesclength=$(( COLUMNS - ${#comp} - 4 ))
             fi
 
-            # If there is enough space for any description text,
-            # truncate the descriptions that are too long for the shell width
+            # 如果有足够的空间显示任何描述文本，
+            # 截断太长的描述以适应 shell 宽度
             if ((maxdesclength > 0)); then
                 if ((${#desc} > maxdesclength)); then
                     desc=${desc:0:$(( maxdesclength - 1 ))}
@@ -419,7 +415,7 @@ __%[1]s_format_comp_descriptions()
                 comp+="  ($desc)"
             fi
             COMPREPLY[ci]=$comp
-            __%[1]s_debug "Final comp: $comp"
+            __%[1]s_debug "最终补全: $comp"
         fi
     done
 }
@@ -430,8 +426,8 @@ __start_%[1]s()
 
     COMPREPLY=()
 
-    # Call _init_completion from the bash-completion package
-    # to prepare the arguments properly
+    # 从 bash-completion 包调用 _init_completion
+    # 以正确准备参数
     if declare -F _init_completion >/dev/null 2>&1; then
         _init_completion -n =: || return
     else
@@ -439,14 +435,14 @@ __start_%[1]s()
     fi
 
     __%[1]s_debug
-    __%[1]s_debug "========= starting completion logic =========="
-    __%[1]s_debug "cur is ${cur}, words[*] is ${words[*]}, #words[@] is ${#words[@]}, cword is $cword"
+    __%[1]s_debug "========= 开始补全逻辑 =========="
+    __%[1]s_debug "cur 为 ${cur}, words[*] 为 ${words[*]}, #words[@] 为 ${#words[@]}, cword 为 $cword"
 
-    # The user could have moved the cursor backwards on the command-line.
-    # We need to trigger completion from the $cword location, so we need
-    # to truncate the command-line ($words) up to the $cword location.
+    # 用户可能将光标在命令行上向后移动了。
+    # 我们需要从 $cword 位置触发补全，所以我们需要
+    # 将命令行（$words）截断到 $cword 位置。
     words=("${words[@]:0:$cword+1}")
-    __%[1]s_debug "Truncated words[*]: ${words[*]},"
+    __%[1]s_debug "截断后的 words[*]: ${words[*]},"
 
     local out directive
     __%[1]s_get_completion_results
@@ -459,14 +455,14 @@ else
     complete -o default -o nospace -F __start_%[1]s %[1]s
 fi
 
-# ex: ts=4 sw=4 et filetype=sh
+# 例如：ts=4 sw=4 et filetype=sh
 `, name, compCmd,
 		ShellCompDirectiveError, ShellCompDirectiveNoSpace, ShellCompDirectiveNoFileComp,
 		ShellCompDirectiveFilterFileExt, ShellCompDirectiveFilterDirs, ShellCompDirectiveKeepOrder,
 		activeHelpMarker))
 }
 
-// GenBashCompletionFileV2 generates Bash completion version 2.
+// GenBashCompletionFileV2 生成 Bash 补全版本 2。
 func (c *Command) GenBashCompletionFileV2(filename string, includeDesc bool) error {
 	outFile, err := os.Create(filename)
 	if err != nil {
@@ -477,8 +473,8 @@ func (c *Command) GenBashCompletionFileV2(filename string, includeDesc bool) err
 	return c.GenBashCompletionV2(outFile, includeDesc)
 }
 
-// GenBashCompletionV2 generates Bash completion file version 2
-// and writes it to the passed writer.
+// GenBashCompletionV2 生成 Bash 补全文件版本 2
+// 并将其写入传递的 writer。
 func (c *Command) GenBashCompletionV2(w io.Writer, includeDesc bool) error {
 	return c.genBashCompletion(w, includeDesc)
 }

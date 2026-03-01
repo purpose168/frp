@@ -1,16 +1,15 @@
 // Copyright 2013-2023 The Cobra Authors
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// 根据 Apache 许可证 2.0 版本（"许可证"）授权；
+// 除非遵守许可证，否则您不得使用此文件。
+// 您可以在以下位置获取许可证副本：
 //
 //      http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// 除非适用法律要求或书面同意，否则根据许可证分发的软件
+// 是按"原样"基础分发的，不附带任何明示或暗示的担保或条件。
+// 请参阅许可证中有关管理权限和
+// 限制的特定语言。
 
 package cobra
 
@@ -20,6 +19,7 @@ import (
 	"testing"
 )
 
+// getCommand 创建一个带有指定位置参数验证的测试命令
 func getCommand(args PositionalArgs, withValid bool) *Command {
 	c := &Command{
 		Use:  "c",
@@ -32,82 +32,89 @@ func getCommand(args PositionalArgs, withValid bool) *Command {
 	return c
 }
 
+// expectSuccess 验证命令执行成功
 func expectSuccess(output string, err error, t *testing.T) {
 	if output != "" {
-		t.Errorf("Unexpected output: %v", output)
+		t.Errorf("意外的输出: %v", output)
 	}
 	if err != nil {
-		t.Fatalf("Unexpected error: %v", err)
+		t.Fatalf("意外的错误: %v", err)
 	}
 }
 
+// validOnlyWithInvalidArgs 验证带有无效参数的错误情况
 func validOnlyWithInvalidArgs(err error, t *testing.T) {
 	if err == nil {
-		t.Fatal("Expected an error")
+		t.Fatal("预期一个错误")
 	}
 	got := err.Error()
 	expected := `invalid argument "a" for "c"`
 	if got != expected {
-		t.Errorf("Expected: %q, got: %q", expected, got)
+		t.Errorf("预期: %q, 得到: %q", expected, got)
 	}
 }
 
+// noArgsWithArgs 验证不允许参数时传入参数的错误情况
 func noArgsWithArgs(err error, t *testing.T, arg string) {
 	if err == nil {
-		t.Fatal("Expected an error")
+		t.Fatal("预期一个错误")
 	}
 	got := err.Error()
 	expected := `unknown command "` + arg + `" for "c"`
 	if got != expected {
-		t.Errorf("Expected: %q, got: %q", expected, got)
+		t.Errorf("预期: %q, 得到: %q", expected, got)
 	}
 }
 
+// minimumNArgsWithLessArgs 验证参数数量少于最小要求的错误情况
 func minimumNArgsWithLessArgs(err error, t *testing.T) {
 	if err == nil {
-		t.Fatal("Expected an error")
+		t.Fatal("预期一个错误")
 	}
 	got := err.Error()
 	expected := "requires at least 2 arg(s), only received 1"
 	if got != expected {
-		t.Fatalf("Expected %q, got %q", expected, got)
+		t.Fatalf("预期 %q, 得到 %q", expected, got)
 	}
 }
 
+// maximumNArgsWithMoreArgs 验证参数数量超过最大限制的错误情况
 func maximumNArgsWithMoreArgs(err error, t *testing.T) {
 	if err == nil {
-		t.Fatal("Expected an error")
+		t.Fatal("预期一个错误")
 	}
 	got := err.Error()
 	expected := "accepts at most 2 arg(s), received 3"
 	if got != expected {
-		t.Fatalf("Expected %q, got %q", expected, got)
+		t.Fatalf("预期 %q, 得到 %q", expected, got)
 	}
 }
 
+// exactArgsWithInvalidCount 验证参数数量不等于指定数量的错误情况
 func exactArgsWithInvalidCount(err error, t *testing.T) {
 	if err == nil {
-		t.Fatal("Expected an error")
+		t.Fatal("预期一个错误")
 	}
 	got := err.Error()
 	expected := "accepts 2 arg(s), received 3"
 	if got != expected {
-		t.Fatalf("Expected %q, got %q", expected, got)
+		t.Fatalf("预期 %q, 得到 %q", expected, got)
 	}
 }
 
+// rangeArgsWithInvalidCount 验证参数数量不在指定范围内的错误情况
 func rangeArgsWithInvalidCount(err error, t *testing.T) {
 	if err == nil {
-		t.Fatal("Expected an error")
+		t.Fatal("预期一个错误")
 	}
 	got := err.Error()
 	expected := "accepts between 2 and 4 arg(s), received 1"
 	if got != expected {
-		t.Fatalf("Expected %q, got %q", expected, got)
+		t.Fatalf("预期 %q, 得到 %q", expected, got)
 	}
 }
 
-// NoArgs
+// NoArgs 测试
 
 func TestNoArgs(t *testing.T) {
 	c := getCommand(NoArgs, false)
@@ -139,7 +146,7 @@ func TestNoArgs_WithValidOnly_WithInvalidArgs(t *testing.T) {
 	validOnlyWithInvalidArgs(err, t)
 }
 
-// OnlyValidArgs
+// OnlyValidArgs 测试
 
 func TestOnlyValidArgs(t *testing.T) {
 	c := getCommand(OnlyValidArgs, true)
@@ -153,7 +160,7 @@ func TestOnlyValidArgs_WithInvalidArgs(t *testing.T) {
 	validOnlyWithInvalidArgs(err, t)
 }
 
-// ArbitraryArgs
+// ArbitraryArgs 测试
 
 func TestArbitraryArgs(t *testing.T) {
 	c := getCommand(ArbitraryArgs, false)
@@ -179,7 +186,7 @@ func TestArbitraryArgs_WithValidOnly_WithInvalidArgs(t *testing.T) {
 	validOnlyWithInvalidArgs(err, t)
 }
 
-// MinimumNArgs
+// MinimumNArgs 测试
 
 func TestMinimumNArgs(t *testing.T) {
 	c := getCommand(MinimumNArgs(2), false)
@@ -229,7 +236,7 @@ func TestMinimumNArgs_WithLessArgs_WithValidOnly_WithInvalidArgs(t *testing.T) {
 	validOnlyWithInvalidArgs(err, t)
 }
 
-// MaximumNArgs
+// MaximumNArgs 测试
 
 func TestMaximumNArgs(t *testing.T) {
 	c := getCommand(MaximumNArgs(3), false)
@@ -279,7 +286,7 @@ func TestMaximumNArgs_WithMoreArgs_WithValidOnly_WithInvalidArgs(t *testing.T) {
 	validOnlyWithInvalidArgs(err, t)
 }
 
-// ExactArgs
+// ExactArgs 测试
 
 func TestExactArgs(t *testing.T) {
 	c := getCommand(ExactArgs(3), false)
@@ -329,7 +336,7 @@ func TestExactArgs_WithInvalidCount_WithValidOnly_WithInvalidArgs(t *testing.T) 
 	validOnlyWithInvalidArgs(err, t)
 }
 
-// RangeArgs
+// RangeArgs 测试
 
 func TestRangeArgs(t *testing.T) {
 	c := getCommand(RangeArgs(2, 4), false)
@@ -379,7 +386,7 @@ func TestRangeArgs_WithInvalidCount_WithValidOnly_WithInvalidArgs(t *testing.T) 
 	validOnlyWithInvalidArgs(err, t)
 }
 
-// Takes(No)Args
+// Takes(No)Args 测试
 
 func TestRootTakesNoArgs(t *testing.T) {
 	rootCmd := &Command{Use: "root", Run: emptyRun}
@@ -388,13 +395,13 @@ func TestRootTakesNoArgs(t *testing.T) {
 
 	_, err := executeCommand(rootCmd, "illegal", "args")
 	if err == nil {
-		t.Fatal("Expected an error")
+		t.Fatal("预期一个错误")
 	}
 
 	got := err.Error()
 	expected := `unknown command "illegal" for "root"`
 	if !strings.Contains(got, expected) {
-		t.Errorf("expected %q, got %q", expected, got)
+		t.Errorf("预期 %q, 得到 %q", expected, got)
 	}
 }
 
@@ -405,7 +412,7 @@ func TestRootTakesArgs(t *testing.T) {
 
 	_, err := executeCommand(rootCmd, "legal", "args")
 	if err != nil {
-		t.Errorf("Unexpected error: %v", err)
+		t.Errorf("意外的错误: %v", err)
 	}
 }
 
@@ -416,13 +423,13 @@ func TestChildTakesNoArgs(t *testing.T) {
 
 	_, err := executeCommand(rootCmd, "child", "illegal", "args")
 	if err == nil {
-		t.Fatal("Expected an error")
+		t.Fatal("预期一个错误")
 	}
 
 	got := err.Error()
 	expected := `unknown command "illegal" for "root child"`
 	if !strings.Contains(got, expected) {
-		t.Errorf("expected %q, got %q", expected, got)
+		t.Errorf("预期 %q, 得到 %q", expected, got)
 	}
 }
 
@@ -433,19 +440,18 @@ func TestChildTakesArgs(t *testing.T) {
 
 	_, err := executeCommand(rootCmd, "child", "legal", "args")
 	if err != nil {
-		t.Fatalf("Unexpected error: %v", err)
+		t.Fatalf("意外的错误: %v", err)
 	}
 }
 
 func TestMatchAll(t *testing.T) {
-	// Somewhat contrived example check that ensures there are exactly 3
-	// arguments, and each argument is exactly 2 bytes long.
+	// 稍微复杂的示例，确保正好有3个参数，且每个参数正好是2字节长
 	pargs := MatchAll(
 		ExactArgs(3),
 		func(cmd *Command, args []string) error {
 			for _, arg := range args {
 				if len([]byte(arg)) != 2 {
-					return fmt.Errorf("expected to be exactly 2 bytes long")
+					return fmt.Errorf("预期正好是2字节长")
 				}
 			}
 			return nil
@@ -476,16 +482,16 @@ func TestMatchAll(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			_, err := executeCommand(rootCmd, tc.args...)
 			if err != nil && !tc.fail {
-				t.Errorf("unexpected: %v\n", err)
+				t.Errorf("意外的错误: %v\n", err)
 			}
 			if err == nil && tc.fail {
-				t.Errorf("expected error")
+				t.Errorf("预期错误")
 			}
 		})
 	}
 }
 
-// DEPRECATED
+// 已弃用
 
 func TestExactValidArgs(t *testing.T) {
 	c := getCommand(ExactValidArgs(3), true)
@@ -511,22 +517,19 @@ func TestExactValidArgs_WithInvalidArgs(t *testing.T) {
 	validOnlyWithInvalidArgs(err, t)
 }
 
-// This test make sure we keep backwards-compatibility with respect
-// to the legacyArgs() function.
-// It makes sure the root command accepts arguments if it does not have
-// sub-commands.
+// 此测试确保我们与 legacyArgs() 函数保持向后兼容性
+// 它确保根命令在没有子命令时接受参数
 func TestLegacyArgsRootAcceptsArgs(t *testing.T) {
 	rootCmd := &Command{Use: "root", Args: nil, Run: emptyRun}
 
 	_, err := executeCommand(rootCmd, "somearg")
 	if err != nil {
-		t.Fatalf("Unexpected error: %v", err)
+		t.Fatalf("意外的错误: %v", err)
 	}
 }
 
-// This test make sure we keep backwards-compatibility with respect
-// to the legacyArgs() function.
-// It makes sure a sub-command accepts arguments and further sub-commands
+// 此测试确保我们与 legacyArgs() 函数保持向后兼容性
+// 它确保子命令接受参数和进一步的子命令
 func TestLegacyArgsSubcmdAcceptsArgs(t *testing.T) {
 	rootCmd := &Command{Use: "root", Args: nil, Run: emptyRun}
 	childCmd := &Command{Use: "child", Args: nil, Run: emptyRun}
@@ -536,6 +539,6 @@ func TestLegacyArgsSubcmdAcceptsArgs(t *testing.T) {
 
 	_, err := executeCommand(rootCmd, "child", "somearg")
 	if err != nil {
-		t.Fatalf("Unexpected error: %v", err)
+		t.Fatalf("意外的错误: %v", err)
 	}
 }

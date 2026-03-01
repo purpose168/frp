@@ -1,16 +1,14 @@
 // Copyright 2013-2023 The Cobra Authors
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// 根据 Apache 许可证第 2.0 版（"许可证"）许可；
+// 除非遵守许可证，否则不得使用此文件。
+// 您可以在以下地址获取许可证副本：
 //
 //      http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// 除非适用法律要求或书面同意，否则根据许可证分发的软件
+// 按"原样"分发，不提供任何明示或暗示的保证或条件。
+// 请参阅许可证了解具体的语言和权限限制。
 
 package cobra
 
@@ -228,27 +226,22 @@ func TestRpad(t *testing.T) {
 	}
 }
 
-// TestDeadcodeElimination checks that a simple program using cobra in its
-// default configuration is linked taking full advantage of the linker's
-// deadcode elimination step.
+// TestDeadcodeElimination 检查使用 cobra 默认配置的简单程序是否充分利用了链接器的
+// 死代码消除步骤进行链接。
 //
-// If reflect.Value.MethodByName/reflect.Value.Method are reachable the
-// linker will not always be able to prove that exported methods are
-// unreachable, making deadcode elimination less effective. Using
-// text/template and html/template makes reflect.Value.MethodByName
-// reachable.
-// Since cobra can use text/template templates this test checks that in its
-// default configuration that code path can be proven to be unreachable by
-// the linker.
+// 如果 reflect.Value.MethodByName/reflect.Value.Method 是可达的，
+// 链接器将无法始终证明导出的方法是不可达的，从而使死代码消除效果降低。
+// 使用 text/template 和 html/template 会使 reflect.Value.MethodByName 变为可达。
+// 由于 cobra 可以使用 text/template 模板，此测试检查在默认配置下，
+// 该代码路径是否能被链接器证明为不可达。
 //
-// See also: https://github.com/spf13/cobra/pull/1956
+// 另请参阅：https://github.com/spf13/cobra/pull/1956
 func TestDeadcodeElimination(t *testing.T) {
 	if runtime.GOOS == "windows" {
-		t.Skip("go tool nm fails on windows")
+		t.Skip("go tool nm 在 windows 上失败")
 	}
 
-	// check that a simple program using cobra in its default configuration is
-	// linked with deadcode elimination enabled.
+	// 检查使用 cobra 默认配置的简单程序是否在启用死代码消除的情况下链接。
 	const (
 		dirname  = "test_deadcode"
 		progname = "test_deadcode_elimination"

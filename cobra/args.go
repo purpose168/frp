@@ -1,16 +1,15 @@
 // Copyright 2013-2023 The Cobra Authors
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// 根据 Apache 许可证 2.0 版本（"许可证"）授权；
+// 除非遵守许可证，否则您不得使用此文件。
+// 您可以在以下位置获取许可证副本：
 //
 //      http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// 除非适用法律要求或书面同意，否则根据许可证分发的软件
+// 是按"原样"基础分发的，不附带任何明示或暗示的担保或条件。
+// 请参阅许可证中有关管理权限和
+// 限制的特定语言。
 
 package cobra
 
@@ -19,26 +18,27 @@ import (
 	"strings"
 )
 
+// PositionalArgs 定义位置参数的验证函数类型
 type PositionalArgs func(cmd *Command, args []string) error
 
-// legacyArgs validation has the following behaviour:
-// - root commands with no subcommands can take arbitrary arguments
-// - root commands with subcommands will do subcommand validity checking
-// - subcommands will always accept arbitrary arguments
+// legacyArgs 验证具有以下行为：
+// - 没有子命令的根命令可以接受任意参数
+// - 有子命令的根命令将进行子命令有效性检查
+// - 子命令始终可以接受任意参数
 func legacyArgs(cmd *Command, args []string) error {
-	// no subcommand, always take args
+	// 没有子命令，始终接受参数
 	if !cmd.HasSubCommands() {
 		return nil
 	}
 
-	// root command with subcommands, do subcommand checking.
+	// 有子命令的根命令，执行子命令检查
 	if !cmd.HasParent() && len(args) > 0 {
 		return fmt.Errorf("unknown command %q for %q%s", args[0], cmd.CommandPath(), cmd.findSuggestions(args[0]))
 	}
 	return nil
 }
 
-// NoArgs returns an error if any args are included.
+// NoArgs 如果包含任何参数则返回错误
 func NoArgs(cmd *Command, args []string) error {
 	if len(args) > 0 {
 		return fmt.Errorf("unknown command %q for %q", args[0], cmd.CommandPath())
@@ -46,12 +46,11 @@ func NoArgs(cmd *Command, args []string) error {
 	return nil
 }
 
-// OnlyValidArgs returns an error if there are any positional args that are not in
-// the `ValidArgs` field of `Command`
+// OnlyValidArgs 如果存在任何不在 Command 的 ValidArgs 字段中的位置参数，则返回错误
 func OnlyValidArgs(cmd *Command, args []string) error {
 	if len(cmd.ValidArgs) > 0 {
-		// Remove any description that may be included in ValidArgs.
-		// A description is following a tab character.
+		// 移除可能包含在 ValidArgs 中的任何描述
+		// 描述跟在制表符后面
 		validArgs := make([]string, 0, len(cmd.ValidArgs))
 		for _, v := range cmd.ValidArgs {
 			validArgs = append(validArgs, strings.SplitN(v, "\t", 2)[0])
@@ -65,12 +64,12 @@ func OnlyValidArgs(cmd *Command, args []string) error {
 	return nil
 }
 
-// ArbitraryArgs never returns an error.
+// ArbitraryArgs 从不返回错误
 func ArbitraryArgs(cmd *Command, args []string) error {
 	return nil
 }
 
-// MinimumNArgs returns an error if there is not at least N args.
+// MinimumNArgs 如果参数少于 N 个则返回错误
 func MinimumNArgs(n int) PositionalArgs {
 	return func(cmd *Command, args []string) error {
 		if len(args) < n {
@@ -80,7 +79,7 @@ func MinimumNArgs(n int) PositionalArgs {
 	}
 }
 
-// MaximumNArgs returns an error if there are more than N args.
+// MaximumNArgs 如果参数超过 N 个则返回错误
 func MaximumNArgs(n int) PositionalArgs {
 	return func(cmd *Command, args []string) error {
 		if len(args) > n {
@@ -90,7 +89,7 @@ func MaximumNArgs(n int) PositionalArgs {
 	}
 }
 
-// ExactArgs returns an error if there are not exactly n args.
+// ExactArgs 如果参数不等于 n 个则返回错误
 func ExactArgs(n int) PositionalArgs {
 	return func(cmd *Command, args []string) error {
 		if len(args) != n {
@@ -100,7 +99,7 @@ func ExactArgs(n int) PositionalArgs {
 	}
 }
 
-// RangeArgs returns an error if the number of args is not within the expected range.
+// RangeArgs 如果参数数量不在预期范围内则返回错误
 func RangeArgs(min int, max int) PositionalArgs {
 	return func(cmd *Command, args []string) error {
 		if len(args) < min || len(args) > max {
@@ -110,7 +109,7 @@ func RangeArgs(min int, max int) PositionalArgs {
 	}
 }
 
-// MatchAll allows combining several PositionalArgs to work in concert.
+// MatchAll 允许将多个 PositionalArgs 组合在一起工作
 func MatchAll(pargs ...PositionalArgs) PositionalArgs {
 	return func(cmd *Command, args []string) error {
 		for _, parg := range pargs {
@@ -122,10 +121,9 @@ func MatchAll(pargs ...PositionalArgs) PositionalArgs {
 	}
 }
 
-// ExactValidArgs returns an error if there are not exactly N positional args OR
-// there are any positional args that are not in the `ValidArgs` field of `Command`
+// ExactValidArgs 如果位置参数不等于 N 个，或者存在任何不在 Command 的 ValidArgs 字段中的位置参数，则返回错误
 //
-// Deprecated: use MatchAll(ExactArgs(n), OnlyValidArgs) instead
+// 已弃用：请改用 MatchAll(ExactArgs(n), OnlyValidArgs)
 func ExactValidArgs(n int) PositionalArgs {
 	return MatchAll(ExactArgs(n), OnlyValidArgs)
 }

@@ -1,16 +1,14 @@
 // Copyright 2013-2023 The Cobra Authors
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// 根据 Apache 许可证第 2.0 版（"许可证"）许可；
+// 除非遵守许可证，否则不得使用此文件。
+// 您可以在以下地址获取许可证副本：
 //
 //      http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// 除非适用法律要求或书面同意，否则根据许可证分发的软件
+// 按"原样"分发，不提供任何明示或暗示的保证或条件。
+// 请参阅许可证了解具体的语言和权限限制。
 
 package cobra
 
@@ -21,48 +19,42 @@ import (
 	"os"
 )
 
-// GenZshCompletionFile generates zsh completion file including descriptions.
+// GenZshCompletionFile 生成带描述的 zsh 补全文件。
 func (c *Command) GenZshCompletionFile(filename string) error {
 	return c.genZshCompletionFile(filename, true)
 }
 
-// GenZshCompletion generates zsh completion file including descriptions
-// and writes it to the passed writer.
+// GenZshCompletion 生成带描述的 zsh 补全文件并写入传递的 writer。
 func (c *Command) GenZshCompletion(w io.Writer) error {
 	return c.genZshCompletion(w, true)
 }
 
-// GenZshCompletionFileNoDesc generates zsh completion file without descriptions.
+// GenZshCompletionFileNoDesc 生成不带描述的 zsh 补全文件。
 func (c *Command) GenZshCompletionFileNoDesc(filename string) error {
 	return c.genZshCompletionFile(filename, false)
 }
 
-// GenZshCompletionNoDesc generates zsh completion file without descriptions
-// and writes it to the passed writer.
+// GenZshCompletionNoDesc 生成不带描述的 zsh 补全文件并写入传递的 writer。
 func (c *Command) GenZshCompletionNoDesc(w io.Writer) error {
 	return c.genZshCompletion(w, false)
 }
 
-// MarkZshCompPositionalArgumentFile only worked for zsh and its behavior was
-// not consistent with Bash completion. It has therefore been disabled.
-// Instead, when no other completion is specified, file completion is done by
-// default for every argument. One can disable file completion on a per-argument
-// basis by using ValidArgsFunction and ShellCompDirectiveNoFileComp.
-// To achieve file extension filtering, one can use ValidArgsFunction and
-// ShellCompDirectiveFilterFileExt.
+// MarkZshCompPositionalArgumentFile 仅适用于 zsh，其行为与 Bash 补全不一致。
+// 因此已被禁用。
+// 默认情况下，当没有指定其他补全时，每个参数都会执行文件补全。
+// 可以使用 ValidArgsFunction 和 ShellCompDirectiveNoFileComp 按参数禁用文件补全。
+// 要实现文件扩展名过滤，可以使用 ValidArgsFunction 和 ShellCompDirectiveFilterFileExt。
 //
-// Deprecated
+// 已废弃
 func (c *Command) MarkZshCompPositionalArgumentFile(argPosition int, patterns ...string) error {
 	return nil
 }
 
-// MarkZshCompPositionalArgumentWords only worked for zsh. It has therefore
-// been disabled.
-// To achieve the same behavior across all shells, one can use
-// ValidArgs (for the first argument only) or ValidArgsFunction for
-// any argument (can include the first one also).
+// MarkZshCompPositionalArgumentWords 仅适用于 zsh。因此已被禁用。
+// 要在所有 shell 中实现相同的行为，可以使用
+// ValidArgs（仅适用于第一个参数）或 ValidArgsFunction 适用于任何参数（包括第一个）。
 //
-// Deprecated
+// 已废弃
 func (c *Command) MarkZshCompPositionalArgumentWords(argPosition int, words ...string) error {
 	return nil
 }

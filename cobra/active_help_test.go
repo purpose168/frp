@@ -1,16 +1,15 @@
 // Copyright 2013-2023 The Cobra Authors
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// 根据 Apache 许可证 2.0 版本（"许可证"）授权；
+// 除非遵守许可证，否则您不得使用此文件。
+// 您可以在以下位置获取许可证副本：
 //
 //      http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// 除非适用法律要求或书面同意，否则根据许可证分发的软件
+// 是按"原样"基础分发的，不附带任何明示或暗示的担保或条件。
+// 请参阅许可证中有关管理权限和
+// 限制的特定语言。
 
 package cobra
 
@@ -37,12 +36,12 @@ func TestActiveHelpAlone(t *testing.T) {
 		return comps, ShellCompDirectiveDefault
 	}
 
-	// Test that activeHelp can be added to a root command
+	// 测试 activeHelp 可以添加到根命令
 	rootCmd.ValidArgsFunction = activeHelpFunc
 
 	output, err := executeCommand(rootCmd, ShellCompNoDescRequestCmd, "")
 	if err != nil {
-		t.Errorf("Unexpected error: %v", err)
+		t.Errorf("意外的错误: %v", err)
 	}
 
 	expected := strings.Join([]string{
@@ -51,12 +50,12 @@ func TestActiveHelpAlone(t *testing.T) {
 		"Completion ended with directive: ShellCompDirectiveDefault", ""}, "\n")
 
 	if output != expected {
-		t.Errorf("expected: %q, got: %q", expected, output)
+		t.Errorf("预期: %q, 得到: %q", expected, output)
 	}
 
 	rootCmd.ValidArgsFunction = nil
 
-	// Test that activeHelp can be added to a child command
+	// 测试 activeHelp 可以添加到子命令
 	childCmd := &Command{
 		Use:   "thechild",
 		Short: "The child command",
@@ -68,7 +67,7 @@ func TestActiveHelpAlone(t *testing.T) {
 
 	output, err = executeCommand(rootCmd, ShellCompNoDescRequestCmd, "thechild", "")
 	if err != nil {
-		t.Errorf("Unexpected error: %v", err)
+		t.Errorf("意外的错误: %v", err)
 	}
 
 	expected = strings.Join([]string{
@@ -77,7 +76,7 @@ func TestActiveHelpAlone(t *testing.T) {
 		"Completion ended with directive: ShellCompDirectiveDefault", ""}, "\n")
 
 	if output != expected {
-		t.Errorf("expected: %q, got: %q", expected, output)
+		t.Errorf("预期: %q, 得到: %q", expected, output)
 	}
 }
 
@@ -94,7 +93,7 @@ func TestActiveHelpWithComps(t *testing.T) {
 	}
 	rootCmd.AddCommand(childCmd)
 
-	// Test that activeHelp can be added following other completions
+	// 测试 activeHelp 可以在其他补全之后添加
 	childCmd.ValidArgsFunction = func(cmd *Command, args []string, toComplete string) ([]string, ShellCompDirective) {
 		comps := []string{"first", "second"}
 		comps = AppendActiveHelp(comps, activeHelpMessage)
@@ -103,7 +102,7 @@ func TestActiveHelpWithComps(t *testing.T) {
 
 	output, err := executeCommand(rootCmd, ShellCompNoDescRequestCmd, "thechild", "")
 	if err != nil {
-		t.Errorf("Unexpected error: %v", err)
+		t.Errorf("意外的错误: %v", err)
 	}
 
 	expected := strings.Join([]string{
@@ -114,10 +113,10 @@ func TestActiveHelpWithComps(t *testing.T) {
 		"Completion ended with directive: ShellCompDirectiveDefault", ""}, "\n")
 
 	if output != expected {
-		t.Errorf("expected: %q, got: %q", expected, output)
+		t.Errorf("预期: %q, 得到: %q", expected, output)
 	}
 
-	// Test that activeHelp can be added preceding other completions
+	// 测试 activeHelp 可以在其他补全之前添加
 	childCmd.ValidArgsFunction = func(cmd *Command, args []string, toComplete string) ([]string, ShellCompDirective) {
 		var comps []string
 		comps = AppendActiveHelp(comps, activeHelpMessage)
@@ -127,7 +126,7 @@ func TestActiveHelpWithComps(t *testing.T) {
 
 	output, err = executeCommand(rootCmd, ShellCompNoDescRequestCmd, "thechild", "")
 	if err != nil {
-		t.Errorf("Unexpected error: %v", err)
+		t.Errorf("意外的错误: %v", err)
 	}
 
 	expected = strings.Join([]string{
@@ -138,10 +137,10 @@ func TestActiveHelpWithComps(t *testing.T) {
 		"Completion ended with directive: ShellCompDirectiveDefault", ""}, "\n")
 
 	if output != expected {
-		t.Errorf("expected: %q, got: %q", expected, output)
+		t.Errorf("预期: %q, 得到: %q", expected, output)
 	}
 
-	// Test that activeHelp can be added interleaved with other completions
+	// 测试 activeHelp 可以与其他补全交错添加
 	childCmd.ValidArgsFunction = func(cmd *Command, args []string, toComplete string) ([]string, ShellCompDirective) {
 		comps := []string{"first"}
 		comps = AppendActiveHelp(comps, activeHelpMessage)
@@ -151,7 +150,7 @@ func TestActiveHelpWithComps(t *testing.T) {
 
 	output, err = executeCommand(rootCmd, ShellCompNoDescRequestCmd, "thechild", "")
 	if err != nil {
-		t.Errorf("Unexpected error: %v", err)
+		t.Errorf("意外的错误: %v", err)
 	}
 
 	expected = strings.Join([]string{
@@ -162,7 +161,7 @@ func TestActiveHelpWithComps(t *testing.T) {
 		"Completion ended with directive: ShellCompDirectiveDefault", ""}, "\n")
 
 	if output != expected {
-		t.Errorf("expected: %q, got: %q", expected, output)
+		t.Errorf("预期: %q, 得到: %q", expected, output)
 	}
 }
 
@@ -179,7 +178,7 @@ func TestMultiActiveHelp(t *testing.T) {
 	}
 	rootCmd.AddCommand(childCmd)
 
-	// Test that multiple activeHelp message can be added
+	// 测试可以添加多条 activeHelp 消息
 	childCmd.ValidArgsFunction = func(cmd *Command, args []string, toComplete string) ([]string, ShellCompDirective) {
 		comps := AppendActiveHelp(nil, activeHelpMessage)
 		comps = AppendActiveHelp(comps, activeHelpMessage2)
@@ -188,7 +187,7 @@ func TestMultiActiveHelp(t *testing.T) {
 
 	output, err := executeCommand(rootCmd, ShellCompNoDescRequestCmd, "thechild", "")
 	if err != nil {
-		t.Errorf("Unexpected error: %v", err)
+		t.Errorf("意外的错误: %v", err)
 	}
 
 	expected := strings.Join([]string{
@@ -198,10 +197,10 @@ func TestMultiActiveHelp(t *testing.T) {
 		"Completion ended with directive: ShellCompDirectiveNoFileComp", ""}, "\n")
 
 	if output != expected {
-		t.Errorf("expected: %q, got: %q", expected, output)
+		t.Errorf("预期: %q, 得到: %q", expected, output)
 	}
 
-	// Test that multiple activeHelp messages can be used along with completions
+	// 测试多条 activeHelp 消息可以与补全一起使用
 	childCmd.ValidArgsFunction = func(cmd *Command, args []string, toComplete string) ([]string, ShellCompDirective) {
 		comps := []string{"first"}
 		comps = AppendActiveHelp(comps, activeHelpMessage)
@@ -212,7 +211,7 @@ func TestMultiActiveHelp(t *testing.T) {
 
 	output, err = executeCommand(rootCmd, ShellCompNoDescRequestCmd, "thechild", "")
 	if err != nil {
-		t.Errorf("Unexpected error: %v", err)
+		t.Errorf("意外的错误: %v", err)
 	}
 
 	expected = strings.Join([]string{
@@ -224,7 +223,7 @@ func TestMultiActiveHelp(t *testing.T) {
 		"Completion ended with directive: ShellCompDirectiveNoFileComp", ""}, "\n")
 
 	if output != expected {
-		t.Errorf("expected: %q, got: %q", expected, output)
+		t.Errorf("预期: %q, 得到: %q", expected, output)
 	}
 }
 
@@ -236,7 +235,7 @@ func TestActiveHelpForFlag(t *testing.T) {
 	flagname := "flag"
 	rootCmd.Flags().String(flagname, "", "A flag")
 
-	// Test that multiple activeHelp message can be added
+	// 测试可以添加多条 activeHelp 消息
 	_ = rootCmd.RegisterFlagCompletionFunc(flagname, func(cmd *Command, args []string, toComplete string) ([]string, ShellCompDirective) {
 		comps := []string{"first"}
 		comps = AppendActiveHelp(comps, activeHelpMessage)
@@ -247,7 +246,7 @@ func TestActiveHelpForFlag(t *testing.T) {
 
 	output, err := executeCommand(rootCmd, ShellCompNoDescRequestCmd, "--flag", "")
 	if err != nil {
-		t.Errorf("Unexpected error: %v", err)
+		t.Errorf("意外的错误: %v", err)
 	}
 
 	expected := strings.Join([]string{
@@ -259,7 +258,7 @@ func TestActiveHelpForFlag(t *testing.T) {
 		"Completion ended with directive: ShellCompDirectiveNoFileComp", ""}, "\n")
 
 	if output != expected {
-		t.Errorf("expected: %q, got: %q", expected, output)
+		t.Errorf("预期: %q, 得到: %q", expected, output)
 	}
 }
 
@@ -277,42 +276,42 @@ func TestConfigActiveHelp(t *testing.T) {
 	rootCmd.AddCommand(childCmd)
 
 	activeHelpCfg := "someconfig,anotherconfig"
-	// Set the variable that the user would be setting
+	// 设置用户将要设置的变量
 	os.Setenv(activeHelpEnvVar(rootCmd.Name()), activeHelpCfg)
 
 	childCmd.ValidArgsFunction = func(cmd *Command, args []string, toComplete string) ([]string, ShellCompDirective) {
 		receivedActiveHelpCfg := GetActiveHelpConfig(cmd)
 		if receivedActiveHelpCfg != activeHelpCfg {
-			t.Errorf("expected activeHelpConfig: %q, but got: %q", activeHelpCfg, receivedActiveHelpCfg)
+			t.Errorf("预期 activeHelpConfig: %q, 但得到: %q", activeHelpCfg, receivedActiveHelpCfg)
 		}
 		return nil, ShellCompDirectiveDefault
 	}
 
 	_, err := executeCommand(rootCmd, ShellCompNoDescRequestCmd, "thechild", "")
 	if err != nil {
-		t.Errorf("Unexpected error: %v", err)
+		t.Errorf("意外的错误: %v", err)
 	}
 
-	// Test active help config for a flag
+	// 测试标志的 active help 配置
 	activeHelpCfg = "a config for a flag"
-	// Set the variable that the completions scripts will be setting
+	// 设置补全脚本将要设置的变量
 	os.Setenv(activeHelpEnvVar(rootCmd.Name()), activeHelpCfg)
 
 	flagname := "flag"
 	childCmd.Flags().String(flagname, "", "A flag")
 
-	// Test that multiple activeHelp message can be added
+	// 测试可以添加多条 activeHelp 消息
 	_ = childCmd.RegisterFlagCompletionFunc(flagname, func(cmd *Command, args []string, toComplete string) ([]string, ShellCompDirective) {
 		receivedActiveHelpCfg := GetActiveHelpConfig(cmd)
 		if receivedActiveHelpCfg != activeHelpCfg {
-			t.Errorf("expected activeHelpConfig: %q, but got: %q", activeHelpCfg, receivedActiveHelpCfg)
+			t.Errorf("预期 activeHelpConfig: %q, 但得到: %q", activeHelpCfg, receivedActiveHelpCfg)
 		}
 		return nil, ShellCompDirectiveDefault
 	})
 
 	_, err = executeCommand(rootCmd, ShellCompNoDescRequestCmd, "thechild", "--flag", "")
 	if err != nil {
-		t.Errorf("Unexpected error: %v", err)
+		t.Errorf("意外的错误: %v", err)
 	}
 }
 
@@ -329,10 +328,8 @@ func TestDisableActiveHelp(t *testing.T) {
 	}
 	rootCmd.AddCommand(childCmd)
 
-	// Test the disabling of activeHelp using the specific program
-	// environment variable that the completions scripts will be setting.
-	// Make sure the disabling value is "0" by hard-coding it in the tests;
-	// this is for backwards-compatibility as programs will be using this value.
+	// 测试使用补全脚本将要设置的特定程序环境变量来禁用 activeHelp
+	// 通过在测试中硬编码禁用值 "0" 来确保它；这是为了向后兼容，因为程序将使用此值
 	os.Setenv(activeHelpEnvVar(rootCmd.Name()), "0")
 
 	childCmd.ValidArgsFunction = func(cmd *Command, args []string, toComplete string) ([]string, ShellCompDirective) {
@@ -343,58 +340,56 @@ func TestDisableActiveHelp(t *testing.T) {
 
 	output, err := executeCommand(rootCmd, ShellCompNoDescRequestCmd, "thechild", "")
 	if err != nil {
-		t.Errorf("Unexpected error: %v", err)
+		t.Errorf("意外的错误: %v", err)
 	}
 	os.Unsetenv(activeHelpEnvVar(rootCmd.Name()))
 
-	// Make sure there is no ActiveHelp in the output
+	// 确保输出中没有 ActiveHelp
 	expected := strings.Join([]string{
 		"first",
 		":0",
 		"Completion ended with directive: ShellCompDirectiveDefault", ""}, "\n")
 
 	if output != expected {
-		t.Errorf("expected: %q, got: %q", expected, output)
+		t.Errorf("预期: %q, 得到: %q", expected, output)
 	}
 
-	// Now test the global disabling of ActiveHelp
+	// 现在测试全局禁用 ActiveHelp
 	os.Setenv(activeHelpGlobalEnvVar, "0")
-	// Set the specific variable, to make sure it is ignored when the global env
-	// var is set properly
+	// 设置特定变量，以确保当全局环境变量正确设置时被忽略
 	os.Setenv(activeHelpEnvVar(rootCmd.Name()), "1")
 
 	output, err = executeCommand(rootCmd, ShellCompNoDescRequestCmd, "thechild", "")
 	if err != nil {
-		t.Errorf("Unexpected error: %v", err)
+		t.Errorf("意外的错误: %v", err)
 	}
 
-	// Make sure there is no ActiveHelp in the output
+	// 确保输出中没有 ActiveHelp
 	expected = strings.Join([]string{
 		"first",
 		":0",
 		"Completion ended with directive: ShellCompDirectiveDefault", ""}, "\n")
 
 	if output != expected {
-		t.Errorf("expected: %q, got: %q", expected, output)
+		t.Errorf("预期: %q, 得到: %q", expected, output)
 	}
 
-	// Make sure that if the global env variable is set to anything else than
-	// the disable value it is ignored
+	// 确保如果全局环境变量设置为禁用值以外的其他值，它将被忽略
 	os.Setenv(activeHelpGlobalEnvVar, "on")
-	// Set the specific variable, to make sure it is used (while ignoring the global env var)
+	// 设置特定变量，以确保它被使用（同时忽略全局环境变量）
 	activeHelpCfg := "1"
 	os.Setenv(activeHelpEnvVar(rootCmd.Name()), activeHelpCfg)
 
 	childCmd.ValidArgsFunction = func(cmd *Command, args []string, toComplete string) ([]string, ShellCompDirective) {
 		receivedActiveHelpCfg := GetActiveHelpConfig(cmd)
 		if receivedActiveHelpCfg != activeHelpCfg {
-			t.Errorf("expected activeHelpConfig: %q, but got: %q", activeHelpCfg, receivedActiveHelpCfg)
+			t.Errorf("预期 activeHelpConfig: %q, 但得到: %q", activeHelpCfg, receivedActiveHelpCfg)
 		}
 		return nil, ShellCompDirectiveDefault
 	}
 
 	_, err = executeCommand(rootCmd, ShellCompNoDescRequestCmd, "thechild", "")
 	if err != nil {
-		t.Errorf("Unexpected error: %v", err)
+		t.Errorf("意外的错误: %v", err)
 	}
 }

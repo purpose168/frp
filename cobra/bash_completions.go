@@ -1,16 +1,15 @@
 // Copyright 2013-2023 The Cobra Authors
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// 根据 Apache 许可证 2.0 版本（"许可证"）授权；
+// 除非遵守许可证，否则您不得使用此文件。
+// 您可以在以下位置获取许可证副本：
 //
 //      http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// 除非适用法律要求或书面同意，否则根据许可证分发的软件
+// 是按"原样"基础分发的，不附带任何明示或暗示的担保或条件。
+// 请参阅许可证中有关管理权限和
+// 限制的特定语言。
 
 package cobra
 
@@ -25,7 +24,7 @@ import (
 	"github.com/spf13/pflag"
 )
 
-// Annotations for Bash completion.
+// Bash 补全的注解
 const (
 	BashCompFilenameExt     = "cobra_annotation_bash_completion_filename_extensions"
 	BashCompCustom          = "cobra_annotation_bash_completion_custom"
@@ -532,15 +531,13 @@ func writeLocalNonPersistentFlag(buf io.StringWriter, flag *pflag.Flag) {
 	}
 }
 
-// prepareCustomAnnotationsForFlags setup annotations for go completions for registered flags
+// prepareCustomAnnotationsForFlags 为已注册标志的 go 补全设置注解
 func prepareCustomAnnotationsForFlags(cmd *Command) {
 	flagCompletionMutex.RLock()
 	defer flagCompletionMutex.RUnlock()
 	for flag := range flagCompletionFunctions {
-		// Make sure the completion script calls the __*_go_custom_completion function for
-		// every registered flag.  We need to do this here (and not when the flag was registered
-		// for completion) so that we can know the root command name for the prefix
-		// of __<prefix>_go_custom_completion
+		// 确保补全脚本为每个已注册的标志调用 __*_go_custom_completion 函数
+		// 我们需要在这里完成此操作（而不是在标志注册用于补全时）以便我们可以知道根命令名称作为 __<prefix>_go_custom_completion 的前缀
 		if flag.Annotations == nil {
 			flag.Annotations = map[string][]string{}
 		}
@@ -679,7 +676,7 @@ func gen(buf io.StringWriter, cmd *Command) {
 	WriteStringAndCheck(buf, "}\n\n")
 }
 
-// GenBashCompletion generates bash completion file and writes to the passed writer.
+// GenBashCompletion 生成 bash 补全文件并写入传入的写入器
 func (c *Command) GenBashCompletion(w io.Writer) error {
 	buf := new(bytes.Buffer)
 	writePreamble(buf, c.Name())
@@ -693,11 +690,12 @@ func (c *Command) GenBashCompletion(w io.Writer) error {
 	return err
 }
 
+// nonCompletableFlag 检查标志是否不可用于补全
 func nonCompletableFlag(flag *pflag.Flag) bool {
 	return flag.Hidden || len(flag.Deprecated) > 0
 }
 
-// GenBashCompletionFile generates bash completion file.
+// GenBashCompletionFile 生成 bash 补全文件
 func (c *Command) GenBashCompletionFile(filename string) error {
 	outFile, err := os.Create(filename)
 	if err != nil {
