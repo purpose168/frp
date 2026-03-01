@@ -2054,7 +2054,7 @@ func TestFlagCompletionWorksRootCommandAddedAfterFlags(t *testing.T) {
 		return []string{"myval"}, ShellCompDirectiveDefault
 	})
 
-	// Important: This is a test for https://github.com/spf13/cobra/issues/1437
+	// Important: This is a test for https://github.com/purpose168/frp/cobra/issues/1437
 	// Only add the subcommand after RegisterFlagCompletionFunc was called, do not change this order!
 	rootCmd.AddCommand(childCmd)
 
@@ -2110,7 +2110,7 @@ func TestFlagCompletionForPersistentFlagsCalledFromSubCmd(t *testing.T) {
 // This test tries to register flag completion concurrently to make sure the
 // code handles concurrency properly.
 // This was reported as a problem when tests are run concurrently:
-// https://github.com/spf13/cobra/issues/1320
+// https://github.com/purpose168/frp/cobra/issues/1320
 //
 // NOTE: this test can sometimes pass even if the code were to not handle
 // concurrency properly. This is not great but the important part is that
@@ -3580,7 +3580,7 @@ func TestCompletionCobraFlags(t *testing.T) {
 
 func TestArgsNotDetectedAsFlagsCompletionInGo(t *testing.T) {
 	// Regression test that ensures the bug described in
-	// https://github.com/spf13/cobra/issues/1816 does not occur anymore.
+	// https://github.com/purpose168/frp/cobra/issues/1816 does not occur anymore.
 
 	root := Command{
 		Use: "root",

@@ -137,17 +137,17 @@ func TestGenManSeeAlso(t *testing.T) {
 	scanner := bufio.NewScanner(buf)
 
 	if err := assertLineFound(scanner, ".SH SEE ALSO"); err != nil {
-		t.Fatalf("Couldn't find SEE ALSO section header: %v", err)
+		t.Fatalf("无法找到 SEE ALSO 部分标题: %v", err)
 	}
 	if err := assertNextLineEquals(scanner, `\fBroot-bbb(1)\fP, \fBroot-ccc(1)\fP`); err != nil {
-		t.Fatalf("Second line after SEE ALSO wasn't correct: %v", err)
+		t.Fatalf("SEE ALSO 后的第二行不正确: %v", err)
 	}
 }
 
 func TestManPrintFlagsHidesShortDeprecated(t *testing.T) {
 	c := &cobra.Command{}
 	c.Flags().StringP("foo", "f", "default", "Foo flag")
-	assertNoErr(t, c.Flags().MarkShorthandDeprecated("foo", "don't use it no more"))
+	assertNoErr(t, c.Flags().MarkShorthandDeprecated("foo", "请勿再使用此缩写"))
 
 	buf := new(bytes.Buffer)
 	manPrintFlags(buf, c.Flags())
@@ -155,7 +155,7 @@ func TestManPrintFlagsHidesShortDeprecated(t *testing.T) {
 	got := buf.String()
 	expected := "**--foo**=\"default\"\n\tFoo flag\n\n"
 	if got != expected {
-		t.Errorf("Expected %v, got %v", expected, got)
+		t.Errorf("期望 %v, 获取 %v", expected, got)
 	}
 }
 
@@ -164,20 +164,20 @@ func TestGenManTree(t *testing.T) {
 	header := &GenManHeader{Section: "2"}
 	tmpdir, err := os.MkdirTemp("", "test-gen-man-tree")
 	if err != nil {
-		t.Fatalf("Failed to create tmpdir: %s", err.Error())
+		t.Fatalf("创建临时目录失败: %s", err.Error())
 	}
 	defer os.RemoveAll(tmpdir)
 
 	if err := GenManTree(c, header, tmpdir); err != nil {
-		t.Fatalf("GenManTree failed: %s", err.Error())
+		t.Fatalf("GenManTree 失败: %s", err.Error())
 	}
 
 	if _, err := os.Stat(filepath.Join(tmpdir, "do.2")); err != nil {
-		t.Fatalf("Expected file 'do.2' to exist")
+		t.Fatalf("期望文件 'do.2' 存在")
 	}
 
 	if header.Title != "" {
-		t.Fatalf("Expected header.Title to be unmodified")
+		t.Fatalf("期望 header.Title 保持不变")
 	}
 }
 
@@ -190,10 +190,10 @@ func assertLineFound(scanner *bufio.Scanner, expectedLine string) error {
 	}
 
 	if err := scanner.Err(); err != nil {
-		return fmt.Errorf("scan failed: %s", err)
+		return fmt.Errorf("扫描失败: %s", err)
 	}
 
-	return fmt.Errorf("hit EOF before finding %v", expectedLine)
+	return fmt.Errorf("在找到 %v 之前到达文件末尾", expectedLine)
 }
 
 func assertNextLineEquals(scanner *bufio.Scanner, expectedLine string) error {
@@ -202,14 +202,14 @@ func assertNextLineEquals(scanner *bufio.Scanner, expectedLine string) error {
 		if line == expectedLine {
 			return nil
 		}
-		return fmt.Errorf("got %v, not %v", line, expectedLine)
+		return fmt.Errorf("获取 %v, 而不是 %v", line, expectedLine)
 	}
 
 	if err := scanner.Err(); err != nil {
-		return fmt.Errorf("scan failed: %v", err)
+		return fmt.Errorf("扫描失败: %v", err)
 	}
 
-	return fmt.Errorf("hit EOF before finding %v", expectedLine)
+	return fmt.Errorf("在找到 %v 之前到达文件末尾", expectedLine)
 }
 
 func BenchmarkGenManToFile(b *testing.B) {

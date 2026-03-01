@@ -13,7 +13,7 @@ Cobra 被许多 Go 项目使用，例如 [Kubernetes](https://kubernetes.io/)、
 [Hugo](https://gohugo.io) 和 [GitHub CLI](https://github.com/cli/cli) 等。
 [此列表](site/content/projects_using_cobra.md) 包含了更多使用 Cobra 的项目。
 
-[![](https://img.shields.io/github/actions/workflow/status/spf13/cobra/test.yml?branch=main&longCache=true&label=Test&logo=github%20actions&logoColor=fff)](https://github.com/spf13/cobra/actions?query=workflow%3ATest)
+[![](https://img.shields.io/github/actions/workflow/status/spf13/cobra/test.yml?branch=main&longCache=true&label=Test&logo=github%20actions&logoColor=fff)](https://github.com/purpose168/frp/cobra/actions?query=workflow%3ATest)
 [![Go Reference](https://pkg.go.dev/badge/github.com/spf13/cobra.svg)](https://pkg.go.dev/github.com/spf13/cobra)
 [![Go Report Card](https://goreportcard.com/badge/github.com/spf13/cobra)](https://goreportcard.com/report/github.com/spf13/cobra)
 [![Slack](https://img.shields.io/badge/Slack-cobra-brightgreen)](https://gophers.slack.com/archives/CD3LP1199)

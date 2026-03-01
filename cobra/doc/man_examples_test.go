@@ -16,8 +16,8 @@ import (
 	"bytes"
 	"fmt"
 
+	"github.com/purpose168/frp/cobra/doc"
 	"github.com/spf13/cobra"
-	"github.com/spf13/cobra/doc"
 )
 
 func ExampleGenManTree() {

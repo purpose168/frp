@@ -235,7 +235,7 @@ func TestRpad(t *testing.T) {
 // 由于 cobra 可以使用 text/template 模板，此测试检查在默认配置下，
 // 该代码路径是否能被链接器证明为不可达。
 //
-// 另请参阅：https://github.com/spf13/cobra/pull/1956
+// 另请参阅：https://github.com/purpose168/frp/cobra/pull/1956
 func TestDeadcodeElimination(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("go tool nm 在 windows 上失败")

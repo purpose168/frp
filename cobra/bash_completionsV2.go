@@ -273,7 +273,7 @@ __%[1]s_handle_completion_types() {
         # 类型：menu-complete/menu-complete-backward 和 insert-completions
         # 如果用户请求一次插入一个补全，或一次在命令行上插入所有
         # 补全，我们必须移除描述。
-        # https://github.com/spf13/cobra/issues/1508
+        # https://github.com/purpose168/frp/cobra/issues/1508
 
         # 如果没有补全，我们不需要做任何事
         (( ${#completions[@]} == 0 )) && return 0
